@@ -10,6 +10,8 @@ export const logout = () => axiosWrapper.post("/api/user/logout");
 
 // Table Endpoints
 export const addTable = (data) => axiosWrapper.post("/api/table/", data);
+export const freeTable = (tableId) =>
+  axiosWrapper.put(`/api/table/free/${tableId}`);
 export const getTables = () => axiosWrapper.get("/api/table");
 export const updateTable = ({ tableId, ...tableData }) =>
   axiosWrapper.put(`/api/table/${tableId}`, tableData);

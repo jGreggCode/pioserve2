@@ -9,9 +9,9 @@ import { getTables } from "../https";
 const Tables = () => {
   const [status, setStatus] = useState("all");
 
-    useEffect(() => {
-      document.title = "POS | Tables"
-    }, [])
+  useEffect(() => {
+    document.title = "POS | Tables";
+  }, []);
 
   const { data: resData, isError } = useQuery({
     queryKey: ["tables"],
@@ -21,8 +21,8 @@ const Tables = () => {
     placeholderData: keepPreviousData,
   });
 
-  if(isError) {
-    enqueueSnackbar("Something went wrong!", { variant: "error" })
+  if (isError) {
+    enqueueSnackbar("Something went wrong!", { variant: "error" });
   }
 
   console.log(resData);
@@ -60,6 +60,7 @@ const Tables = () => {
         {resData?.data.data.map((table) => {
           return (
             <TableCard
+              key={table._id}
               id={table._id}
               name={table.tableNo}
               status={table.status}

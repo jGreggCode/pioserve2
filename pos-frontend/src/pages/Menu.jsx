@@ -9,10 +9,9 @@ import Bill from "../components/menu/Bill";
 import { useSelector } from "react-redux";
 
 const Menu = () => {
-
-    useEffect(() => {
-      document.title = "POS | Menu"
-    }, [])
+  useEffect(() => {
+    document.title = "POS | Menu";
+  }, []);
 
   const customerData = useSelector((state) => state.customer);
 
