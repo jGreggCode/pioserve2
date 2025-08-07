@@ -26,18 +26,18 @@ const RecentOrders = () => {
             Recent Orders
           </h1>
           <a href="" className="text-[#025cca] text-sm font-semibold">
-            View all
+            Orders Today
           </a>
         </div>
 
-        <div className="flex items-center gap-4 bg-[#1f1f1f] rounded-[15px] px-6 py-4 mx-6">
+        {/* <div className="flex items-center gap-4 bg-[#1f1f1f] rounded-[15px] px-6 py-4 mx-6">
           <FaSearch className="text-[#f5f5f5]" />
           <input
             type="text"
             placeholder="Search recent orders"
             className="bg-[#1f1f1f] outline-none text-[#f5f5f5]"
           />
-        </div>
+        </div> */}
 
         {/* Order list */}
         <div className="mt-4 px-6 overflow-y-scroll h-[300px] scrollbar-hide">

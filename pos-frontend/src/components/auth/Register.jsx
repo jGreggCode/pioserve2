@@ -3,7 +3,7 @@ import { register } from "../../https";
 import { useMutation } from "@tanstack/react-query";
 import { enqueueSnackbar } from "notistack";
 
-const Register = ({setIsRegister}) => {
+const Register = ({ setIsRegister }) => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -12,8 +12,11 @@ const Register = ({setIsRegister}) => {
     role: "",
   });
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleInputChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
   };
 
   const handleRoleSelection = (selectedRole) => {
@@ -37,7 +40,7 @@ const Register = ({setIsRegister}) => {
         password: "",
         role: "",
       });
-      
+
       setTimeout(() => {
         setIsRegister(false);
       }, 1500);
@@ -53,15 +56,15 @@ const Register = ({setIsRegister}) => {
     <div>
       <form onSubmit={handleSubmit}>
         <div>
-          <label className="block text-[#ababab] mb-2 text-sm font-medium">
+          <label className="block text-[#ababab] mb-2 text-sm font-semibold">
             Employee Name
           </label>
-          <div className="flex item-center rounded-lg p-5 px-4 bg-[#1f1f1f]">
+          <div className="flex items-center rounded-lg p-5 px-4 bg-[#1f1f1f]">
             <input
               type="text"
               name="name"
               value={formData.name}
-              onChange={handleChange}
+              onChange={handleInputChange}
               placeholder="Enter employee name"
               className="bg-transparent flex-1 text-white focus:outline-none"
               required
@@ -69,15 +72,15 @@ const Register = ({setIsRegister}) => {
           </div>
         </div>
         <div>
-          <label className="block text-[#ababab] mb-2 mt-3 text-sm font-medium">
+          <label className="block text-[#ababab] mb-2 mt-3 text-sm font-semibold">
             Employee Email
           </label>
-          <div className="flex item-center rounded-lg p-5 px-4 bg-[#1f1f1f]">
+          <div className="flex items-center rounded-lg p-5 px-4 bg-[#1f1f1f]">
             <input
               type="email"
               name="email"
               value={formData.email}
-              onChange={handleChange}
+              onChange={handleInputChange}
               placeholder="Enter employee email"
               className="bg-transparent flex-1 text-white focus:outline-none"
               required
@@ -85,15 +88,15 @@ const Register = ({setIsRegister}) => {
           </div>
         </div>
         <div>
-          <label className="block text-[#ababab] mb-2 mt-3 text-sm font-medium">
+          <label className="block text-[#ababab] mb-2 mt-3 text-sm font-semibold">
             Employee Phone
           </label>
-          <div className="flex item-center rounded-lg p-5 px-4 bg-[#1f1f1f]">
+          <div className="flex items-center rounded-lg p-5 px-4 bg-[#1f1f1f]">
             <input
               type="number"
               name="phone"
               value={formData.phone}
-              onChange={handleChange}
+              onChange={handleInputChange}
               placeholder="Enter employee phone"
               className="bg-transparent flex-1 text-white focus:outline-none"
               required
@@ -101,15 +104,15 @@ const Register = ({setIsRegister}) => {
           </div>
         </div>
         <div>
-          <label className="block text-[#ababab] mb-2 mt-3 text-sm font-medium">
+          <label className="block text-[#ababab] mb-2 mt-3 text-sm font-semibold">
             Password
           </label>
-          <div className="flex item-center rounded-lg p-5 px-4 bg-[#1f1f1f]">
+          <div className="flex items-center rounded-lg p-5 px-4 bg-[#1f1f1f]">
             <input
               type="password"
               name="password"
               value={formData.password}
-              onChange={handleChange}
+              onChange={handleInputChange}
               placeholder="Enter password"
               className="bg-transparent flex-1 text-white focus:outline-none"
               required
@@ -121,15 +124,15 @@ const Register = ({setIsRegister}) => {
             Choose your role
           </label>
 
-          <div className="flex item-center gap-3 mt-4">
-            {["Waiter", "Cashier", "Admin"].map((role) => {
+          <div className="flex items-center gap-3 mt-4">
+            {["Waiter", "Cashier", "Chef", "Admin"].map((role) => {
               return (
                 <button
                   key={role}
                   type="button"
                   onClick={() => handleRoleSelection(role)}
                   className={`bg-[#1f1f1f] px-4 py-3 w-full rounded-lg text-[#ababab] ${
-                    formData.role === role ? "bg-indigo-700" : ""
+                    formData.role === role ? "bg-primary text-white" : ""
                   }`}
                 >
                   {role}
@@ -141,7 +144,7 @@ const Register = ({setIsRegister}) => {
 
         <button
           type="submit"
-          className="w-full rounded-lg mt-6 py-3 text-lg bg-yellow-400 text-gray-900 font-bold"
+          className="w-full rounded-lg mt-6 py-3 text-lg bg-primary text-gray-900 font-bold"
         >
           Sign up
         </button>

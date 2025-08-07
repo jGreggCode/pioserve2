@@ -9,15 +9,24 @@ import { Home, Auth, Orders, Tables, Menu, Dashboard } from "./pages";
 import Header from "./components/shared/Header";
 import { useSelector } from "react-redux";
 import useLoadData from "./hooks/useLoadData";
-import FullScreenLoader from "./components/shared/FullScreenLoader"
+import FullScreenLoader from "./components/shared/FullScreenLoader";
 
 function Layout() {
   const isLoading = useLoadData();
   const location = useLocation();
   const hideHeaderRoutes = ["/auth"];
-  const { isAuth } = useSelector(state => state.user);
+  const { isAuth } = useSelector((state) => state.user);
+  const userData = useSelector((state) => state.user);
+  let isAdmin = false;
+  let isChef = false;
 
-  if(isLoading) return <FullScreenLoader />
+  if (userData.role === "Admin") {
+    isAdmin = true;
+  } else if (userData.role === "Chef") {
+    isChef = true;
+  }
+
+  if (isLoading) return <FullScreenLoader />;
 
   return (
     <>
@@ -59,9 +68,13 @@ function Layout() {
         <Route
           path="/dashboard"
           element={
-            <ProtectedRoutes>
-              <Dashboard />
-            </ProtectedRoutes>
+            isAdmin || isChef ? (
+              <ProtectedRoutes>
+                <Dashboard />
+              </ProtectedRoutes>
+            ) : (
+              <Navigate to="/" />
+            )
           }
         />
         <Route path="*" element={<div>Not Found</div>} />
@@ -72,10 +85,17 @@ function Layout() {
 
 function ProtectedRoutes({ children }) {
   const { isAuth } = useSelector((state) => state.user);
+  const userData = useSelector((state) => state.user);
+
+  let isChef = false;
+
+  if (userData.role === "Chef") {
+    isChef = true;
+  }
+
   if (!isAuth) {
     return <Navigate to="/auth" />;
   }
-
   return children;
 }
 

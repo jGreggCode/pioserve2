@@ -66,51 +66,53 @@ const RecentOrders = () => {
             </tr>
           </thead>
           <tbody>
-            {resData?.data.data.map((order, index) => (
-              <tr
-                key={index}
-                className="border-b border-gray-600 hover:bg-[#333]"
-              >
-                <td className="p-4">
-                  #{Math.floor(new Date(order.orderDate).getTime())}
-                </td>
-                <td className="p-4">{order.customerDetails.name}</td>
-                <td className="p-4">
-                  <select
-                    className={`bg-[#1a1a1a] text-[#f5f5f5] border border-gray-500 p-2 rounded-lg focus:outline-none ${
-                      order.orderStatus === "Ready"
-                        ? "text-green-500"
-                        : "text-yellow-500"
-                    }`}
-                    value={order.orderStatus}
-                    onChange={(e) =>
-                      handleStatusChange({
-                        orderId: order._id,
-                        orderStatus: e.target.value,
-                      })
-                    }
-                  >
-                    <option className="text-yellow-500" value="In Progress">
-                      In Progress
-                    </option>
-                    <option className="text-green-500" value="Ready">
-                      Ready
-                    </option>
-                  </select>
-                </td>
-                <td className="p-4">{formatDateAndTime(order.orderDate)}</td>
-                <td className="p-4">
-                  {order.items.map((item, index) => (
-                    <div key={item.id}>
-                      {item.name} {item.quantity}x
-                    </div>
-                  ))}
-                </td>
-                <td className="p-4">Table - {order.table.tableNo}</td>
-                <td className="p-4">₹{order.bills.totalWithTax}</td>
-                <td className="p-4">{order.paymentMethod}</td>
-              </tr>
-            ))}
+            {resData?.data.data
+              .sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate))
+              .map((order, index) => (
+                <tr
+                  key={index}
+                  className="border-b border-gray-600 hover:bg-[#333]"
+                >
+                  <td className="p-4">
+                    #{Math.floor(new Date(order.orderDate).getTime())}
+                  </td>
+                  <td className="p-4">{order.customerDetails.name}</td>
+                  <td className="p-4">
+                    <select
+                      className={`bg-[#1a1a1a] text-[#f5f5f5] border border-gray-500 p-2 rounded-lg focus:outline-none ${
+                        order.orderStatus === "Ready"
+                          ? "text-green-500"
+                          : "text-yellow-500"
+                      }`}
+                      value={order.orderStatus}
+                      onChange={(e) =>
+                        handleStatusChange({
+                          orderId: order._id,
+                          orderStatus: e.target.value,
+                        })
+                      }
+                    >
+                      <option className="text-yellow-500" value="In Progress">
+                        In Progress
+                      </option>
+                      <option className="text-green-500" value="Ready">
+                        Ready
+                      </option>
+                    </select>
+                  </td>
+                  <td className="p-4">{formatDateAndTime(order.orderDate)}</td>
+                  <td className="p-4">
+                    {order.items.map((item, index) => (
+                      <div key={item.id}>
+                        {item.name} {item.quantity}x
+                      </div>
+                    ))}
+                  </td>
+                  <td className="p-4">Table - {order.table.tableNo}</td>
+                  <td className="p-4">₹{order.bills.totalWithTax}</td>
+                  <td className="p-4">{order.paymentMethod}</td>
+                </tr>
+              ))}
           </tbody>
         </table>
       </div>

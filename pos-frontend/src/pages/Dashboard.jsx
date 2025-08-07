@@ -4,6 +4,7 @@ import { BiSolidDish } from "react-icons/bi";
 import Metrics from "../components/dashboard/Metrics";
 import RecentOrders from "../components/dashboard/RecentOrders";
 import Modal from "../components/dashboard/Modal";
+import { useSelector } from "react-redux";
 
 const buttons = [
   { label: "Add Table", icon: <MdTableBar />, action: "table" },
@@ -12,12 +13,19 @@ const buttons = [
 ];
 
 const tabs = ["Metrics", "Orders", "Payments"];
+const chefTabs = ["Orders"];
 
 const Dashboard = () => {
+  const userData = useSelector((state) => state.user);
+  let isChef = false;
+
+  if (userData.role === "Chef") {
+    isChef = true;
+  }
 
   useEffect(() => {
-    document.title = "POS | Admin Dashboard"
-  }, [])
+    document.title = "Pioserve | Admin Dashboard";
+  }, []);
 
   const [isTableModalOpen, setIsTableModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("Metrics");
@@ -27,50 +35,66 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="bg-[#1f1f1f] h-[calc(100vh-5rem)]">
-      <div className="container mx-auto flex items-center justify-between py-14 px-6 md:px-4">
-        <div className="flex items-center gap-3">
-          {buttons.map(({ label, icon, action }) => {
-            return (
-              <button
-                onClick={() => handleOpenModal(action)}
-                className="bg-[#1a1a1a] hover:bg-[#262626] px-8 py-3 rounded-lg text-[#f5f5f5] font-semibold text-md flex items-center gap-2"
-              >
-                {label} {icon}
-              </button>
-            );
-          })}
-        </div>
+    <>
+      {isChef ? (
+        <div className="bg-[#1f1f1f] h-[calc(100vh-5rem)]">
+          <div className="container mx-auto flex items-center justify-between py-14 md:px-4">
+            <div className="text-white container mx-auto">
+              <h1 className="text-2xl">Orders</h1>
+            </div>
+          </div>
 
-        <div className="flex items-center gap-3">
-          {tabs.map((tab) => {
-            return (
-              <button
-                className={`
+          <RecentOrders />
+        </div>
+      ) : (
+        <div className="bg-[#1f1f1f] h-[calc(100vh-5rem)]">
+          <div className="container mx-auto flex items-center justify-between py-14 px-6 md:px-4">
+            <div className="flex items-center gap-3">
+              {buttons.map(({ label, icon, action }) => {
+                return (
+                  <button
+                    onClick={() => handleOpenModal(action)}
+                    className="bg-[#1a1a1a] hover:bg-[#262626] px-8 py-3 rounded-lg text-[#f5f5f5] font-semibold text-md flex items-center gap-2"
+                  >
+                    {label} {icon}
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="flex items-center gap-3">
+              {tabs.map((tab) => {
+                return (
+                  <button
+                    className={`
                 px-8 py-3 rounded-lg text-[#f5f5f5] font-semibold text-md flex items-center gap-2 ${
                   activeTab === tab
                     ? "bg-[#262626]"
                     : "bg-[#1a1a1a] hover:bg-[#262626]"
                 }`}
-                onClick={() => setActiveTab(tab)}
-              >
-                {tab}
-              </button>
-            );
-          })}
-        </div>
-      </div>
+                    onClick={() => setActiveTab(tab)}
+                  >
+                    {tab}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
 
-      {activeTab === "Metrics" && <Metrics />}
-      {activeTab === "Orders" && <RecentOrders />}
-      {activeTab === "Payments" && 
-        <div className="text-white p-6 container mx-auto">
-          Payment Component Coming Soon
-        </div>
-      }
+          {activeTab === "Metrics" && <Metrics />}
+          {activeTab === "Orders" && <RecentOrders />}
+          {activeTab === "Payments" && (
+            <div className="text-white p-6 container mx-auto">
+              Payment Component Coming Soon
+            </div>
+          )}
 
-      {isTableModalOpen && <Modal setIsTableModalOpen={setIsTableModalOpen} />}
-    </div>
+          {isTableModalOpen && (
+            <Modal setIsTableModalOpen={setIsTableModalOpen} />
+          )}
+        </div>
+      )}
+    </>
   );
 };
 
