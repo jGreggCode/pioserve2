@@ -91,11 +91,18 @@ function ProtectedRoutes({ children }) {
 
   if (userData.role === "Chef") {
     isChef = true;
+    
   }
 
   if (!isAuth) {
     return <Navigate to="/auth" />;
   }
+
+  // If the user is a Chef and tries to access any route except /dashboard
+  if (isChef && window.location.pathname !== "/dashboard") {
+    return <Navigate to="/dashboard" />;
+  }
+  
   return children;
 }
 

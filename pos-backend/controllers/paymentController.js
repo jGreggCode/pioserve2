@@ -16,7 +16,6 @@ const createOrder = async (req, res, next) => {
       currency: "INR",
       receipt: `receipt_${Date.now()}`,
     };
-
     const order = await razorpay.orders.create(options);
     res.status(200).json({ success: true, order });
   } catch (error) {

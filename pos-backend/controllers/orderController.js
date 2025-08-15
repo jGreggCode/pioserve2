@@ -37,7 +37,16 @@ const getOrderById = async (req, res, next) => {
 
 const getOrders = async (req, res, next) => {
   try {
-    const orders = await Order.find().populate("table");
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0); // Midnight today
+
+    const endOfDay = new Date(startOfDay);
+    endOfDay.setDate(endOfDay.getDate() + 1); // Midnight tomorrow
+
+    const orders = await Order.find({
+      createdAt: { $gte: startOfDay, $lt: endOfDay }
+    }).populate("table");
+
     res.status(200).json({ data: orders });
   } catch (error) {
     next(error);

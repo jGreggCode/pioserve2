@@ -16,6 +16,9 @@ export const getTables = () => axiosWrapper.get("/api/table");
 export const updateTable = ({ tableId, ...tableData }) =>
   axiosWrapper.put(`/api/table/${tableId}`, tableData);
 
+// Dish Endpoints
+export const addDish = (data) => axiosWrapper.post("/api/dish/", data);
+
 // Payment Endpoints
 export const createOrderRazorpay = (data) =>
   axiosWrapper.post("/api/payment/create-order", data);

@@ -8,67 +8,79 @@ import paneerTikka from '../assets/images/paneer-tika.webp';
 import gulabJamun from '../assets/images/gulab-jamun.webp';
 import pooriSabji from '../assets/images/poori-sabji.webp';
 import roganJosh from '../assets/images/rogan-josh.jpg';
-import { color } from 'framer-motion';
+
+// Top Dish Images
+const bakedSalmon = "/Dishes/Mains/Baked Salmon Florentine.jpg";
+const beefSalpicao = "/Dishes/Mains/Beef Salpicao.jpg";
+const chickenMarsala = "/Dishes/Mains/Chicken Marsala.jpg"
+const brie = "/Dishes/Cold Cuts and Cheese/Brie.jpg"
+const bakedBrie = "/Dishes/Starters/Baked Brie.jpg"
+const calamari = "/Dishes/Starters/Calamari.jpg"
+const croquettasPollo = "/Dishes/Starters/Croquettas Pollo.jpg"
+const croquettasTrufa = "/Dishes/Starters/Croquettas Trufa.jpg"
+const jardinCharcuterie = "/Dishes/Starters/Jardin Charcuterie.jpg"
+const panDeAjo = "/Dishes/Starters/Pan de ajo.jpg"
+// import { color } from 'framer-motion';
 
 export const popularDishes = [
     {
       id: 1,
-      image: butterChicken,
-      name: 'Butter Chicken',
+      image: bakedSalmon,
+      name: 'Baked Salmon Florentine',
       numberOfOrders: 250,
     },
     {
       id: 2,
-      image: palakPaneer,
-      name: 'Palak Paneer',
+      image: beefSalpicao,
+      name: 'Beef Salpicao',
       numberOfOrders: 190,
     },
     {
       id: 3,
-      image: biryani,
-      name: 'Hyderabadi Biryani',
+      image: chickenMarsala,
+      name: 'Chicken Marsala',
       numberOfOrders: 300,
     },
     {
       id: 4,
-      image: masalaDosa,
-      name: 'Masala Dosa',
+      image: brie,
+      name: 'Brie',
       numberOfOrders: 220,
     },
     {
       id: 5,
-      image: choleBhature,
-      name: 'Chole Bhature',
+      image: bakedBrie,
+      name: 'Baked Brie',
       numberOfOrders: 270,
     },
     {
       id: 6,
-      image: rajmaChawal,
-      name: 'Rajma Chawal',
+      image: calamari,
+      name: 'Calamari',
       numberOfOrders: 180,
     },
     {
       id: 7,
-      image: paneerTikka,
-      name: 'Paneer Tikka',
+      image: croquettasPollo,
+      name: 'Croquettas Pollo',
       numberOfOrders: 210,
     },
     {
       id: 8,
-      image: gulabJamun,
-      name: 'Gulab Jamun',
+      image: croquettasTrufa,
+      name: 'Croquettas Trufa',
       numberOfOrders: 310,
     },
     {
       id: 9,
-      image: pooriSabji,
-      name: 'Poori Sabji',
+      image: jardinCharcuterie,
+      name: 'Jardin Charcuterie',
       numberOfOrders: 140,
     },
     {
       id: 10,
-      image: roganJosh,
-      name: 'Rogan Josh',
+      image: panDeAjo,
+      name: 'Pan De Ajo',
       numberOfOrders: 160,
     },
   ];
@@ -95,8 +107,8 @@ export const tables = [
 export const startersItem = [
     {
       id: 1,
-      name: "Paneer Tikka",
-      price: 250,
+      name: "Pan de Ajo",
+      price: 298,
       category: "Vegetarian"
     },
     {
@@ -368,16 +380,378 @@ export const salads = [
   }
 ];
 
+export const hotBeverages = [
+  {
+    id: 1,
+    name: "Espresso",
+    price: 90,
+    category: "Coffee Based"
+  }, 
+  {
+    id: 2,
+    name: "Espresso con Panna",
+    price: 108,
+    category: "Coffee Based"
+  }, 
+  {
+    id: 3,
+    name: "Espresso Machiatto",
+    price: 108,
+    category: "Coffee Based"
+  }, 
+  {
+    id: 4,
+    name: "Americano",
+    price: 108,
+    category: "Coffee Based"
+  },
+  {
+    id: 5,
+    name: "Capuccino",
+    price: 128,
+    category: "Coffee Based"
+  },
+  {
+    id: 6,
+    name: "Cafe Latte",
+    price: 148,
+    category: "Coffee Based"
+  },
+  {
+    id: 7,
+    name: "Caramel Machiatto",
+    price: 158,
+    category: "Coffee Based"
+  },
+  {
+    id: 8,
+    name: "Cafe Con Tros Leches",
+    price: 168,
+    category: "Coffee Based"
+  },
+  {
+    id: 9,
+    name: "Cafe Bombon",
+    price: 158,
+    category: "Coffee Based"
+  },
+  
+  {
+    id: 10,
+    name: "White Mocha",
+    price: 168,
+    category: "Coffee Based"
+  },
+  
+  {
+    id: 11,
+    name: "Black Nutty Latte",
+    price: 168,
+    category: "Coffee Based"
+  },
+  {
+    id: 12,
+    name: "Biscof Latte",
+    price: 168,
+    category: "Coffee Based"
+  },
+  {
+    id: 13,
+    name: "Creamy Hot Chocolate",
+    price: 208,
+    category: "Non Coffee Based"
+  },
+  {
+    id: 14,
+    name: "Nutella Hot Chocolate",
+    price: 168,
+    category: "Non Coffee Based"
+  },
+  {
+    id: 15,
+    name: "Spanish Flaming Coffee",
+    price: 280,
+    category: "Alcohol Based Coffee"
+  },
+  {
+    id: 16,
+    name: "Padre Pio Flaming Coffee",
+    price: 280,
+    category: "Alcohol Based Coffee"
+  },
+  {
+    id: 17,
+    name: "Itallian Falming Coffee",
+    price: 280,
+    category: "Alcohol Based Coffee"
+  },
+]
+
+export const coldBeverages = [
+  {
+    id: 1,
+    name: "Shakerato",
+    price: 178,
+    category: "Coffee Based"
+  }, 
+  {
+    id: 2,
+    name: "Black Mocha Mint",
+    price: 188,
+    category: "Coffee Based"
+  }, 
+  {
+    id: 3,
+    name: "Iced Caramel Machiatto",
+    price: 178,
+    category: "Coffee Based"
+  }, 
+  {
+    id: 4,
+    name: "Iced Nutty Biscof Latte",
+    price: 188,
+    category: "Coffee Based"
+  }, 
+  {
+    id: 5,
+    name: "Coke",
+    price: 80,
+    category: "Soda"
+  }, 
+  {
+    id: 6,
+    name: "Coke Zero",
+    price: 80,
+    category: "Soda"
+  }, 
+  {
+    id: 7,
+    name: "Sprite",
+    price: 80,
+    category: "Soda"
+  }, 
+  {
+    id: 8,
+    name: "Royal",
+    price: 80,
+    category: "Soda"
+  }, 
+  {
+    id: 9,
+    name: "Ginger Ale",
+    price: 120,
+    category: "Soda"
+  }, 
+  {
+    id: 10,
+    name: "Aranciata",
+    price: 150,
+    category: "Soda"
+  }, 
+  {
+    id: 11,
+    name: "Aranciata Rossa",
+    price: 150,
+    category: "Soda"
+  }, 
+  {
+    id: 12,
+    name: "Limonata",
+    price: 150,
+    category: "Soda"
+  }, 
+  {
+    id: 13,
+    name: "Acqua Panna 500ml",
+    price: 150,
+    category: "Water"
+  }, 
+  {
+    id: 14,
+    name: "Bottled Water 500ml",
+    price: 40,
+    category: "Soda"
+  }, 
+  {
+    id: 15,
+    name: "San Pollogrino 500ml",
+    price: 160,
+    category: "Soda"
+  }, 
+]
+
+export const juiceAndShakes = [
+  {
+    id: 1,
+    name: "Mango",
+    price: 188,
+    category: "Fruit Shakes"
+  }, 
+  {
+    id: 2,
+    name: "Banana",
+    price: 288,
+    category: "Fruit Shakes"
+  }, 
+  {
+    id: 3,
+    name: "Watermelon",
+    price: 188,
+    category: "Fruit Shakes"
+  }, 
+  {
+    id: 4,
+    name: "Dalandan",
+    price: 188,
+    category: "Fruit Shakes"
+  },
+  {
+    id: 5,
+    name: "Strawberry",
+    price: 188,
+    category: "Fruit Shakes"
+  }, 
+  {
+    id: 6,
+    name: "Mango",
+    price: 188,
+    category: "Fruit Juice"
+  }, 
+  {
+    id: 7,
+    name: "Orange",
+    price: 188,
+    category: "Fruit Juice"
+  }, 
+  {
+    id: 8,
+    name: "Lemonade",
+    price: 188,
+    category: "Fruit Juice"
+  }, 
+  {
+    id: 9,
+    name: "Grapefruit",
+    price: 188,
+    category: "Fruit Juice"
+  }, 
+  {
+    id: 10,
+    name: "Green Apple",
+    price: 188,
+    category: "Fruit Juice"
+  }, 
+  {
+    id: 11,
+    name: "Dalandan",
+    price: 188,
+    category: "Fruit Juice"
+  },  
+  {
+    id: 12,
+    name: "Limonata",
+    price: 180,
+    category: "Limonata Alla Fruta"
+  }, 
+  {
+    id: 13,
+    name: "Limonada",
+    price: 180,
+    category: "Limonata Alla Fruta"
+  },  
+  {
+    id: 14,
+    name: "Maracuja Pompelmo",
+    price: 190,
+    category: "Limonata Alla Fruta"
+  },  
+  {
+    id: 15,
+    name: "Mango Posca",
+    price: 190,
+    category: "Limonata Alla Fruta"
+  },  
+  {
+    id: 16,
+    name: "Fragola Basillico",
+    price: 190,
+    category: "Limonata Alla Fruta"
+  },  
+  {
+    id: 17,
+    name: "Fragola Pompelmo",
+    price: 190,
+    category: "Limonata Alla Fruta"
+  }, 
+]
+
+export const alcoholDrinks = [
+  {
+    id: 1,
+    name: "Corona (Mexico)",
+    price: 220,
+    category: "Beer"
+  }, 
+  {
+    id: 2,
+    name: "Peroni (Italy)",
+    price: 220,
+    category: "Beer"
+  }, 
+  {
+    id: 3,
+    name: "Corona (Mexico)",
+    price: 220,
+    category: "Beer"
+  }, 
+  {
+    id: 4,
+    name: "Corona (Mexico)",
+    price: 220,
+    category: "Beer"
+  }, 
+  {
+    id: 5,
+    name: "Corona (Mexico)",
+    price: 220,
+    category: "Beer"
+  }, 
+  {
+    id: 6,
+    name: "Corona (Mexico)",
+    price: 220,
+    category: "Beer"
+  }, 
+  {
+    id: 7,
+    name: "Corona (Mexico)",
+    price: 220,
+    category: "Beer"
+  }, 
+  {
+    id: 8,
+    name: "Corona (Mexico)",
+    price: 220,
+    category: "Beer"
+  }, 
+]
 
 export const menus = [
-  { id: 1, name: "Starters", bgColor: "#b73e3e" ,icon: "🍲", items: startersItem },
-  { id: 2, name: "Main Course", bgColor: "#5b45b0" ,icon: "🍛", items: mainCourse },
-  { id: 3, name: "Beverages", bgColor: "#7f167f" ,icon: "🍹", items: beverages },
-  { id: 4, name: "Soups", bgColor: "#735f32" ,icon: "🍜", items: soups },
-  { id: 5, name: "Desserts", bgColor: "#1d2569" ,icon: "🍰", items: desserts },
-  { id: 6, name: "Pizzas", bgColor: "#285430" ,icon: "🍕", items: pizzas },
-  { id: 7, name: "Alcoholic Drinks", bgColor: "#b73e3e" ,icon: "🍺", items: alcoholicDrinks },
-  { id: 8, name: "Salads", bgColor: "#5b45b0" ,icon: "🥗", items: salads }
+  { id: 1, name: "Hot Beverages", bgColor: "#f56f21" ,icon: "", items: hotBeverages },
+  { id: 2, name: "Cold Beverages", bgColor: "#f56f21" ,icon: "", items: coldBeverages },
+  { id: 3, name: "Juice & Shakes", bgColor: "#f56f21" ,icon: "", items: juiceAndShakes },
+  { id: 4, name: "Alcohol Drinks", bgColor: "#f56f21" ,icon: "", items: alcoholDrinks },
+  { id: 5, name: "Cocktails", bgColor: "#f56f21" ,icon: "", items: desserts },
+  { id: 6, name: "Dessers", bgColor: "#f56f21" ,icon: "", items: pizzas },
+  { id: 7, name: "Starters", bgColor: "#f56f21" ,icon: "", items: alcoholicDrinks },
+  { id: 9, name: "Salads", bgColor: "#f56f21" ,icon: "", items: salads },
+  { id: 10, name: "Cold Cuts & Cheese", bgColor: "#f56f21" ,icon: "", items: salads },
+  { id: 11, name: "Pastas", bgColor: "#f56f21" ,icon: "", items: salads },
+  { id: 12, name: "Paellas", bgColor: "#f56f21" ,icon: "", items: salads },
+  { id: 13, name: "Pizza Neopolitan", bgColor: "#f56f21" ,icon: "", items: salads },
+  { id: 14, name: "Pizza Romana", bgColor: "#f56f21" ,icon: "", items: salads },
+  { id: 15, name: "Sandwhich", bgColor: "#f56f21" ,icon: "", items: salads },
+  { id: 16, name: "Mains", bgColor: "#f56f21" ,icon: "", items: salads }
 ]
 
 export const metricsData = [
