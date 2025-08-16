@@ -37,7 +37,7 @@ const Bill = () => {
   const tax = (total * taxRate) / 100;
   const totalPriceWithTax = total + tax;
 
-  const [paymentMethod, setPaymentMethod] = useState();
+  const [paymentMethod, setPaymentMethod] = useState("Cash");
   const [showInvoice, setShowInvoice] = useState(false);
   const [orderInfo, setOrderInfo] = useState();
 
@@ -219,14 +219,6 @@ const Bill = () => {
           }`}
         >
           Cash
-        </button>
-        <button
-          onClick={() => setPaymentMethod("Online")}
-          className={`bg-[#1f1f1f] px-4 py-3 w-full rounded-lg text-[#ababab] font-semibold ${
-            paymentMethod === "Online" ? "bg-[#383737]" : ""
-          }`}
-        >
-          Online
         </button>
       </div>
 

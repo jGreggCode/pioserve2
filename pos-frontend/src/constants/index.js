@@ -1,14 +1,3 @@
-import butterChicken from '../assets/images/butter-chicken-4.jpg';
-import palakPaneer from '../assets/images/Saag-Paneer-1.jpg';
-import biryani from '../assets/images/hyderabadibiryani.jpg';
-import masalaDosa from '../assets/images/masala-dosa.jpg';
-import choleBhature from '../assets/images/chole-bhature.jpg';
-import rajmaChawal from '../assets/images/rajma-chawal-1.jpg';
-import paneerTikka from '../assets/images/paneer-tika.webp';
-import gulabJamun from '../assets/images/gulab-jamun.webp';
-import pooriSabji from '../assets/images/poori-sabji.webp';
-import roganJosh from '../assets/images/rogan-josh.jpg';
-
 // Top Dish Images
 const bakedSalmon = "/Dishes/Mains/Baked Salmon Florentine.jpg";
 const beefSalpicao = "/Dishes/Mains/Beef Salpicao.jpg";
@@ -20,7 +9,6 @@ const croquettasPollo = "/Dishes/Starters/Croquettas Pollo.jpg"
 const croquettasTrufa = "/Dishes/Starters/Croquettas Trufa.jpg"
 const jardinCharcuterie = "/Dishes/Starters/Jardin Charcuterie.jpg"
 const panDeAjo = "/Dishes/Starters/Pan de ajo.jpg"
-// import { color } from 'framer-motion';
 
 export const popularDishes = [
     {
@@ -83,8 +71,7 @@ export const popularDishes = [
       name: 'Pan De Ajo',
       numberOfOrders: 160,
     },
-  ];
-
+];
 
 export const tables = [
     { id: 1, name: "Table 1", status: "Booked", initial: "AM", seats: 4 },
@@ -102,7 +89,7 @@ export const tables = [
     { id: 13, name: "Table 13", status: "Booked", initial: "EK", seats: 2 },
     { id: 14, name: "Table 14", status: "Available", initial: "QN", seats: 6 },
     { id: 15, name: "Table 15", status: "Booked", initial: "TW", seats: 3 }
-  ];
+];
   
 export const startersItem = [
     {
@@ -141,7 +128,7 @@ export const startersItem = [
       price: 220,
       category: "Vegetarian"
     }
-  ];
+];
   
 export const mainCourse = [
   {
@@ -743,22 +730,12 @@ export const menus = [
   { id: 4, name: "Alcohol Drinks", bgColor: "#f56f21" ,icon: "", items: alcoholDrinks },
   { id: 5, name: "Cocktails", bgColor: "#f56f21" ,icon: "", items: desserts },
   { id: 6, name: "Dessers", bgColor: "#f56f21" ,icon: "", items: pizzas },
-  { id: 7, name: "Starters", bgColor: "#f56f21" ,icon: "", items: alcoholicDrinks },
-  { id: 9, name: "Salads", bgColor: "#f56f21" ,icon: "", items: salads },
-  { id: 10, name: "Cold Cuts & Cheese", bgColor: "#f56f21" ,icon: "", items: salads },
-  { id: 11, name: "Pastas", bgColor: "#f56f21" ,icon: "", items: salads },
-  { id: 12, name: "Paellas", bgColor: "#f56f21" ,icon: "", items: salads },
-  { id: 13, name: "Pizza Neopolitan", bgColor: "#f56f21" ,icon: "", items: salads },
-  { id: 14, name: "Pizza Romana", bgColor: "#f56f21" ,icon: "", items: salads },
-  { id: 15, name: "Sandwhich", bgColor: "#f56f21" ,icon: "", items: salads },
-  { id: 16, name: "Mains", bgColor: "#f56f21" ,icon: "", items: salads }
 ]
 
 export const metricsData = [
-  { title: "Revenue", value: "₹50,846.90", percentage: "12%", color: "#025cca", isIncrease: false },
+  { title: "Revenue", value: "P50,846.90", percentage: "12%", color: "#025cca", isIncrease: false },
   { title: "Outbound Clicks", value: "10,342", percentage: "16%", color: "#02ca3a", isIncrease: true },
   { title: "Total Customer", value: "19,720", percentage: "10%", color: "#f6b100", isIncrease: true },
-  { title: "Event Count", value: "20,000", percentage: "10%", color: "#be3e3f", isIncrease: false },
 ];
 
 export const itemsData = [
