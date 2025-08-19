@@ -91,7 +91,7 @@ const Invoice = ({ orderInfo, setShowInvoice }) => {
                   <span>
                     {item.name} x{item.quantity}
                   </span>
-                  <span>₹{item.price.toFixed(2)}</span>
+                  <span>&#8369;{item.price.toFixed(2)}</span>
                 </li>
               ))}
             </ul>
