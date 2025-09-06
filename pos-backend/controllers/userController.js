@@ -79,6 +79,25 @@ const login = async (req, res, next) => {
 
 }
 
+const getUsers = async (req, res, next) => {
+    try {
+        // Use the find() method on the User model to get all documents (users).
+        // You can add a filter here if you need to, but find() without
+        // arguments returns all documents.
+        const users = await User.find();
+
+        // Send a 200 OK status with a JSON response containing the users data.
+        res.status(200).json({
+            success: true,
+            data: users,
+        });
+
+    } catch (error) {
+        // If an error occurs, pass it to the error handling middleware.
+        next(error);
+    }
+};
+
 const getUserData = async (req, res, next) => {
     try {
         
@@ -104,4 +123,4 @@ const logout = async (req, res, next) => {
 
 
 
-module.exports = { register, login, getUserData, logout }
+module.exports = { register, login, getUserData, logout, getUsers }

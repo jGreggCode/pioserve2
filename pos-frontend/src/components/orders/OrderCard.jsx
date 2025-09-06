@@ -5,7 +5,9 @@ import { formatDateAndTime, getAvatarName } from "../../utils/index";
 
 const OrderCard = ({ key, order }) => {
   useEffect(() => {}, [order.orderStatus]);
-  console.log(order);
+
+
+  
   return (
     <div key={key} className="w-[500px] bg-[#262626] p-4 rounded-lg mb-4">
       <div className="flex items-center gap-5">

@@ -13,6 +13,7 @@ import { removeAllItems } from "../../redux/slices/cartSlice";
 import { removeCustomer } from "../../redux/slices/customerSlice";
 import Invoice from "../invoice/Invoice";
 
+
 function loadScript(src) {
   return new Promise((resolve) => {
     const script = document.createElement("script");
@@ -36,6 +37,7 @@ const Bill = () => {
   const taxRate = 5.25;
   const tax = (total * taxRate) / 100;
   const totalPriceWithTax = total + tax;
+  const now = new Date();
 
   const [paymentMethod, setPaymentMethod] = useState("Cash");
   const [showInvoice, setShowInvoice] = useState(false);
@@ -135,6 +137,7 @@ const Bill = () => {
           guests: customerData.guests,
         },
         orderStatus: "In Progress",
+        orderDate: now.toISOString(),
         bills: {
           total: total,
           tax: tax,

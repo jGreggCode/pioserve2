@@ -12,7 +12,7 @@ const orderSchema = new mongoose.Schema({
     },
     orderDate: {
         type: Date,
-        default : Date.now()
+        required: true
     },
     bills: {
         total: { type: Number, required: true },

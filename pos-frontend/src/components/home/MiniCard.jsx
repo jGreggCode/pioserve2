@@ -1,6 +1,7 @@
 import React from 'react'
 
 const MiniCard = ({title, icon, number, footerNum}) => {
+  
   return (
     <div className='bg-[#1a1a1a] py-5 px-5 rounded-lg w-[50%]'>
         <div className='flex items-start justify-between'>
@@ -10,7 +11,7 @@ const MiniCard = ({title, icon, number, footerNum}) => {
         <div>
             <h1 className='text-[#f5f5f5] text-4xl font-bold mt-5'>&#8369; {
               title === "Total Earnings" ? `${number}` : number}</h1>
-            <h1 className='text-[#f5f5f5] text-lg mt-2'><span className='text-[#02ca3a]'>{footerNum}%</span> than yesterday</h1>
+            <h1 className='text-[#f5f5f5] text-lg mt-2'><span className={`${footerNum < 0 ? "text-red-500" : (footerNum === 0 ? "text-white" : "text-[#02ca3a]")}`}>{footerNum}%</span> {footerNum === 0 ? "No Sales Yesterday" : "than yesterday"}</h1>
         </div>
     </div>
   )

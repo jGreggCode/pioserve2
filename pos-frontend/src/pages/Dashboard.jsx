@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { MdTableBar, MdCategory } from "react-icons/md";
 import { BiSolidDish } from "react-icons/bi";
 import Metrics from "../components/dashboard/Metrics";
+import Employees from "../components/dashboard/Employees";
 import RecentOrders from "../components/dashboard/RecentOrders";
 import Modal from "../components/dashboard/Modal";
 import AddDishModal from "../components/dashboard/AddDishModal"
@@ -13,7 +14,7 @@ const buttons = [
   { id: 3, label: "Add Dishes", icon: <BiSolidDish />, action: "dishes" },
 ];
 
-const tabs = ["Metrics", "Orders", "Payments"];
+const tabs = ["Metrics", "Orders", "Employees"];
 const chefTabs = ["Orders"];
 
 const Dashboard = () => {
@@ -51,7 +52,7 @@ const Dashboard = () => {
           <RecentOrders />
         </div>
       ) : (
-        <div className="bg-[#1f1f1f] h-[calc(100vh-5rem)]">
+        <div className="bg-[#1f1f1f] sm:h-[calc(100vh)] h-full">
           <div className="container mx-auto flex items-center justify-between py-14 px-6 md:px-4">
             <div className="flex items-center gap-3">
               {buttons.map(({ label, icon, action, id}) => {
@@ -89,6 +90,7 @@ const Dashboard = () => {
 
           {activeTab === "Metrics" && <Metrics />}
           {activeTab === "Orders" && <RecentOrders />}
+          {activeTab === "Employees" && <Employees />}
           {activeTab === "Payments" && (
             <div className="text-white p-6 container mx-auto">
               Payment Component Coming Soon

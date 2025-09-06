@@ -7,6 +7,7 @@ export const login = (data) => axiosWrapper.post("/api/user/login", data);
 export const register = (data) => axiosWrapper.post("/api/user/register", data);
 export const getUserData = () => axiosWrapper.get("/api/user");
 export const logout = () => axiosWrapper.post("/api/user/logout");
+export const getUsers = () => axiosWrapper.get("/api/user/users");
 
 // Table Endpoints
 export const addTable = (data) => axiosWrapper.post("/api/table/", data);
@@ -30,3 +31,5 @@ export const addOrder = (data) => axiosWrapper.post("/api/order/", data);
 export const getOrders = () => axiosWrapper.get("/api/order");
 export const updateOrderStatus = ({ orderId, orderStatus }) =>
   axiosWrapper.put(`/api/order/${orderId}`, { orderStatus });
+export const getTotal = () => axiosWrapper.get("/api/order/get/totalOrder");
+export const getTotalToday = () => axiosWrapper.get("/api/order/get/totalOrderToday");
