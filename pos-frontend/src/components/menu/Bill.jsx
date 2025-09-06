@@ -29,7 +29,7 @@ function loadScript(src) {
 
 const Bill = () => {
   const dispatch = useDispatch();
-
+  const userData = useSelector((state) => state.user);
   const customerData = useSelector((state) => state.customer);
   const cartData = useSelector((state) => state.cart);
   const total = useSelector(getTotalPrice);
@@ -140,6 +140,7 @@ const Bill = () => {
           tax: tax,
           totalWithTax: totalPriceWithTax,
         },
+        employee: userData._id,
         items: cartData,
         table: customerData.table.tableId,
         paymentMethod: paymentMethod,

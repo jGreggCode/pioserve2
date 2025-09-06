@@ -109,7 +109,7 @@ const RecentOrders = () => {
                     ))}
                   </td>
                   <td className="p-4">Table - {order.table.tableNo}</td>
-                  <td className="p-4">₹{order.bills.totalWithTax}</td>
+                  <td className="p-4">&#8369;{order.bills.totalWithTax}</td>
                   <td className="p-4">{order.paymentMethod}</td>
                 </tr>
               ))}
