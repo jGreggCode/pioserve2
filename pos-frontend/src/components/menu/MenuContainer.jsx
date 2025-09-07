@@ -1,16 +1,49 @@
-import { useState } from "react";
-import { menus } from "../../constants";
+import { useEffect, useState } from "react";
 import { GrRadialSelected } from "react-icons/gr";
 import { FaShoppingCart } from "react-icons/fa";
 import { useDispatch } from "react-redux";
 import { addItems } from "../../redux/slices/cartSlice";
-
+import axios from "axios";
 
 const MenuContainer = () => {
-  const [selected, setSelected] = useState(menus[0]);
+  const [menus, setMenus] = useState([]);
+  const [selected, setSelected] = useState(null);
   const [itemCount, setItemCount] = useState(0);
   const [itemId, setItemId] = useState();
   const dispatch = useDispatch();
+
+  // Fetch menus from backend
+  useEffect(() => {
+    const fetchMenus = async () => {
+      try {
+        const res = await axios.get("http://localhost:8000/api/dish"); // adjust URL if needed
+        if (res.data.success) {
+          // Transform backend response into your old dummy `menus` format
+          const formatted = res.data.data.map((cat, index) => ({
+            id: index + 1,
+            name: cat._id, // category name
+            bgColor: "#f56f21",
+            icon: "",
+            items: cat.subcategories.flatMap((sub) =>
+              sub.items.map((item) => ({
+                id: item.id,
+                name: item.name,
+                price: item.price,
+                category: item.category, // this is subcategory
+              }))
+            ),
+          }));
+
+          setMenus(formatted);
+          setSelected(formatted[0]); // default first menu
+        }
+      } catch (error) {
+        console.error("Failed to fetch menus:", error);
+      }
+    };
+
+    fetchMenus();
+  }, []);
 
   const increment = (id) => {
     setItemId(id);
@@ -25,18 +58,24 @@ const MenuContainer = () => {
   };
 
   const handleAddToCart = (item) => {
-    if(itemCount === 0) return;
+    if (itemCount === 0) return;
 
-    const {name, price} = item;
-    const newObj = { id: new Date(), name, pricePerQuantity: price, quantity: itemCount, price: price * itemCount };
+    const { name, price } = item;
+    const newObj = {
+      id: Date.now(),
+      name,
+      pricePerQuantity: price,
+      quantity: itemCount,
+      price: price * itemCount,
+    };
 
     dispatch(addItems(newObj));
     setItemCount(0);
-  }
-
+  };
 
   return (
     <>
+      {/* Categories */}
       <div className="grid grid-cols-4 gap-4 px-10 py-4 w-[100%] h-[200px] overflow-y-auto scrollbar-hide">
         {menus.map((menu) => {
           return (
@@ -54,7 +93,7 @@ const MenuContainer = () => {
                 <h1 className="text-[#f5f5f5] text-lg font-semibold">
                   {menu.icon} {menu.name}
                 </h1>
-                {selected.id === menu.id && (
+                {selected?.id === menu.id && (
                   <GrRadialSelected className="text-white" size={20} />
                 )}
               </div>
@@ -68,6 +107,7 @@ const MenuContainer = () => {
 
       <hr className="border-[#2a2a2a] border-t-2 mt-4" />
 
+      {/* Items */}
       <div className="grid grid-cols-4 gap-4 px-10 py-4 w-[100%] h-[500px] overflow-y-auto scrollbar-hide">
         {selected?.items.map((item) => {
           return (
@@ -80,11 +120,18 @@ const MenuContainer = () => {
                   <h1 className="text-[#f5f5f5] text-lg font-semibold">
                     {item.name}
                   </h1>
-                  <p className="text-[#f5f5f5] text-sm italic">{item.category}</p>
+                  <p className="text-[#f5f5f5] text-sm italic">
+                    {item.category}
+                  </p>
                 </div>
-                <button onClick={() => handleAddToCart(item)} className="bg-[#2e4a40] text-[#02ca3a] p-2 rounded-lg"><FaShoppingCart size={20} /></button>
+                <button
+                  onClick={() => handleAddToCart(item)}
+                  className="bg-[#2e4a40] text-[#02ca3a] p-2 rounded-lg"
+                >
+                  <FaShoppingCart size={20} />
+                </button>
               </div>
-              
+
               <div className="flex items-center justify-between w-full">
                 <p className="text-[#f5f5f5] text-xl font-bold">
                   &#8369;{item.price}
@@ -97,7 +144,7 @@ const MenuContainer = () => {
                     &minus;
                   </button>
                   <span className="text-white">
-                    {itemId == item.id ? itemCount : "0"}
+                    {itemId === item.id ? itemCount : "0"}
                   </span>
                   <button
                     onClick={() => increment(item.id)}

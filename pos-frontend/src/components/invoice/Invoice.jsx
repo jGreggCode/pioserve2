@@ -1,8 +1,14 @@
 import React, { useRef } from "react";
 import { motion } from "framer-motion";
 import { FaCheck } from "react-icons/fa6";
+import { useSelector } from "react-redux";
+import { formatDateAndTime } from "../../utils";
+import { useNavigate } from "react-router-dom";
 
 const Invoice = ({ orderInfo, setShowInvoice }) => {
+  
+  const navigate = useNavigate();
+  const userData = useSelector((state) => state.user);
   const invoiceRef = useRef(null);
   const handlePrint = () => {
     const printContent = invoiceRef.current.innerHTML;
@@ -68,10 +74,20 @@ const Invoice = ({ orderInfo, setShowInvoice }) => {
               {Math.floor(new Date(orderInfo.orderDate).getTime())}
             </p>
             <p>
-              <strong>Name:</strong> {orderInfo.customerDetails.name}
+              <strong>Server Name:</strong>{" "}
+              {userData.name}
             </p>
             <p>
-              <strong>Phone:</strong> {orderInfo.customerDetails.phone}
+              <strong>Table Number:</strong> {orderInfo.tableInfo.data.tableNo}
+            </p>
+            <p>
+              <strong>Date/Time:</strong> {formatDateAndTime(orderInfo.orderDate)}
+            </p>
+            <p>
+              <strong>Customer Name:</strong> {orderInfo.customerDetails.name}
+            </p>
+            <p>
+              <strong>Phone:</strong> {orderInfo.customerDetails.phone ?? "N/A"}
             </p>
             <p>
               <strong>Guests:</strong> {orderInfo.customerDetails.guests}
@@ -146,7 +162,10 @@ const Invoice = ({ orderInfo, setShowInvoice }) => {
             Print Receipt
           </button>
           <button
-            onClick={() => setShowInvoice(false)}
+            onClick={() => {
+              setShowInvoice(false);
+              navigate("/orders");
+            }}
             className="text-red-500 hover:underline text-xs px-4 py-2 rounded-lg"
           >
             Close

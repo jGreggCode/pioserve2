@@ -30,9 +30,9 @@ const CartInfo = () => {
       <div className="mt-4 overflow-y-scroll scrollbar-hide h-[380px]" ref={scrolLRef} >
         {cartData.length === 0 ? (
           <p className="text-[#ababab] text-sm flex justify-center items-center h-[380px]">Your cart is empty. Start adding items!</p>
-        ) : cartData.map((item) => {
+        ) : cartData.map((item, index) => {
           return (
-            <div className="bg-[#1f1f1f] rounded-lg px-4 py-4 mb-2">
+            <div key={index} className="bg-[#1f1f1f] rounded-lg px-4 py-4 mb-2">
               <div className="flex items-center justify-between">
                 <h1 className="text-[#ababab] font-semibold tracling-wide text-md">
                   {item.name}

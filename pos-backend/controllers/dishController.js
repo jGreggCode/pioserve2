@@ -25,4 +25,40 @@ const addDish = async (req, res, next) => {
   }
 };
 
-module.exports = { addDish };
+const getDishes = async (req, res, next) => {
+  try {
+    // Group by category -> subcategory
+    const dishes = await Dish.aggregate([
+      {
+        $group: {
+          _id: { category: "$category", subcategory: "$subcategory" },
+          items: {
+            $push: {
+              id: "$_id",
+              name: "$name",
+              price: "$price",
+              category: "$subcategory" // frontend shows this
+            }
+          }
+        }
+      },
+      {
+        $group: {
+          _id: "$_id.category",
+          subcategories: {
+            $push: {
+              name: "$_id.subcategory",
+              items: "$items"
+            }
+          }
+        }
+      }
+    ]);
+
+    res.status(200).json({ success: true, data: dishes });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = { addDish, getDishes };

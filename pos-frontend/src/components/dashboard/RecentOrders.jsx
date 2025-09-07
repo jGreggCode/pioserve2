@@ -1,6 +1,3 @@
-import React from "react";
-import { orders } from "../../constants";
-import { GrUpdate } from "react-icons/gr";
 import {
   keepPreviousData,
   useMutation,
@@ -8,20 +5,24 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { enqueueSnackbar } from "notistack";
-import { getOrders, updateOrderStatus } from "../../https/index";
+import { getOrders, updateOrderStatus, deleteOrder } from "../../https/index";
 import { formatDateAndTime } from "../../utils";
+import { useSelector } from "react-redux";
 
 const RecentOrders = () => {
+  const userData = useSelector((state) => state.user);
   const queryClient = useQueryClient();
-  const handleStatusChange = ({ orderId, orderStatus }) => {
-    console.log(orderId);
-    orderStatusUpdateMutation.mutate({ orderId, orderStatus });
-  };
+
+  // const handleStatusChange = ({ orderId, orderStatus }) => {
+  //   console.log(orderId);
+  //   orderStatusUpdateMutation.mutate({ orderId, orderStatus });
+  // };
 
   const orderStatusUpdateMutation = useMutation({
     mutationFn: ({ orderId, orderStatus }) =>
       updateOrderStatus({ orderId, orderStatus }),
     onSuccess: (data) => {
+      console.log
       enqueueSnackbar("Order status updated successfully!", {
         variant: "success",
       });
@@ -32,6 +33,35 @@ const RecentOrders = () => {
     },
   });
 
+  // ✅ Mutation for deleting order
+  const deleteOrderMutation = useMutation({
+    mutationFn: (orderId) => deleteOrder(orderId),
+    onSuccess: (data) => {
+      enqueueSnackbar("Order deleted successfully!", { variant: "success" });
+      queryClient.invalidateQueries(["orders"]);
+    },
+    onError: () => {
+      enqueueSnackbar("Failed to delete order!", { variant: "error" });
+    },
+  });
+
+  // ✅ Handle change in dropdown (status / delete)
+  const handleStatusChange = ({ orderId, orderStatus }) => {
+    console.log(orderId);
+    if (orderStatus === "Delete") {
+      const confirmDelete = window.confirm(
+        "Are you sure you want to delete this order?"
+      );
+      if (confirmDelete) {
+        deleteOrderMutation.mutate({ orderId }); // ✅ Fix here
+      }
+      return;
+    }
+
+    orderStatusUpdateMutation.mutate({ orderId, orderStatus });
+  };
+
+  // ✅ Fetch orders
   const { data: resData, isError } = useQuery({
     queryKey: ["orders"],
     queryFn: async () => {
@@ -98,6 +128,11 @@ const RecentOrders = () => {
                       <option className="text-green-500" value="Ready">
                         Ready
                       </option>
+                      {userData.role === "Admin" && (
+                        <option className="text-red-500" value="Delete">
+                          Delete
+                        </option>
+                      )}
                     </select>
                   </td>
                   <td className="p-4">{formatDateAndTime(order.orderDate)}</td>

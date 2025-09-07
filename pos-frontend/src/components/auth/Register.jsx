@@ -92,13 +92,14 @@ const Register = ({ setIsRegister }) => {
             Employee Phone
           </label>
           <div className="flex items-center rounded-lg p-5 px-4 bg-[#1f1f1f]">
+            <h2 className="text-white">+63 | </h2>
             <input
-              type="number"
+              type="tel"
               name="phone"
               value={formData.phone}
               onChange={handleInputChange}
-              placeholder="Enter employee phone"
-              className="bg-transparent flex-1 text-white focus:outline-none"
+              placeholder="Enter employee phone (9917822877)"
+              className="bg-transparent flex-1 pl-2 text-white focus:outline-none"
               required
             />
           </div>

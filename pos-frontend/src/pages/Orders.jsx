@@ -26,6 +26,8 @@ const Orders = () => {
     enqueueSnackbar("Something went wrong!", { variant: "error" });
   }
 
+  console.log(resData)
+
   return (
     <section className="bg-[#1f1f1f]  h-[calc(100vh-5rem)] overflow-hidden">
       <div className="flex items-center justify-between px-10 py-4">
@@ -60,22 +62,21 @@ const Orders = () => {
           >
             Ready
           </button>
-          <button
-            onClick={() => setStatus("completed")}
-            className={`text-[#ababab] text-lg ${
-              status === "completed" && "bg-[#383838] rounded-lg px-5 py-2"
-            }  rounded-lg px-5 py-2 font-semibold`}
-          >
-            Completed
-          </button>
         </div>
       </div>
 
       <div className="grid grid-cols-3 gap-3 px-16 py-4 overflow-y-scroll scrollbar-hide">
         {resData?.data.data.length > 0 ? (
-          resData.data.data.map((order) => {
-            return <OrderCard key={order._id} order={order} />;
-          })
+          resData.data.data
+            .filter((order) => {
+              if (status === "all") return true;
+              if (status === "progress") return order.orderStatus === "In Progress";
+              if (status === "ready") return order.orderStatus === "Ready";
+              return false;
+            })
+            .map((order) => (
+              <OrderCard key={order._id} order={order} />
+            ))
         ) : (
           <p className="col-span-3 text-gray-500">No orders available</p>
         )}

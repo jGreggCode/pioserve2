@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getTotalPrice } from "../../redux/slices/cartSlice";
 import {
@@ -12,7 +12,6 @@ import { useMutation } from "@tanstack/react-query";
 import { removeAllItems } from "../../redux/slices/cartSlice";
 import { removeCustomer } from "../../redux/slices/customerSlice";
 import Invoice from "../invoice/Invoice";
-
 
 function loadScript(src) {
   return new Promise((resolve) => {
@@ -42,6 +41,7 @@ const Bill = () => {
   const [paymentMethod, setPaymentMethod] = useState("Cash");
   const [showInvoice, setShowInvoice] = useState(false);
   const [orderInfo, setOrderInfo] = useState();
+  const [tableInfo, setTableInfo] = useState(null);
 
   const handlePlaceOrder = async () => {
     if (!paymentMethod) {
@@ -130,6 +130,13 @@ const Bill = () => {
       }
     } else {
       // Place the order
+      if (cartData.length == 0) {
+        enqueueSnackbar("There are no orders, please select the customer's orders", {
+          variant: "warning",
+        });
+        return;
+      }
+      
       const orderData = {
         customerDetails: {
           name: customerData.customerName,
@@ -156,7 +163,7 @@ const Bill = () => {
     mutationFn: (reqData) => addOrder(reqData),
     onSuccess: (resData) => {
       const { data } = resData.data;
-      console.log(data);
+      // console.log(data);
 
       setOrderInfo(data);
 
@@ -174,7 +181,7 @@ const Bill = () => {
       enqueueSnackbar("Order Placed!", {
         variant: "success",
       });
-      setShowInvoice(true);
+      // setShowInvoice(true);
     },
     onError: (error) => {
       console.log(error);
@@ -184,7 +191,8 @@ const Bill = () => {
   const tableUpdateMutation = useMutation({
     mutationFn: (reqData) => updateTable(reqData),
     onSuccess: (resData) => {
-      console.log(resData);
+      // console.log(resData);
+      setTableInfo(resData.data); // ✅ Store the table response
       dispatch(removeCustomer());
       dispatch(removeAllItems());
     },
@@ -192,6 +200,13 @@ const Bill = () => {
       console.log(error);
     },
   });
+
+  useEffect(() => {
+    if (orderInfo && tableInfo) {
+      console.log({ ...orderInfo, tableInfo })
+      setShowInvoice(true);
+    }
+  }, [orderInfo, tableInfo]);
 
   return (
     <>
@@ -238,8 +253,11 @@ const Bill = () => {
         </button>
       </div>
 
-      {showInvoice && (
-        <Invoice orderInfo={orderInfo} setShowInvoice={setShowInvoice} />
+      {showInvoice && orderInfo && tableInfo && (
+        <Invoice
+          orderInfo={{ ...orderInfo, tableInfo }} // ✅ Merge both into one object
+          setShowInvoice={setShowInvoice}
+        />
       )}
     </>
   );

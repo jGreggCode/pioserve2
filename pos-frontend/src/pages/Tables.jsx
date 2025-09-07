@@ -15,7 +15,7 @@ const Tables = () => {
 
   const { data: resData, isError } = useQuery({
     queryKey: ["tables"],
-    queryFn: async () => {
+    queryFn: async (data) => {
       return await getTables();
     },
     placeholderData: keepPreviousData,
@@ -36,7 +36,7 @@ const Tables = () => {
             Tables
           </h1>
         </div>
-        <div className="flex items-center justify-around gap-4">
+       <div className="flex items-center justify-around gap-4">
           <button
             onClick={() => setStatus("all")}
             className={`text-[#ababab] text-lg ${
@@ -53,22 +53,35 @@ const Tables = () => {
           >
             Booked
           </button>
+          <button
+            onClick={() => setStatus("available")}
+            className={`text-[#ababab] text-lg ${
+              status === "available" && "bg-[#383838] rounded-lg px-5 py-2"
+            }  rounded-lg px-5 py-2 font-semibold`}
+          >
+            Available
+          </button>
         </div>
       </div>
 
       <div className="grid grid-cols-5 gap-3 px-16 py-4 overflow-y-scroll scrollbar-hide">
-        {resData?.data.data.map((table) => {
-          return (
-            <TableCard
-              key={table._id}
-              id={table._id}
-              name={table.tableNo}
-              status={table.status}
-              initials={table?.currentOrder?.customerDetails.name}
-              seats={table.seats}
-            />
-          );
-        })}
+        {resData?.data.data
+          .filter((table) => {
+            if (status === "all") return true;
+            return table.status.toLowerCase() === status;
+          })
+          .map((table) => {
+            return (
+              <TableCard
+                key={table._id}
+                id={table._id}
+                name={table.tableNo}
+                status={table.status}
+                initials={table?.currentOrder?.customerDetails?.name || ""}
+                seats={table.seats}
+              />
+            );
+          })}
       </div>
 
       <BottomNav />

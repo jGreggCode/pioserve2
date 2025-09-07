@@ -33,3 +33,5 @@ export const updateOrderStatus = ({ orderId, orderStatus }) =>
   axiosWrapper.put(`/api/order/${orderId}`, { orderStatus });
 export const getTotal = () => axiosWrapper.get("/api/order/get/totalOrder");
 export const getTotalToday = () => axiosWrapper.get("/api/order/get/totalOrderToday");
+export const deleteOrder = ({ orderId }) =>
+  axiosWrapper.delete(`/api/order/${orderId}`);

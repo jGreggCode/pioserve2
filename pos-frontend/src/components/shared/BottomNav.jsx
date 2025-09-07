@@ -15,8 +15,8 @@ const BottomNav = () => {
   const dispatch = useDispatch();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [guestCount, setGuestCount] = useState(0);
-  const [name, setName] = useState();
-  const [phone, setPhone] = useState();
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
@@ -41,6 +41,21 @@ const BottomNav = () => {
     dispatch(setCustomer({name, phone, guests: guestCount}));
     navigate("/tables");
   }
+
+  const handleInputChange = (e) => {
+    const value = e.target.value;
+    
+    // Use a regular expression to check if the value contains only digits.
+    // If not, we don't update the state and the character is ignored.
+    const isNumber = /^\d*$/.test(value);
+
+    // Enforce the maximum length of 11 digits
+    const isWithinLength = value.length <= 11;
+    
+    if (isNumber && isWithinLength) {
+      setPhone(value);
+    }
+  };
 
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-[#262626] p-2 h-16 flex justify-around">
@@ -90,7 +105,16 @@ const BottomNav = () => {
         <div>
           <label className="block text-[#ababab] mb-2 mt-3 text-sm font-medium">Customer Phone</label>
           <div className="flex items-center rounded-lg p-3 px-4 bg-[#1f1f1f]">
-            <input value={phone} onChange={(e) => setPhone(e.target.value)} type="number" name="" placeholder="09917822877" id="" className="bg-transparent flex-1 text-white focus:outline-none"  />
+            <h2 className="text-white">+63 | </h2>
+            <input
+              value={phone}
+              onChange={handleInputChange}
+              type="tel"
+              name="phone"
+              placeholder="9917822877"
+              className="pl-2 bg-transparent flex-1 text-white py-3 focus:outline-none"
+              required
+            />
           </div>
         </div>
         <div>
