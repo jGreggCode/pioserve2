@@ -53,6 +53,16 @@ const getOrders = async (req, res, next) => {
   }
 };
 
+const getOrdersCount = async (req, res, next) => {
+  try {
+    const totalOrders = await Order.countDocuments(); // counts all documents in the collection
+
+    res.status(200).json({ success: true, total: totalOrders });
+  } catch (error) {
+    next(error);
+  }
+};
+
 const getTotalOrders = async (req, res, next) => {
   try {
     const orders = await Order.find(
@@ -68,6 +78,43 @@ const getTotalOrders = async (req, res, next) => {
 
     res.status(200).json({ success: true, data: { dailyTotal: formattedTotal } });
 
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getCustomersCount = async (req, res, next) => {
+  try {
+    const customers = await Order.aggregate([
+      {
+        $group: {
+          _id: { $toLower: "$customerDetails.name" } // group by lowercase name
+        }
+      },
+      {
+        $count: "uniqueCustomers" // count distinct names
+      }
+    ]);
+
+    const totalCustomers = customers.length > 0 ? customers[0].uniqueCustomers : 0;
+
+    res.status(200).json({ success: true, total: totalCustomers });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getOrdersByEmployee = async (req, res, next) => {
+  try {
+    const { employeeId } = req.params; // or req.query depending on your route
+
+    if (!employeeId) {
+      return res.status(400).json({ error: "Employee ID is required" });
+    }
+
+    const ordersCount = await Order.countDocuments({ employee: employeeId });
+
+    res.status(200).json({ success: true, employeeId, totalOrders: ordersCount });
   } catch (error) {
     next(error);
   }
@@ -175,4 +222,4 @@ const updateOrder = async (req, res, next) => {
   }
 };
 
-module.exports = { addOrder, getOrderById, getOrders, updateOrder, getTotalOrders, getTotalOrdersToday, deleteOrder };
+module.exports = { addOrder, getOrderById, getOrders, updateOrder, getTotalOrders, getTotalOrdersToday, deleteOrder, getOrdersCount, getCustomersCount, getOrdersByEmployee};

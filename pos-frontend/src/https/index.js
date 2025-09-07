@@ -32,6 +32,13 @@ export const getOrders = () => axiosWrapper.get("/api/order");
 export const updateOrderStatus = ({ orderId, orderStatus }) =>
   axiosWrapper.put(`/api/order/${orderId}`, { orderStatus });
 export const getTotal = () => axiosWrapper.get("/api/order/get/totalOrder");
+export const getOrdersCount = () => axiosWrapper.get("/api/order/get/getOrdersCount");
+export const getCustomerCount = () => axiosWrapper.get("/api/order/get/getCustomerCount");
+export const getOrdersByEmployee = (employeeId) => axiosWrapper.get(`/api/order/get/orders/${employeeId}`);
 export const getTotalToday = () => axiosWrapper.get("/api/order/get/totalOrderToday");
 export const deleteOrder = ({ orderId }) =>
   axiosWrapper.delete(`/api/order/${orderId}`);
+
+
+
+

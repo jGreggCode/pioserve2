@@ -10,8 +10,7 @@ import { useSelector } from "react-redux";
 
 const buttons = [
   { id: 1, label: "Add Table", icon: <MdTableBar />, action: "table" },
-  { id: 2, label: "Add Category", icon: <MdCategory />, action: "category" },
-  { id: 3, label: "Add Dishes", icon: <BiSolidDish />, action: "dishes" },
+  { id: 2, label: "Add Dishes", icon: <BiSolidDish />, action: "dishes" },
 ];
 
 const tabs = ["Metrics", "Orders", "Employees"];
