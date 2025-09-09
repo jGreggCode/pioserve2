@@ -3,7 +3,7 @@ import { GrRadialSelected } from "react-icons/gr";
 import { FaShoppingCart } from "react-icons/fa";
 import { useDispatch } from "react-redux";
 import { addItems } from "../../redux/slices/cartSlice";
-import axios from "axios";
+import { getDish } from "../../https";
 
 const MenuContainer = () => {
   const [menus, setMenus] = useState([]);
@@ -16,7 +16,7 @@ const MenuContainer = () => {
   useEffect(() => {
     const fetchMenus = async () => {
       try {
-        const res = await axios.get("http://localhost:8000/api/dish"); // adjust URL if needed
+        const res = await getDish(); // adjust URL if needed
         if (res.data.success) {
           // Transform backend response into your old dummy `menus` format
           const formatted = res.data.data.map((cat, index) => ({
@@ -60,9 +60,9 @@ const MenuContainer = () => {
   const handleAddToCart = (item) => {
     if (itemCount === 0) return;
 
-    const { name, price } = item;
+    const { id, name, price } = item;
     const newObj = {
-      id: Date.now(),
+      id, // use backend id instead of Date.now()
       name,
       pricePerQuantity: price,
       quantity: itemCount,
@@ -76,7 +76,7 @@ const MenuContainer = () => {
   return (
     <>
       {/* Categories */}
-      <div className="grid grid-cols-4 gap-4 px-10 py-4 w-[100%] h-[200px] overflow-y-auto scrollbar-hide">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 px-4 sm:px-6 lg:px-10 py-4 w-full h-[200px] overflow-y-auto scrollbar-hide">
         {menus.map((menu) => {
           return (
             <div
@@ -108,7 +108,7 @@ const MenuContainer = () => {
       <hr className="border-[#2a2a2a] border-t-2 mt-4" />
 
       {/* Items */}
-      <div className="grid grid-cols-4 gap-4 px-10 py-4 w-[100%] h-[500px] overflow-y-auto scrollbar-hide">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 px-4 sm:px-6 lg:px-10 py-4 w-full h-[500px] overflow-y-auto scrollbar-hide">
         {selected?.items.map((item) => {
           return (
             <div
@@ -139,7 +139,7 @@ const MenuContainer = () => {
                 <div className="flex items-center justify-between bg-[#1f1f1f] px-4 py-3 rounded-lg gap-6 w-[50%]">
                   <button
                     onClick={() => decrement(item.id)}
-                    className="text-yellow-500 text-2xl"
+                    className="text-2xl text-yellow-500"
                   >
                     &minus;
                   </button>
@@ -148,7 +148,7 @@ const MenuContainer = () => {
                   </span>
                   <button
                     onClick={() => increment(item.id)}
-                    className="text-yellow-500 text-2xl"
+                    className="text-2xl text-yellow-500"
                   >
                     &#43;
                   </button>

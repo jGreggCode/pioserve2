@@ -13,7 +13,10 @@ connectDB();
 app.use(
   cors({
     credentials: true,
-    origin: ["http://localhost:5173"],
+    origin: [
+      "http://localhost:5173",     // local dev
+      "http://192.168.1.5:5173",  // LAN dev (your machine's IP)
+    ],
   })
 );
 app.use(express.json()); // parse incoming request in json format

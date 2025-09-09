@@ -39,8 +39,8 @@ const Invoice = ({ orderInfo, setShowInvoice }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-      <div className="bg-white p-4 rounded-lg shadow-lg w-[400px]">
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+      <div className="bg-white p-4 rounded-lg shadow-lg w-[90%] sm:w-[400px]">
         {/* Receipt Content for Printing */}
 
         <div ref={invoiceRef} className="p-4">
@@ -50,7 +50,7 @@ const Invoice = ({ orderInfo, setShowInvoice }) => {
               initial={{ scale: 0, opacity: 0 }}
               animate={{ scale: 1.2, opacity: 1 }}
               transition={{ duration: 0.5, type: "spring", stiffness: 150 }}
-              className="w-12 h-12 border-8 border-green-500 rounded-full flex items-center justify-center shadow-lg bg-green-500"
+              className="flex items-center justify-center w-12 h-12 bg-green-500 border-8 border-green-500 rounded-full shadow-lg"
             >
               <motion.span
                 initial={{ scale: 0 }}
@@ -63,12 +63,12 @@ const Invoice = ({ orderInfo, setShowInvoice }) => {
             </motion.div>
           </div>
 
-          <h2 className="text-xl font-bold text-center mb-2">Order Receipt</h2>
-          <p className="text-gray-600 text-center">Thank you for your order!</p>
+          <h2 className="mb-2 text-xl font-bold text-center">Order Receipt</h2>
+          <p className="text-center text-gray-600">Thank you for your order!</p>
 
           {/* Order Details */}
 
-          <div className="mt-4 border-t pt-4 text-sm text-gray-700">
+          <div className="pt-4 mt-4 text-sm text-gray-700 border-t">
             <p>
               <strong>Order ID:</strong>{" "}
               {Math.floor(new Date(orderInfo.orderDate).getTime())}
@@ -96,13 +96,13 @@ const Invoice = ({ orderInfo, setShowInvoice }) => {
 
           {/* Items Summary */}
 
-          <div className="mt-4 border-t pt-4">
+          <div className="pt-4 mt-4 border-t">
             <h3 className="text-sm font-semibold">Items Ordered</h3>
             <ul className="text-sm text-gray-700">
               {orderInfo.items.map((item, index) => (
                 <li
                   key={index}
-                  className="flex justify-between items-center text-xs"
+                  className="flex items-center justify-between text-xs"
                 >
                   <span>
                     {item.name} x{item.quantity}
@@ -115,14 +115,14 @@ const Invoice = ({ orderInfo, setShowInvoice }) => {
 
           {/* Bills Summary */}
 
-          <div className="mt-4 border-t pt-4 text-sm">
+          <div className="pt-4 mt-4 text-sm border-t">
             <p>
               <strong>Subtotal:</strong> &#8369;{orderInfo.bills.total.toFixed(2)}
             </p>
             <p>
               <strong>Tax:</strong> &#8369;{orderInfo.bills.tax.toFixed(2)}
             </p>
-            <p className="text-md font-semibold">
+            <p className="font-semibold text-md">
               <strong>Grand Total:</strong> &#8369;
               {orderInfo.bills.totalWithTax.toFixed(2)}
             </p>
@@ -130,7 +130,7 @@ const Invoice = ({ orderInfo, setShowInvoice }) => {
 
           {/* Payment Details */}
 
-          <div className="mb-2 mt-2 text-xs">
+          <div className="mt-2 mb-2 text-xs">
             {orderInfo.paymentMethod === "Cash" ? (
               <p>
                 <strong>Payment Method:</strong> {orderInfo.paymentMethod}
@@ -157,7 +157,7 @@ const Invoice = ({ orderInfo, setShowInvoice }) => {
         <div className="flex justify-between mt-4">
           <button
             onClick={handlePrint}
-            className="text-blue-500 hover:underline text-xs px-4 py-2 rounded-lg"
+            className="px-4 py-2 text-xs text-blue-500 rounded-lg hover:underline"
           >
             Print Receipt
           </button>
@@ -166,7 +166,7 @@ const Invoice = ({ orderInfo, setShowInvoice }) => {
               setShowInvoice(false);
               navigate("/orders");
             }}
-            className="text-red-500 hover:underline text-xs px-4 py-2 rounded-lg"
+            className="px-4 py-2 text-xs text-red-500 rounded-lg hover:underline"
           >
             Close
           </button>

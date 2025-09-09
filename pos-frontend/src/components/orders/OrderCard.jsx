@@ -7,7 +7,7 @@ const OrderCard = ({ order }) => {
   useEffect(() => {}, [order.orderStatus]);
 
   return (
-    <div className="w-[500px] bg-[#262626] p-4 rounded-lg mb-4">
+    <div className="w-[500px] h-[220px] bg-[#262626] p-4 rounded-lg mb-4">
       <div className="flex items-center gap-5">
         <button className="bg-[#f6b100] p-3 text-xl font-bold rounded-lg">
           {getAvatarName(order.customerDetails.name)}
@@ -55,7 +55,7 @@ const OrderCard = ({ order }) => {
         <p>{formatDateAndTime(order.orderDate)}</p>
         <p>{order.items.length} Items</p>
       </div>
-      <hr className="w-full mt-4 border-t-1 border-gray-500" />
+      <hr className="w-full mt-4 border-gray-500 border-t-1" />
       <div className="flex items-center justify-between mt-4">
         <h1 className="text-[#f5f5f5] text-lg font-semibold">Total</h1>
         <p className="text-[#f5f5f5] text-lg font-semibold">

@@ -5,11 +5,13 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { enqueueSnackbar } from "notistack";
-import { getOrders, updateOrderStatus, deleteOrder } from "../../https/index";
+import { getOrders, updateOrderStatus, deleteOrder, getAllOrders } from "../../https/index";
 import { formatDateAndTime } from "../../utils";
 import { useSelector } from "react-redux";
+import { useState } from "react";
 
 const RecentOrders = () => {
+  const [selected, setSelected] = useState('All');
   const userData = useSelector((state) => state.user);
   const queryClient = useQueryClient();
 
@@ -63,9 +65,12 @@ const RecentOrders = () => {
 
   // ✅ Fetch orders
   const { data: resData, isError } = useQuery({
-    queryKey: ["orders"],
+    queryKey: ["orders", selected], // ✅ depend on selected
     queryFn: async () => {
-      return await getOrders();
+      if (selected === "Today") {
+        return await getOrders(); // today's orders
+      }
+      return await getAllOrders(); // all orders
     },
     placeholderData: keepPreviousData,
   });
@@ -78,9 +83,20 @@ const RecentOrders = () => {
 
   return (
     <div className="container mx-auto bg-[#262626] p-4 rounded-lg">
-      <h2 className="text-[#f5f5f5] text-xl font-semibold mb-4">
-        Recent Orders
-      </h2>
+      <div className="flex justify-between px-2 mb-4">
+        <h2 className="text-[#f5f5f5] text-xl font-semibold">
+          Recent Orders
+        </h2>
+        <div className="flex gap-2">
+          <button onClick={() => setSelected("Today")} className={`px-8 rounded-lg text-[#f5f5f5] font-semibold text-md flex items-center gap-2 ${selected === "Today" ? "bg-slate-400" : "bg-[#1a1a1a]"}`}>
+            Today
+          </button>
+          <button onClick={() => setSelected("All")} className={`px-8 rounded-lg text-[#f5f5f5] font-semibold text-md flex items-center gap-2 ${selected === "All" ? "bg-slate-400" : "bg-[#1a1a1a]"}`}>
+            All
+          </button>
+        </div>
+      </div>
+      
       <div className="overflow-x-auto">
         <table className="w-full text-left text-[#f5f5f5]">
           <thead className="bg-[#333] text-[#ababab]">

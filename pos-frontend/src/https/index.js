@@ -19,6 +19,7 @@ export const updateTable = ({ tableId, ...tableData }) =>
 
 // Dish Endpoints
 export const addDish = (data) => axiosWrapper.post("/api/dish/", data);
+export const getDish = (data) => axiosWrapper.get("/api/dish/", data);
 
 // Payment Endpoints
 export const createOrderRazorpay = (data) =>
@@ -29,6 +30,7 @@ export const verifyPaymentRazorpay = (data) =>
 // Order Endpoints
 export const addOrder = (data) => axiosWrapper.post("/api/order/", data);
 export const getOrders = () => axiosWrapper.get("/api/order");
+export const getAllOrders = () => axiosWrapper.get("/api/order/all");
 export const updateOrderStatus = ({ orderId, orderStatus }) =>
   axiosWrapper.put(`/api/order/${orderId}`, { orderStatus });
 export const getTotal = () => axiosWrapper.get("/api/order/get/totalOrder");
@@ -38,6 +40,7 @@ export const getOrdersByEmployee = (employeeId) => axiosWrapper.get(`/api/order/
 export const getTotalToday = () => axiosWrapper.get("/api/order/get/totalOrderToday");
 export const deleteOrder = ({ orderId }) =>
   axiosWrapper.delete(`/api/order/${orderId}`);
+
 
 
 

@@ -3,9 +3,14 @@ import { register } from "../../https";
 import { useMutation } from "@tanstack/react-query";
 import { enqueueSnackbar } from "notistack";
 
+// Icons
+import { FaEye, FaEyeSlash } from "react-icons/fa";
+
 const Register = ({ setIsRegister }) => {
+  const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
+    username: "",
     email: "",
     phone: "",
     password: "",
@@ -35,6 +40,7 @@ const Register = ({ setIsRegister }) => {
       enqueueSnackbar(data.message, { variant: "success" });
       setFormData({
         name: "",
+        username: "",
         email: "",
         phone: "",
         password: "",
@@ -66,7 +72,7 @@ const Register = ({ setIsRegister }) => {
               value={formData.name}
               onChange={handleInputChange}
               placeholder="Enter employee name"
-              className="bg-transparent flex-1 text-white focus:outline-none"
+              className="flex-1 text-white bg-transparent focus:outline-none"
               required
             />
           </div>
@@ -82,7 +88,23 @@ const Register = ({ setIsRegister }) => {
               value={formData.email}
               onChange={handleInputChange}
               placeholder="Enter employee email"
-              className="bg-transparent flex-1 text-white focus:outline-none"
+              className="flex-1 text-white bg-transparent focus:outline-none"
+              required
+            />
+          </div>
+        </div>
+         <div>
+          <label className="block text-[#ababab] mb-2 mt-3 text-sm font-semibold">
+            Employee Username
+          </label>
+          <div className="flex items-center rounded-lg p-5 px-4 bg-[#1f1f1f]">
+            <input
+              type="text"
+              name="username"
+              value={formData.username}
+              onChange={handleInputChange}
+              placeholder="Enter employee username"
+              className="flex-1 text-white bg-transparent focus:outline-none"
               required
             />
           </div>
@@ -97,9 +119,22 @@ const Register = ({ setIsRegister }) => {
               type="tel"
               name="phone"
               value={formData.phone}
-              onChange={handleInputChange}
+              onChange={(e) => {
+                const value = e.target.value.replace(/\D/g, ""); // digits only
+                if (value.length <= 10) {
+                  setFormData({ ...formData, phone: value });
+                }
+              }}
+              inputMode="numeric"     // shows numeric keypad on mobile
+              pattern="[0-9]*"        // HTML5 validation: digits only
+              maxLength={10}          // max 10 digits
+              onKeyDown={(e) => {
+                if (!/[0-9]/.test(e.key) && e.key !== "Backspace" && e.key !== "Delete" && e.key !== "ArrowLeft" && e.key !== "ArrowRight" && e.key !== "Tab") {
+                  e.preventDefault(); // block non-numeric keys
+                }
+              }}
               placeholder="Enter employee phone (9917822877)"
-              className="bg-transparent flex-1 pl-2 text-white focus:outline-none"
+              className="flex-1 pl-2 text-white bg-transparent focus:outline-none"
               required
             />
           </div>
@@ -110,14 +145,21 @@ const Register = ({ setIsRegister }) => {
           </label>
           <div className="flex items-center rounded-lg p-5 px-4 bg-[#1f1f1f]">
             <input
-              type="password"
+              type={showPassword ? "text" : "password"}
               name="password"
               value={formData.password}
               onChange={handleInputChange}
               placeholder="Enter password"
-              className="bg-transparent flex-1 text-white focus:outline-none"
+              className="flex-1 text-white bg-transparent focus:outline-none"
               required
             />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="ml-2 text-[#ababab] hover:text-white focus:outline-none"
+            >
+              {showPassword ? <FaEyeSlash /> : <FaEye />}
+            </button>
           </div>
         </div>
         <div>
@@ -126,7 +168,7 @@ const Register = ({ setIsRegister }) => {
           </label>
 
           <div className="flex items-center gap-3 mt-4">
-            {["Waiter", "Cashier", "Chef", "Admin"].map((role) => {
+            {["Waiter", "Cashier", "Chef"].map((role) => {
               return (
                 <button
                   key={role}
@@ -145,7 +187,7 @@ const Register = ({ setIsRegister }) => {
 
         <button
           type="submit"
-          className="w-full rounded-lg mt-6 py-3 text-lg bg-primary text-gray-900 font-bold"
+          className="w-full py-3 mt-6 text-lg font-bold text-gray-900 rounded-lg bg-primary"
         >
           Sign up
         </button>

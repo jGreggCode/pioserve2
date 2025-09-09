@@ -6,9 +6,13 @@ import { useDispatch } from "react-redux";
 import { setUser } from "../../redux/slices/userSlice";
 import { useNavigate } from "react-router-dom";
 
+// Icons
+import { FaEye, FaEyeSlash } from "react-icons/fa";
+
 const Login = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -46,16 +50,16 @@ const Login = () => {
       <form onSubmit={handleSubmit}>
         <div>
           <label className="block text-[#ababab] mb-2 mt-3 text-sm font-semibold">
-            Employee Email
+            Employee Email or username
           </label>
           <div className="flex items-center rounded-lg p-5 px-4 bg-[#1f1f1f]">
             <input
-              type="email"
+              type="text"
               name="email"
               value={formData.email}
               onChange={handleInputChange}
               placeholder="Enter employee email"
-              className="bg-transparent flex-1 text-white focus:outline-none"
+              className="flex-1 text-white bg-transparent focus:outline-none"
               required
             />
           </div>
@@ -66,20 +70,27 @@ const Login = () => {
           </label>
           <div className="flex items-center rounded-lg p-5 px-4 bg-[#1f1f1f]">
             <input
-              type="password"
+              type={showPassword ? "text" : "password"}
               name="password"
               value={formData.password}
               onChange={handleInputChange}
               placeholder="Enter password"
-              className="bg-transparent flex-1 text-white focus:outline-none"
+              className="flex-1 text-white bg-transparent focus:outline-none"
               required
             />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="ml-2 text-[#ababab] hover:text-white focus:outline-none"
+            >
+              {showPassword ? <FaEyeSlash /> : <FaEye />}
+            </button>
           </div>
         </div>
 
         <button
           type="submit"
-          className="w-full rounded-lg mt-6 py-3 text-lg bg-primary text-gray-900 font-bold"
+          className="w-full py-3 mt-6 text-lg font-bold text-gray-900 rounded-lg bg-primary"
         >
           Sign in
         </button>

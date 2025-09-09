@@ -10,26 +10,12 @@ const Greetings = () => {
     return () => clearInterval(timer);
   }, []);
 
-  const formatDate = (date) => {
-    const months = [
-      "January",
-      "February",
-      "March",
-      "April",
-      "May",
-      "June",
-      "July",
-      "August",
-      "September",
-      "October",
-      "November",
-      "December",
-    ];
-    return `${months[date.getMonth()]} ${String(date.getDate()).padStart(
-      2,
-      "0"
-    )}, ${date.getFullYear()}`;
-  };
+  const formatDate = (date) =>
+    date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "2-digit",
+    });
 
   const formatTime = (date) =>
     `${String(date.getHours()).padStart(2, "0")}:${String(
@@ -37,7 +23,7 @@ const Greetings = () => {
     ).padStart(2, "0")}:${String(date.getSeconds()).padStart(2, "0")}`;
 
   return (
-    <div className="flex justify-between items-center px-8 mt-5">
+    <div className="flex flex-col items-start justify-between gap-3 px-4 mt-5 sm:flex-row sm:items-center sm:px-6 md:px-8">
       <div>
         <h1 className="text-[#f5f5f5] text-2xl font-semibold tracking-wide">
           Hello there, {userData.name || "TEST USER"}!
@@ -46,8 +32,8 @@ const Greetings = () => {
           Don't forget to service with a smile!
         </p>
       </div>
-      <div>
-        <h1 className="text-[#f5f5f5] text-3xl font-bold tracking-wide w-[130px]">
+      <div className="text-left sm:text-right">
+        <h1 className="text-[#f5f5f5] text-2xl sm:text-3xl font-bold tracking-wide">
           {formatTime(dateTime)}
         </h1>
         <p className="text-[#ababab] text-sm">{formatDate(dateTime)}</p>

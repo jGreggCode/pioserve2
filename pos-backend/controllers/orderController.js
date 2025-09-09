@@ -53,6 +53,16 @@ const getOrders = async (req, res, next) => {
   }
 };
 
+const getAllOrders = async (req, res, next) => {
+  try {
+    const orders = await Order.find().populate("table");
+
+    res.status(200).json({ data: orders });
+  } catch (error) {
+    next(error);
+  }
+};
+
 const getOrdersCount = async (req, res, next) => {
   try {
     const totalOrders = await Order.countDocuments(); // counts all documents in the collection
@@ -106,19 +116,39 @@ const getCustomersCount = async (req, res, next) => {
 
 const getOrdersByEmployee = async (req, res, next) => {
   try {
-    const { employeeId } = req.params; // or req.query depending on your route
+    const { employeeId } = req.params;
 
     if (!employeeId) {
-      return res.status(400).json({ error: "Employee ID is required" });
+      return res.status(400).json({ success: false, error: "Employee ID is required" });
     }
 
-    const ordersCount = await Order.countDocuments({ employee: employeeId });
+    // Count all-time orders
+    const totalOrders = await Order.countDocuments({ employee: employeeId });
 
-    res.status(200).json({ success: true, employeeId, totalOrders: ordersCount });
+    // Calculate today's range
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date(startOfDay);
+    endOfDay.setDate(endOfDay.getDate() + 1);
+
+    // Count today's orders
+    const todayOrders = await Order.countDocuments({
+      employee: employeeId,
+      createdAt: { $gte: startOfDay, $lt: endOfDay }
+    });
+
+    res.status(200).json({
+      success: true,
+      employeeId,
+      totalOrders,
+      todayOrders
+    });
   } catch (error) {
     next(error);
   }
 };
+
 
 const getTotalOrdersToday = async (req, res, next) => {
   try {
@@ -222,4 +252,4 @@ const updateOrder = async (req, res, next) => {
   }
 };
 
-module.exports = { addOrder, getOrderById, getOrders, updateOrder, getTotalOrders, getTotalOrdersToday, deleteOrder, getOrdersCount, getCustomersCount, getOrdersByEmployee};
+module.exports = { addOrder, getOrderById, getOrders, updateOrder, getTotalOrders, getTotalOrdersToday, deleteOrder, getOrdersCount, getCustomersCount, getOrdersByEmployee, getAllOrders};

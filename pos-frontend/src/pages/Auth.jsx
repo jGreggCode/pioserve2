@@ -1,18 +1,18 @@
 import React, { useState } from "react";
-import restaurant from "../assets/cover.webp"; // Adjust the path as necessary
-import logo from "../assets/logo.png"; // Adjust the path as necessary
-import Register from "../components/auth/Register"; // Adjust the path as necessary
+import restaurant from "../assets/cover.webp"; 
+import logo from "../assets/logo.png"; 
+import Register from "../components/auth/Register"; 
 import Login from "../components/auth/Login";
 
 const Auth = () => {
   const [isRegister, setIsRegister] = useState(false);
   return (
-    <div className="flex min-h-screen w-full">
+    <div className="flex w-full min-h-screen">
       {/* LEFT SIDE */}
-      <div className="w-1/2 relative flex items-center justify-center bg-cover">
+      <div className="relative flex items-center justify-center w-1/2 bg-cover">
         {/* BG IMAGE */}
         <img
-          className="w-full h-full object-cover"
+          className="object-cover w-full h-full"
           src={restaurant}
           alt="Restaurant Image"
         />
@@ -21,23 +21,23 @@ const Auth = () => {
         <div className="absolute inset-0 bg-black bg-opacity-80"></div>
 
         {/* TOP LOGO + PURPOSE TEXT */}
-        <div className="absolute top-20 left-1/2 transform -translate-x-1/2 flex flex-col items-center text-center px-4">
+        <div className="absolute flex flex-col items-center px-4 text-center transform -translate-x-1/2 top-20 left-1/2">
           {/* <img
             src={logo}
             alt="System Logo"
-            className="h-14 w-14 border-2 rounded-full p-1 mb-3"
+            className="p-1 mb-3 border-2 rounded-full h-14 w-14"
           /> */}
-          <h1 className="text-white text-2xl font-bold tracking-wide">
+          <h1 className="text-2xl font-bold tracking-wide text-white">
             Pioserve
           </h1>
-          <p className="text-gray-300 text-lg max-w-xs mt-1">
+          <p className="max-w-xs mt-1 text-lg text-gray-300">
             Empowering your daily operations. Built for staff, designed for
             excellence.
           </p>
         </div>
 
         {/* QUOTE at BOTTOM */}
-        <blockquote className="absolute bottom-10 px-8 mb-10 text-2xl italic text-white">
+        <blockquote className="absolute px-8 mb-10 text-2xl italic text-white bottom-10">
           "Great food isn't just served — it's shared with heart. Always serve
           the best, because every plate is a promise."
           <br />
@@ -51,7 +51,7 @@ const Auth = () => {
             href="https://www.facebook.com/YOUR_FACEBOOK_PROFILE"
             target="_blank"
             rel="noopener noreferrer"
-            className="animate-glow font-semibold hover:underline"
+            className="font-semibold animate-glow hover:underline"
           >
             JGDEV
           </a>
@@ -65,13 +65,13 @@ const Auth = () => {
           <img
             src={logo}
             alt="Pioserve logo"
-            className="h-14 w-14 border-2 rounded-full p-1"
+            className="p-1 border-2 rounded-full h-14 w-14"
           />
           <h1 className="text-lg font-semibold text-[#f5f5f5] tracking-wide">
             Pioserve
           </h1>
         </div>
-        <h2 className="text-4xl text-center mt-10 font-semibold text-primary mb-10">
+        <h2 className="mt-10 mb-10 text-4xl font-semibold text-center text-primary">
           {isRegister ? "Create Account" : "Sign In"}
         </h2>
 
@@ -83,7 +83,7 @@ const Auth = () => {
             {isRegister ? "Already have an account?" : "Don't have an account?"}{" "}
             <a
               onClick={() => setIsRegister(!isRegister)}
-              className="text-primary font-semibold hover:underline cursor-pointer"
+              className="font-semibold cursor-pointer text-primary hover:underline"
             >
               {isRegister ? "Sign In" : "Create Account"}
             </a>
