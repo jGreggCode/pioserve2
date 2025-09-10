@@ -102,5 +102,5 @@ Frontend
 ```bash
 cd pos-frontend
 npm install
-npm run dev
+npm run dev -- --host
 ```
