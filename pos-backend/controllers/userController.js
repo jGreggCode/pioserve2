@@ -4,6 +4,15 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const config = require("../config/config");
 
+// Password Validation Options
+const passwordOptions = {
+  minLength: 8,
+  minLowercase: 1,
+  minUppercase: 1,
+  minNumbers: 1,
+  minSybols: 1,
+};
+
 const register = async (req, res, next) => {
   try {
     const { name, username, phone, email, password, role } = req.body;
@@ -24,6 +33,20 @@ const register = async (req, res, next) => {
       const error = createHttpError(400, "Username already exist!");
       return next(error);
     }
+
+    // VALIDATION
+    if (username.length < 3)
+      return res.status(400).json({
+        success: false,
+        message: "Username must be at least 3 characters.",
+      });
+
+    if (!validator.isStrongPassword(password, passwordOptions))
+      return res.status(400).json({
+        success: false,
+        message:
+          "Your password is weak. It must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one number, and one special character.",
+      });
 
     const user = { name, username, phone, email, password, role };
     const newUser = User(user);
@@ -74,16 +97,14 @@ const login = async (req, res, next) => {
       maxAge: 1000 * 60 * 60 * 24 * 30,
       httpOnly: true,
       sameSite: "lax", // better for local dev
-      secure: false,   // must stay false on HTTP
+      secure: false, // must stay false on HTTP
     });
 
-    res
-      .status(200)
-      .json({
-        success: true,
-        message: "User login successfully!",
-        data: isUserPresent,
-      });
+    res.status(200).json({
+      success: true,
+      message: "User login successfully!",
+      data: isUserPresent,
+    });
   } catch (error) {
     next(error);
   }
@@ -103,6 +124,75 @@ const getUsers = async (req, res, next) => {
     });
   } catch (error) {
     // If an error occurs, pass it to the error handling middleware.
+    next(error);
+  }
+};
+
+const changePasswordWithOld = async (req, res, next) => {
+  try {
+    const { oldPassword, newPassword } = req.body;
+    const userId = req.user._id; // auth middleware sets this
+
+    if (!oldPassword || !newPassword) {
+      return next(createHttpError(400, "All fields are required!"));
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return next(createHttpError(404, "User not found!"));
+    }
+
+    // check old password
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isMatch) {
+      return next(createHttpError(401, "Old password is incorrect!"));
+    }
+
+    // set new password (auto-hash on save)
+    user.password = newPassword;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Password changed successfully!",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const changeUserPassword = async (req, res, next) => {
+  try {
+    const { userId, newPassword } = req.body;
+
+    if (!userId || !newPassword) {
+      return next(createHttpError(400, "All fields are required!"));
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return next(createHttpError(404, "User not found!"));
+    }
+
+    // set new password (auto-hash on save)
+    user.password = newPassword;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "User password updated successfully!",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getUserDataById = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findById(id);
+    res.status(200).json({ success: true, data: user });
+  } catch (error) {
     next(error);
   }
 };
@@ -127,4 +217,13 @@ const logout = async (req, res, next) => {
   }
 };
 
-module.exports = { register, login, getUserData, logout, getUsers };
+module.exports = {
+  register,
+  login,
+  getUserData,
+  logout,
+  getUsers,
+  getUserDataById,
+  changePasswordWithOld,
+  changeUserPassword,
+};

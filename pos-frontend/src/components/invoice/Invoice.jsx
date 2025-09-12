@@ -1,14 +1,9 @@
-import React, { useRef } from "react";
+import { useRef } from "react";
 import { motion } from "framer-motion";
 import { FaCheck } from "react-icons/fa6";
-import { useSelector } from "react-redux";
 import { formatDateAndTime } from "../../utils";
-import { useNavigate } from "react-router-dom";
 
 const Invoice = ({ orderInfo, setShowInvoice }) => {
-  
-  const navigate = useNavigate();
-  const userData = useSelector((state) => state.user);
   const invoiceRef = useRef(null);
   const handlePrint = () => {
     const printContent = invoiceRef.current.innerHTML;
@@ -39,11 +34,10 @@ const Invoice = ({ orderInfo, setShowInvoice }) => {
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white p-4 rounded-lg shadow-lg w-[90%] sm:w-[400px]">
+    <div className="fixed inset-0 z-[100000] flex items-center justify-center bg-black bg-opacity-50">
+      <div className="bg-white p-4 rounded-lg shadow-lg w-[90%] sm:w-[400px] sm:h-[500px] flex flex-col">
         {/* Receipt Content for Printing */}
-
-        <div ref={invoiceRef} className="p-4">
+        <div ref={invoiceRef} className="flex-1 p-4 overflow-y-auto">
           {/* Receipt Header */}
           <div className="flex justify-center mb-4">
             <motion.div
@@ -67,21 +61,20 @@ const Invoice = ({ orderInfo, setShowInvoice }) => {
           <p className="text-center text-gray-600">Thank you for your order!</p>
 
           {/* Order Details */}
-
           <div className="pt-4 mt-4 text-sm text-gray-700 border-t">
             <p>
               <strong>Order ID:</strong>{" "}
               {Math.floor(new Date(orderInfo.orderDate).getTime())}
             </p>
             <p>
-              <strong>Server Name:</strong>{" "}
-              {userData.name}
+              <strong>Server Name:</strong> {orderInfo.employeeData.name}
             </p>
             <p>
-              <strong>Table Number:</strong> {orderInfo.tableInfo.data.tableNo}
+              <strong>Table Number:</strong> {orderInfo.table.tableNo}
             </p>
             <p>
-              <strong>Date/Time:</strong> {formatDateAndTime(orderInfo.orderDate)}
+              <strong>Date/Time:</strong>{" "}
+              {formatDateAndTime(orderInfo.orderDate)}
             </p>
             <p>
               <strong>Customer Name:</strong> {orderInfo.customerDetails.name}
@@ -95,7 +88,6 @@ const Invoice = ({ orderInfo, setShowInvoice }) => {
           </div>
 
           {/* Items Summary */}
-
           <div className="pt-4 mt-4 border-t">
             <h3 className="text-sm font-semibold">Items Ordered</h3>
             <ul className="text-sm text-gray-700">
@@ -114,10 +106,10 @@ const Invoice = ({ orderInfo, setShowInvoice }) => {
           </div>
 
           {/* Bills Summary */}
-
           <div className="pt-4 mt-4 text-sm border-t">
             <p>
-              <strong>Subtotal:</strong> &#8369;{orderInfo.bills.total.toFixed(2)}
+              <strong>Subtotal:</strong> &#8369;
+              {orderInfo.bills.total.toFixed(2)}
             </p>
             <p>
               <strong>Tax:</strong> &#8369;{orderInfo.bills.tax.toFixed(2)}
@@ -129,7 +121,6 @@ const Invoice = ({ orderInfo, setShowInvoice }) => {
           </div>
 
           {/* Payment Details */}
-
           <div className="mt-2 mb-2 text-xs">
             {orderInfo.paymentMethod === "Cash" ? (
               <p>
@@ -164,7 +155,6 @@ const Invoice = ({ orderInfo, setShowInvoice }) => {
           <button
             onClick={() => {
               setShowInvoice(false);
-              navigate("/orders");
             }}
             className="px-4 py-2 text-xs text-red-500 rounded-lg hover:underline"
           >

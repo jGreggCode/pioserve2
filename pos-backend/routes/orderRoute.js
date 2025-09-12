@@ -1,10 +1,23 @@
 const express = require("express");
-const { addOrder, getOrders, getOrderById, updateOrder, getTotalOrders, getTotalOrdersToday, deleteOrder, getOrdersCount, getCustomersCount, getOrdersByEmployee, getAllOrders} = require("../controllers/orderController");
+const {
+  addOrder,
+  getOrders,
+  getOrderById,
+  updateOrder,
+  getTotalOrders,
+  getTotalOrdersToday,
+  deleteOrder,
+  getOrdersCount,
+  getCustomersCount,
+  getOrdersByEmployee,
+  getAllOrders,
+  updateOrderItems,
+} = require("../controllers/orderController");
 const { isVerifiedUser } = require("../middlewares/tokenVerification");
 const router = express.Router();
 
-
-router.route("/").post(isVerifiedUser, addOrder);
+router.route("/").post(addOrder);
+router.put("/:orderId/items", updateOrderItems);
 router.route("/").get(isVerifiedUser, getOrders);
 router.route("/all").get(isVerifiedUser, getAllOrders);
 router.route("/:id").get(isVerifiedUser, getOrderById);

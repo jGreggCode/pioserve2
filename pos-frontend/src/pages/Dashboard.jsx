@@ -4,8 +4,9 @@ import { BiSolidDish } from "react-icons/bi";
 import Metrics from "../components/dashboard/Metrics";
 import Employees from "../components/dashboard/Employees";
 import RecentOrders from "../components/dashboard/RecentOrders";
+import Dishes from "../components/dashboard/Dishes";
 import Modal from "../components/dashboard/Modal";
-import AddDishModal from "../components/dashboard/AddDishModal"
+import AddDishModal from "../components/dashboard/AddDishModal";
 import { useSelector } from "react-redux";
 
 const buttons = [
@@ -13,7 +14,7 @@ const buttons = [
   { id: 2, label: "Add Dishes", icon: <BiSolidDish />, action: "dishes" },
 ];
 
-const tabs = ["Metrics", "Orders", "Employees"];
+const tabs = ["Metrics", "Orders", "Employees", "Dishes"];
 const chefTabs = ["Orders"];
 
 const Dashboard = () => {
@@ -42,8 +43,8 @@ const Dashboard = () => {
     <>
       {isChef ? (
         <div className="bg-[#1f1f1f] h-[calc(100vh-5rem)]">
-          <div className="container mx-auto flex items-center justify-between py-14 md:px-4">
-            <div className="text-white container mx-auto">
+          <div className="container flex items-center justify-between mx-auto py-14 md:px-4">
+            <div className="container mx-auto text-white">
               <h1 className="text-2xl">Orders</h1>
             </div>
           </div>
@@ -52,9 +53,9 @@ const Dashboard = () => {
         </div>
       ) : (
         <div className="bg-[#1f1f1f] sm:h-[calc(100vh)] h-full">
-          <div className="container mx-auto flex items-center justify-between py-14 px-6 md:px-4">
-            <div className="flex items-center gap-3">
-              {buttons.map(({ label, icon, action, id}) => {
+          <div className="container flex items-center justify-between px-6 mx-auto py-14 md:px-4">
+            <div className="flex flex-col items-center gap-3 lg:flex-row">
+              {buttons.map(({ label, icon, action, id }) => {
                 return (
                   <button
                     key={id}
@@ -67,7 +68,7 @@ const Dashboard = () => {
               })}
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex flex-col items-center gap-3 lg:flex-row">
               {tabs.map((tab, index) => {
                 return (
                   <button
@@ -90,8 +91,9 @@ const Dashboard = () => {
           {activeTab === "Metrics" && <Metrics />}
           {activeTab === "Orders" && <RecentOrders />}
           {activeTab === "Employees" && <Employees />}
+          {activeTab === "Dishes" && <Dishes />}
           {activeTab === "Payments" && (
-            <div className="text-white p-6 container mx-auto">
+            <div className="container p-6 mx-auto text-white">
               Payment Component Coming Soon
             </div>
           )}

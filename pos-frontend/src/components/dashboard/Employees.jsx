@@ -27,7 +27,7 @@ const Metrics = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center py-10">
+      <div className="flex items-center justify-center py-10">
         <p className="text-gray-600">Loading users...</p>
       </div>
     );
@@ -35,41 +35,38 @@ const Metrics = () => {
 
   if (users.length === 0) {
     return (
-      <div className="flex justify-center items-center py-10">
+      <div className="flex items-center justify-center py-10">
         <p className="text-gray-600">No users found.</p>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto py-4 px-6 md:px-4">
-      <h2 className="text-xl font-semibold mb-4 text-white">Employees</h2>
+    <div className="container px-6 py-4 mx-auto md:px-4">
+      <h2 className="mb-4 text-xl font-semibold text-white">Employees</h2>
 
       {/* Table for tablets/desktops */}
-      <div className="hidden md:block overflow-x-auto">
+      <div className="hidden overflow-x-auto md:block">
         <table className="w-full border-collapse rounded-lg shadow-md">
           <thead>
             <tr className="bg-[#1a1a1a] text-left text-sm font-medium text-white">
-              <th className="py-3 px-4 border-b">Name</th>
-              <th className="py-3 px-4 border-b">Email</th>
-              <th className="py-3 px-4 border-b">Role</th>
-              <th className="py-3 px-4 border-b">Created At</th>
+              <th className="px-4 py-3 border-b">Name</th>
+              <th className="px-4 py-3 border-b">Email</th>
+              <th className="px-4 py-3 border-b">Role</th>
+              <th className="px-4 py-3 border-b">Created At</th>
+              <th className="px-4 py-3 border-b">Action</th>
             </tr>
           </thead>
           <tbody>
             {users.map((u) => (
-              <tr
-                key={u._id}
-                className="text-white transition-colors text-sm"
-              >
-                <td className="py-3 px-4 border-b">
-                  {u.name}
-                </td>
-                <td className="py-3 px-4 border-b">{u.email}</td>
-                <td className="py-3 px-4 border-b">{u.role || "Employee"}</td>
-                <td className="py-3 px-4 border-b">
+              <tr key={u._id} className="text-sm text-white transition-colors">
+                <td className="px-4 py-3 border-b">{u.name}</td>
+                <td className="px-4 py-3 border-b">{u.email}</td>
+                <td className="px-4 py-3 border-b">{u.role || "Employee"}</td>
+                <td className="px-4 py-3 border-b">
                   {new Date(u.createdAt).toLocaleDateString()}
                 </td>
+                <td className="px-4 py-3 border-b">Delete Edit</td>
               </tr>
             ))}
           </tbody>
@@ -77,20 +74,17 @@ const Metrics = () => {
       </div>
 
       {/* Card view for mobile */}
-      <div className="md:hidden space-y-3">
+      <div className="space-y-3 md:hidden">
         {users.map((u) => (
-          <div
-            key={u._id}
-            className="border rounded-lg p-4 shadow-sm bg-white"
-          >
+          <div key={u._id} className="p-4 bg-white border rounded-lg shadow-sm">
             <p className="font-medium text-gray-800">
               {u.firstName} {u.lastName}
             </p>
-            <p className="text-gray-600 text-sm">{u.email}</p>
-            <p className="text-gray-500 text-xs mt-1">
+            <p className="text-sm text-gray-600">{u.email}</p>
+            <p className="mt-1 text-xs text-gray-500">
               Role: {u.role || "Employee"}
             </p>
-            <p className="text-gray-400 text-xs">
+            <p className="text-xs text-gray-400">
               Joined: {new Date(u.createdAt).toLocaleDateString()}
             </p>
           </div>

@@ -3,32 +3,19 @@ import { useDispatch, useSelector } from "react-redux";
 import { getTotalPrice } from "../../redux/slices/cartSlice";
 import {
   addOrder,
-  createOrderRazorpay,
   updateTable,
-  verifyPaymentRazorpay,
+  updateOrderItems, // ✅ add this in https/index.js
 } from "../../https/index";
 import { enqueueSnackbar } from "notistack";
 import { useMutation } from "@tanstack/react-query";
 import { removeAllItems } from "../../redux/slices/cartSlice";
 import { removeCustomer } from "../../redux/slices/customerSlice";
+import { useNavigate } from "react-router-dom";
 import Invoice from "../invoice/Invoice";
 
-function loadScript(src) {
-  return new Promise((resolve) => {
-    const script = document.createElement("script");
-    script.src = src;
-    script.onload = () => {
-      resolve(true);
-    };
-    script.onerror = () => {
-      resolve(false);
-    };
-    document.body.appendChild(script);
-  });
-}
-
-const Bill = () => {
+const Bill = ({ editMode = false }) => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const userData = useSelector((state) => state.user);
   const customerData = useSelector((state) => state.customer);
   const cartData = useSelector((state) => state.cart);
@@ -36,107 +23,30 @@ const Bill = () => {
   const taxRate = 5.25;
   const tax = (total * taxRate) / 100;
   const totalPriceWithTax = total + tax;
-  const now = new Date();
-
   const [paymentMethod, setPaymentMethod] = useState("Cash");
   const [showInvoice, setShowInvoice] = useState(false);
   const [orderInfo, setOrderInfo] = useState();
-  const [tableInfo, setTableInfo] = useState(null);
 
-  const handlePlaceOrder = async () => {
-    if (!paymentMethod) {
-      enqueueSnackbar("Please select a payment method!", {
-        variant: "warning",
-      });
-
+  const handlePlaceOrder = () => {
+    if (cartData.length === 0) {
+      enqueueSnackbar("No items in the cart!", { variant: "warning" });
       return;
     }
 
-    if (paymentMethod === "Online") {
-      // load the script
-      try {
-        const res = await loadScript(
-          "https://checkout.razorpay.com/v1/checkout.js"
-        );
-
-        if (!res) {
-          enqueueSnackbar("Razorpay SDK failed to load. Are you online?", {
-            variant: "warning",
-          });
-          return;
-        }
-
-        // create order
-
-        const reqData = {
-          amount: totalPriceWithTax.toFixed(2),
-        };
-
-        const { data } = await createOrderRazorpay(reqData);
-
-        const options = {
-          key: `${import.meta.env.VITE_RAZORPAY_KEY_ID}`,
-          amount: data.order.amount,
-          currency: data.order.currency,
-          name: "RESTRO",
-          description: "Secure Payment for Your Meal",
-          order_id: data.order.id,
-          handler: async function (response) {
-            const verification = await verifyPaymentRazorpay(response);
-            console.log(verification);
-            enqueueSnackbar(verification.data.message, { variant: "success" });
-
-            // Place the order
-            const orderData = {
-              customerDetails: {
-                name: customerData.customerName,
-                phone: customerData.customerPhone,
-                guests: customerData.guests,
-              },
-              orderStatus: "In Progress",
-              bills: {
-                total: total,
-                tax: tax,
-                totalWithTax: totalPriceWithTax,
-              },
-              items: cartData,
-              table: customerData.table.tableId,
-              paymentMethod: paymentMethod,
-              paymentData: {
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_payment_id: response.razorpay_payment_id,
-              },
-            };
-
-            setTimeout(() => {
-              orderMutation.mutate(orderData);
-            }, 1500);
-          },
-          prefill: {
-            name: customerData.name,
-            email: "",
-            contact: customerData.phone,
-          },
-          theme: { color: "#025cca" },
-        };
-
-        const rzp = new window.Razorpay(options);
-        rzp.open();
-      } catch (error) {
-        console.log(error);
-        enqueueSnackbar("Payment Failed!", {
-          variant: "error",
-        });
-      }
+    if (editMode) {
+      // 🔹 Update items only
+      const updateData = {
+        orderId: customerData.orderId,
+        items: cartData,
+        bills: {
+          total,
+          tax,
+          totalWithTax: totalPriceWithTax,
+        },
+      };
+      updateMutation.mutate(updateData);
     } else {
-      // Place the order
-      if (cartData.length == 0) {
-        enqueueSnackbar("There are no orders, please select the customer's orders", {
-          variant: "warning",
-        });
-        return;
-      }
-      
+      // 🔹 Create new order
       const orderData = {
         customerDetails: {
           name: customerData.customerName,
@@ -144,16 +54,16 @@ const Bill = () => {
           guests: customerData.guests,
         },
         orderStatus: "In Progress",
-        orderDate: now.toISOString(),
+        orderDate: new Date().toISOString(),
         bills: {
-          total: total,
-          tax: tax,
+          total,
+          tax,
           totalWithTax: totalPriceWithTax,
         },
         employee: userData._id,
         items: cartData,
         table: customerData.table.tableId,
-        paymentMethod: paymentMethod,
+        paymentMethod,
       };
       orderMutation.mutate(orderData);
     }
@@ -163,28 +73,36 @@ const Bill = () => {
     mutationFn: (reqData) => addOrder(reqData),
     onSuccess: (resData) => {
       const { data } = resData.data;
-      // console.log(data);
-
       setOrderInfo(data);
 
-      // Update Table
-      const tableData = {
+      // 🔹 Update the table to "Booked" with the new orderId
+      tableUpdateMutation.mutate({
+        tableId: customerData.table.tableId,
         status: "Booked",
         orderId: data._id,
-        tableId: data.table,
-      };
-
-      setTimeout(() => {
-        tableUpdateMutation.mutate(tableData);
-      }, 1500);
-
-      enqueueSnackbar("Order Placed!", {
-        variant: "success",
       });
-      // setShowInvoice(true);
+
+      dispatch(removeCustomer());
+      dispatch(removeAllItems());
+      enqueueSnackbar("Order Placed!", { variant: "success" });
+      navigate("/orders");
     },
-    onError: (error) => {
-      console.log(error);
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: (reqData) => updateOrderItems(reqData),
+    onSuccess: (resData) => {
+      setOrderInfo(resData.data);
+      enqueueSnackbar("Order Updated!", { variant: "success" });
+
+      // 🔹 Keep table linked to updated order
+      tableUpdateMutation.mutate({
+        tableId: customerData.table.tableId,
+        status: "Booked",
+        orderId: customerData.orderId,
+      });
+
+      navigate("/orders");
     },
   });
 
@@ -195,46 +113,37 @@ const Bill = () => {
       setTableInfo(resData.data); // ✅ Store the table response
       dispatch(removeCustomer());
       dispatch(removeAllItems());
+
+      navigate("/orders");
     },
     onError: (error) => {
       console.log(error);
     },
   });
-
-  useEffect(() => {
-    if (orderInfo && tableInfo) {
-      console.log({ ...orderInfo, tableInfo })
-      setShowInvoice(true);
-    }
-  }, [orderInfo, tableInfo]);
-
   return (
     <>
       <div className="flex items-center justify-between px-5 mt-2">
-        <p className="text-xs text-[#ababab] font-medium mt-2">
-          Items({cartData.lenght})
-        </p>
+        <p className="text-xs text-[#ababab]">Items ({cartData.length})</p>
         <h1 className="text-[#f5f5f5] text-md font-bold">
-          &#8369;{total.toFixed(2)}
+          ₱{total.toFixed(2)}
         </h1>
       </div>
       <div className="flex items-center justify-between px-5 mt-2">
-        <p className="text-xs text-[#ababab] font-medium mt-2">Tax(5.25%)</p>
-        <h1 className="text-[#f5f5f5] text-md font-bold">&#8369;{tax.toFixed(2)}</h1>
+        <p className="text-xs text-[#ababab]">Tax (5.25%)</p>
+        <h1 className="text-[#f5f5f5] text-md font-bold">₱{tax.toFixed(2)}</h1>
       </div>
       <div className="flex items-center justify-between px-5 mt-2">
-        <p className="text-xs text-[#ababab] font-medium mt-2">
-          Total With Tax
-        </p>
+        <p className="text-xs text-[#ababab]">Total With Tax</p>
         <h1 className="text-[#f5f5f5] text-md font-bold">
-          &#8369;{totalPriceWithTax.toFixed(2)}
+          ₱{totalPriceWithTax.toFixed(2)}
         </h1>
       </div>
+
       <div className="flex items-center gap-3 px-5 mt-4">
         <button
           onClick={() => setPaymentMethod("Cash")}
-          className={`bg-[#1f1f1f] px-4 py-3 w-full rounded-lg text-[#ababab] font-semibold ${
-            paymentMethod === "Cash" ? "bg-[#383737]" : ""
+          className={`w-full rounded-lg px-4 py-3 text-[#ababab] font-semibold ${
+            paymentMethod === "Cash" ? "bg-[#383737]" : "bg-[#1f1f1f]"
           }`}
         >
           Cash
@@ -242,22 +151,16 @@ const Bill = () => {
       </div>
 
       <div className="flex items-center gap-3 px-5 mt-4">
-        <button className="bg-[#025cca] px-4 py-3 w-full rounded-lg text-[#f5f5f5] font-semibold text-lg">
-          Print Receipt
-        </button>
         <button
           onClick={handlePlaceOrder}
           className="bg-[#f6b100] px-4 py-3 w-full rounded-lg text-[#1f1f1f] font-semibold text-lg"
         >
-          Place Order
+          {editMode ? "Update Order" : "Place Order"}
         </button>
       </div>
 
-      {showInvoice && orderInfo && tableInfo && (
-        <Invoice
-          orderInfo={{ ...orderInfo, tableInfo }} // ✅ Merge both into one object
-          setShowInvoice={setShowInvoice}
-        />
+      {showInvoice && orderInfo && (
+        <Invoice orderInfo={orderInfo} setShowInvoice={setShowInvoice} />
       )}
     </>
   );

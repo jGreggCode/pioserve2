@@ -18,6 +18,7 @@ const Tables = () => {
     queryFn: async () => {
       return await getTables();
     },
+    refetchInterval: 500,
     placeholderData: keepPreviousData,
   });
 

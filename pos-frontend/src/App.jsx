@@ -65,6 +65,7 @@ function Layout() {
             </ProtectedRoutes>
           }
         />
+        <Route path="/menu/:id" element={<Menu />} />
         <Route
           path="/dashboard"
           element={
@@ -91,7 +92,6 @@ function ProtectedRoutes({ children }) {
 
   if (userData.role === "Chef") {
     isChef = true;
-    
   }
 
   if (!isAuth) {
@@ -102,7 +102,7 @@ function ProtectedRoutes({ children }) {
   if (isChef && window.location.pathname !== "/dashboard") {
     return <Navigate to="/dashboard" />;
   }
-  
+
   return children;
 }
 

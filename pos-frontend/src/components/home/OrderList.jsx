@@ -29,6 +29,12 @@ const OrderList = ({ order }) => {
                 <FaCheckDouble className="inline mr-2" /> {order.orderStatus}
               </p>
             </>
+          ) : order.orderStatus === "Paid" ? (
+            <>
+              <p className="text-blue-400 bg-[#2e4a40] px-2 py-1 rounded-lg">
+                <FaCheckDouble className="inline mr-2" /> {order.orderStatus}
+              </p>
+            </>
           ) : (
             <>
               <p className="text-yellow-600 bg-[#4a452e] px-2 py-1 rounded-lg">

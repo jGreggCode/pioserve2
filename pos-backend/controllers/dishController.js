@@ -1,10 +1,11 @@
 const Dish = require("../models/dishModel");
+const mongoose = require("mongoose");
 const createHttpError = require("http-errors");
 
 const addDish = async (req, res, next) => {
   try {
-    const { name, price, category, subcategory } = req.body;
-    if (!name || !price || !category || !subcategory) {
+    var { name, price, description, stock, category, subcategory } = req.body;
+    if (!name || !price || !category || !stock) {
       const error = createHttpError(400, "Fields cannot be empty!");
       return next(error);
     }
@@ -15,11 +16,96 @@ const addDish = async (req, res, next) => {
       return next(error);
     }
 
-    const newDish = new Dish({ name, price, category, subcategory });
+    if (!subcategory) subcategory = "N/A";
+
+    const newDish = new Dish({
+      name,
+      price,
+      description,
+      stock,
+      category,
+      subcategory,
+    });
     await newDish.save();
     res
       .status(201)
       .json({ success: true, message: "Dish added!", data: newDish });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const editDish = async (req, res, next) => {
+  try {
+    const { dishId } = req.params;
+    const { name, price, description, stock, category, subcategory } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(dishId)) {
+      const error = createHttpError(400, "Invalid Dish ID!");
+      return next(error);
+    }
+
+    // Validate required fields
+    if (!name || !price || !category) {
+      const error = createHttpError(400, "Fields cannot be empty!");
+      return next(error);
+    }
+
+    const dish = await Dish.findById(dishId);
+
+    if (!dish) {
+      const error = createHttpError(404, "Dish not found!");
+      return next(error);
+    }
+
+    // Prevent duplicate dish name (excluding current dish)
+    const existingDish = await Dish.findOne({ name, _id: { $ne: dishId } });
+    if (existingDish) {
+      const error = createHttpError(400, "Dish with this name already exists!");
+      return next(error);
+    }
+
+    // Update dish
+    dish.name = name;
+    dish.price = price;
+    dish.stock = stock;
+    dish.description = description;
+    dish.category = category;
+    dish.subcategory = subcategory || "N/A";
+
+    const updatedDish = await dish.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Dish updated successfully!",
+      data: updatedDish,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const deleteDish = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+      const error = createHttpError(400, "Invalid or missing dish ID!");
+      return next(error);
+    }
+
+    const deleteDish = await Dish.findByIdAndDelete(id);
+
+    if (!deleteDish) {
+      const error = createHttpError(404, "Dish not found!");
+      return next(error);
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Dish deleted successfully",
+      data: deleteDish,
+    });
   } catch (error) {
     next(error);
   }
@@ -37,10 +123,11 @@ const getDishes = async (req, res, next) => {
               id: "$_id",
               name: "$name",
               price: "$price",
-              category: "$subcategory" // frontend shows this
-            }
-          }
-        }
+              stock: "$stock",
+              category: "$subcategory", // frontend shows this
+            },
+          },
+        },
       },
       {
         $group: {
@@ -48,11 +135,11 @@ const getDishes = async (req, res, next) => {
           subcategories: {
             $push: {
               name: "$_id.subcategory",
-              items: "$items"
-            }
-          }
-        }
-      }
+              items: "$items",
+            },
+          },
+        },
+      },
     ]);
 
     res.status(200).json({ success: true, data: dishes });
@@ -61,4 +148,49 @@ const getDishes = async (req, res, next) => {
   }
 };
 
-module.exports = { addDish, getDishes };
+const getAllDishes = async (req, res, next) => {
+  try {
+    const dishes = await Dish.find();
+
+    res.status(200).json({ data: dishes });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getCategories = async (req, res, next) => {
+  try {
+    // Get unique categories with their subcategories
+    const categories = await Dish.aggregate([
+      {
+        $group: {
+          _id: "$category",
+          subcategories: { $addToSet: "$subcategory" },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          category: "$_id",
+          subcategories: 1,
+        },
+      },
+    ]);
+
+    res.status(200).json({
+      success: true,
+      data: categories,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = {
+  addDish,
+  editDish,
+  getDishes,
+  deleteDish,
+  getAllDishes,
+  getCategories,
+};

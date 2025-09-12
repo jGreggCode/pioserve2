@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { FaHome } from "react-icons/fa";
 import { MdOutlineReorder, MdTableBar } from "react-icons/md";
-import { CiCircleMore } from "react-icons/ci";
+import { IoFastFood } from "react-icons/io5";
 import { BiSolidDish } from "react-icons/bi";
 import { useNavigate, useLocation } from "react-router-dom";
 import Modal from "./Modal";
@@ -86,9 +86,18 @@ const BottomNav = () => {
       </button>
 
       {/* More */}
-      <button className="flex flex-1 items-center justify-center font-bold text-[#ababab] py-2 mx-1 rounded-[20px] transition">
+      {/* <button className="flex flex-1 items-center justify-center font-bold text-[#ababab] py-2 mx-1 rounded-[20px] transition">
         <CiCircleMore size={22} />
-        <span className="hidden ml-2 sm:inline">More</span>
+        <span className="hidden ml-2 sm:inline">Menu</span>
+      </button> */}
+      <button
+        onClick={() => navigate("/menu")}
+        className={`flex flex-1 items-center justify-center font-bold py-2 mx-1 rounded-[20px] transition ${
+          isActive("/menu") ? "text-[#f5f5f5] bg-[#343434]" : "text-[#ababab]"
+        }`}
+      >
+        <IoFastFood size={22} />
+        <span className="hidden ml-2 sm:inline">Menu</span>
       </button>
 
       {/* Floating Action (Dish Button) */}
@@ -103,7 +112,9 @@ const BottomNav = () => {
       {/* Modal */}
       <Modal isOpen={isModalOpen} onClose={closeModal} title="Create Order">
         <div>
-          <label className="block text-[#ababab] mb-2 text-sm font-medium">Customer Name</label>
+          <label className="block text-[#ababab] mb-2 text-sm font-medium">
+            Customer Name
+          </label>
           <div className="flex items-center rounded-lg p-3 px-4 bg-[#1f1f1f]">
             <input
               value={name}
@@ -116,7 +127,9 @@ const BottomNav = () => {
         </div>
 
         <div>
-          <label className="block text-[#ababab] mb-2 mt-3 text-sm font-medium">Customer Phone</label>
+          <label className="block text-[#ababab] mb-2 mt-3 text-sm font-medium">
+            Customer Phone
+          </label>
           <div className="flex items-center rounded-lg p-3 px-4 bg-[#1f1f1f]">
             <h2 className="text-white">+63 | </h2>
             <input
@@ -131,11 +144,17 @@ const BottomNav = () => {
         </div>
 
         <div>
-          <label className="block mb-2 mt-3 text-sm font-medium text-[#ababab]">Guest</label>
+          <label className="block mb-2 mt-3 text-sm font-medium text-[#ababab]">
+            Guest
+          </label>
           <div className="flex items-center justify-between bg-[#1f1f1f] px-4 py-3 rounded-lg">
-            <button onClick={decrement} className="text-2xl text-yellow-500">&minus;</button>
+            <button onClick={decrement} className="text-2xl text-yellow-500">
+              &minus;
+            </button>
             <span className="text-white">{guestCount} Person</span>
-            <button onClick={increment} className="text-2xl text-yellow-500">&#43;</button>
+            <button onClick={increment} className="text-2xl text-yellow-500">
+              &#43;
+            </button>
           </div>
         </div>
 

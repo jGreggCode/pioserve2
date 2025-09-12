@@ -7,12 +7,14 @@ import CustomerInfo from "../components/menu/CustomerInfo";
 import CartInfo from "../components/menu/CartInfo";
 import Bill from "../components/menu/Bill";
 import { useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
 
 const Menu = () => {
   useEffect(() => {
     document.title = "POS | Menu";
   }, []);
 
+  const { id } = useParams(); // if present, edit mode
   const customerData = useSelector((state) => state.customer);
 
   return (
@@ -40,18 +42,16 @@ const Menu = () => {
             </div>
           </div>
         </div>
-
         <MenuContainer />
       </div>
 
-      {/* Right Div */}
       {/* Right Div */}
       <div className="flex-[1] mb-28 w-full lg:w-auto bg-[#1a1a1a] mt-2 lg:mt-4 lg:mr-3 h-auto lg:h-[780px] rounded-lg pt-2">
         <CustomerInfo />
         <hr className="border-[#2a2a2a] border-t-2" />
         <CartInfo />
         <hr className="border-[#2a2a2a] border-t-2" />
-        <Bill />
+        <Bill editMode={Boolean(id)} /> {/* ✅ pass edit flag */}
       </div>
 
       <BottomNav />

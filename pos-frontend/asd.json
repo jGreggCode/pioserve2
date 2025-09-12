@@ -1,0 +1,30 @@
+{
+  "customerDetails": { "name": "asda asd", "phone": "1231", "guests": 1 },
+  "bills": { "total": 776, "tax": 40.74, "totalWithTax": 816.74 },
+  "_id": "68c3ecb644da5543014bd58d",
+  "orderStatus": "In Progress",
+  "orderDate": "2025-09-12T09:49:42.049Z",
+  "employee": "68bfa5cb9636a7a50444ee57",
+  "items": [
+    {
+      "id": "68c3e79744da5543014bd341",
+      "name": "Antipasto De Jardin",
+      "stock": 50,
+      "pricePerQuantity": 388,
+      "quantity": 2,
+      "price": 776
+    }
+  ],
+  "table": {
+    "_id": "6868b3e33908a9768d8eb51c",
+    "tableNo": 1,
+    "status": "Booked",
+    "__v": 0,
+    "currentOrder": "68c3ecb644da5543014bd58d",
+    "seats": 2
+  },
+  "paymentMethod": "Cash",
+  "createdAt": "2025-09-12T09:49:42.745Z",
+  "updatedAt": "2025-09-12T09:49:42.745Z",
+  "__v": 0
+}
