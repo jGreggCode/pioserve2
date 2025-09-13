@@ -26,6 +26,7 @@ export const getAllDishes = () => axiosWrapper.get("/api/dish/all");
 export const editDish = (id, data) => axiosWrapper.put(`/api/dish/${id}`, data);
 export const deleteDish = (id) => axiosWrapper.delete(`/api/dish/${id}`);
 export const getCategories = () => axiosWrapper.get(`/api/dish/categories`);
+export const getTopDishes = () => axiosWrapper.get(`/api/dish/top`);
 
 // Payment Endpoints
 export const createOrderRazorpay = (data) =>
@@ -52,3 +53,10 @@ export const getTotalToday = () =>
   axiosWrapper.get("/api/order/get/totalOrderToday");
 export const deleteOrder = ({ orderId }) =>
   axiosWrapper.delete(`/api/order/${orderId}`);
+
+// Admin Endpoints
+export const getAllCounts = () => axiosWrapper.get("api/admin/counts");
+export const updateUser = (id, userData) =>
+  axiosWrapper.put(`/api/admin/update/${id}`, userData);
+export const deleteUser = (id) =>
+  axiosWrapper.delete(`/api/admin/delete/${id}`);

@@ -20,12 +20,14 @@ const Bill = ({ editMode = false }) => {
   const customerData = useSelector((state) => state.customer);
   const cartData = useSelector((state) => state.cart);
   const total = useSelector(getTotalPrice);
-  const taxRate = 5.25;
+  const taxRate = 5.25; // Change this to upate the tax
   const tax = (total * taxRate) / 100;
   const totalPriceWithTax = total + tax;
   const [paymentMethod, setPaymentMethod] = useState("Cash");
   const [showInvoice, setShowInvoice] = useState(false);
   const [orderInfo, setOrderInfo] = useState();
+
+  console.log(customerData);
 
   const handlePlaceOrder = () => {
     if (cartData.length === 0) {
@@ -84,6 +86,9 @@ const Bill = ({ editMode = false }) => {
 
       dispatch(removeCustomer());
       dispatch(removeAllItems());
+      setPaymentMethod("Cash");
+      setOrderInfo(undefined);
+      setShowInvoice(false);
       enqueueSnackbar("Order Placed!", { variant: "success" });
       navigate("/orders");
     },
@@ -120,45 +125,79 @@ const Bill = ({ editMode = false }) => {
       console.log(error);
     },
   });
+
+  const handleCancel = () => {
+    dispatch(removeCustomer());
+    dispatch(removeAllItems());
+    setPaymentMethod("Cash");
+    setOrderInfo(undefined);
+    setShowInvoice(false);
+
+    enqueueSnackbar("Order Edit Cancel", { variant: "success" });
+    navigate("/");
+  };
+
   return (
     <>
-      <div className="flex items-center justify-between px-5 mt-2">
-        <p className="text-xs text-[#ababab]">Items ({cartData.length})</p>
-        <h1 className="text-[#f5f5f5] text-md font-bold">
-          ₱{total.toFixed(2)}
-        </h1>
-      </div>
-      <div className="flex items-center justify-between px-5 mt-2">
-        <p className="text-xs text-[#ababab]">Tax (5.25%)</p>
-        <h1 className="text-[#f5f5f5] text-md font-bold">₱{tax.toFixed(2)}</h1>
-      </div>
-      <div className="flex items-center justify-between px-5 mt-2">
-        <p className="text-xs text-[#ababab]">Total With Tax</p>
-        <h1 className="text-[#f5f5f5] text-md font-bold">
-          ₱{totalPriceWithTax.toFixed(2)}
-        </h1>
+      {/* Order Summary */}
+      <div className="px-5 mt-4 space-y-3">
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-[#ababab]">Items ({cartData.length})</p>
+          <h1 className="text-[#f5f5f5] text-base font-semibold">
+            ₱{total.toFixed(2)}
+          </h1>
+        </div>
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-[#ababab]">Tax ({taxRate}%)</p>
+          <h1 className="text-[#f5f5f5] text-base font-semibold">
+            ₱{tax.toFixed(2)}
+          </h1>
+        </div>
+        <div className="flex items-center justify-between border-t border-[#2a2a2a] pt-3">
+          <p className="text-sm text-[#e4e4e4] font-medium">Total with Tax</p>
+          <h1 className="text-lg font-bold text-primary">
+            ₱{totalPriceWithTax.toFixed(2)}
+          </h1>
+        </div>
       </div>
 
-      <div className="flex items-center gap-3 px-5 mt-4">
+      {/* Payment Method */}
+      <div className="flex items-center gap-3 px-5 mt-5">
         <button
           onClick={() => setPaymentMethod("Cash")}
-          className={`w-full rounded-lg px-4 py-3 text-[#ababab] font-semibold ${
-            paymentMethod === "Cash" ? "bg-[#383737]" : "bg-[#1f1f1f]"
+          className={`w-full rounded-lg px-4 py-3 font-semibold transition ${
+            paymentMethod === "Cash"
+              ? "bg-[#383737] text-[#f5f5f5]"
+              : "bg-[#1f1f1f] text-[#ababab] hover:bg-[#2a2a2a] hover:text-white"
           }`}
         >
           Cash
         </button>
       </div>
 
+      {/* Place/Update Order */}
       <div className="flex items-center gap-3 px-5 mt-4">
         <button
           onClick={handlePlaceOrder}
-          className="bg-[#f6b100] px-4 py-3 w-full rounded-lg text-[#1f1f1f] font-semibold text-lg"
+          className="bg-primary px-4 py-3 w-full rounded-lg text-[#1f1f1f] font-semibold text-lg hover:bg-accent transition"
         >
           {editMode ? "Update Order" : "Place Order"}
         </button>
       </div>
 
+      {/* Cancel (edit mode only) */}
+      {editMode && (
+        <div className="flex items-center gap-3 px-5 mt-3">
+          <button
+            onClick={handleCancel}
+            className="bg-[#fa1717] px-4 py-3 w-full rounded-lg text-white font-semibold text-lg hover:bg-red-600 transition"
+          >
+            Cancel
+          </button>
+        </div>
+      )}
+
+      {/* Invoice Modal */}
       {showInvoice && orderInfo && (
         <Invoice orderInfo={orderInfo} setShowInvoice={setShowInvoice} />
       )}

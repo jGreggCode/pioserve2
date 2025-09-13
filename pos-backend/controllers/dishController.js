@@ -1,4 +1,5 @@
 const Dish = require("../models/dishModel");
+const Order = require("../models/orderModel");
 const mongoose = require("mongoose");
 const createHttpError = require("http-errors");
 
@@ -186,6 +187,33 @@ const getCategories = async (req, res, next) => {
   }
 };
 
+// Get Top 10 Dishes
+const getTopDishes = async (req, res, next) => {
+  try {
+    const topDishes = await Order.aggregate([
+      { $unwind: "$items" }, // expand items array
+      {
+        $group: {
+          _id: "$items.id", // group by the dish id string
+          name: { $first: "$items.name" }, // get dish name
+          totalOrdered: { $sum: "$items.quantity" }, // sum quantities
+          totalRevenue: { $sum: "$items.price" }, // sum revenue if needed
+        },
+      },
+      { $sort: { totalOrdered: -1 } },
+      { $limit: 10 },
+    ]);
+
+    res.status(200).json({
+      success: true,
+      message: "Top 10 dishes fetched successfully",
+      data: topDishes,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   addDish,
   editDish,
@@ -193,4 +221,5 @@ module.exports = {
   deleteDish,
   getAllDishes,
   getCategories,
+  getTopDishes,
 };

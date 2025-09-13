@@ -11,9 +11,9 @@ export default {
           light: "#6366F1",
           dark: "#3730A3",
         },
-        primary: "#f56f21", // 'text-primary' or 'bg-primary'
-        dark: "#1f1f1f",
-        accent: "#73b2ff",
+        primary: "#ff874d", // 'text-primary' or 'bg-primary'
+        dark: "#a33e0b",
+        accent: "#f8aa82",
       },
       animation: {
         glow: "glow 2s ease-in-out infinite",

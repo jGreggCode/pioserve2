@@ -5,44 +5,48 @@ import { getAvatarName } from "../../utils/index";
 
 const OrderList = ({ order }) => {
   return (
-    <div className="flex items-center gap-5 mb-3">
-      <button className="bg-[#f6b100] p-3 text-xl font-bold rounded-lg">
+    <div className="flex items-center gap-4 p-4 bg-[#1e1e1e] rounded-2xl shadow-lg mb-4">
+      {/* Avatar / Initials */}
+      <button className="bg-[#f6b100] text-white w-12 h-12 flex items-center justify-center text-lg font-bold rounded-full shadow-md">
         {getAvatarName(order.customerDetails.name)}
       </button>
-      <div className="flex items-center justify-between w-[100%]">
-        <div className="flex flex-col items-start gap-1">
-          <h1 className="text-[#f5f5f5] text-lg font-semibold tracking-wide">
-            {order.customerDetails.name}
-          </h1>
-          <p className="text-[#ababab] text-sm">{order.items.length} Items</p>
-        </div>
 
-        <h1 className="text-[#f6b100] font-semibold border border-[#f6b100] rounded-lg p-1">
-          Table <FaLongArrowAltRight className="text-[#ababab] ml-2 inline" />{" "}
-          {order.table.tableNo}
+      {/* Customer & Items */}
+      <div className="flex flex-col flex-grow">
+        <h1 className="text-lg font-semibold tracking-wide text-white">
+          {order.customerDetails.name}
         </h1>
+        <p className="text-[#ababab] text-sm">
+          {order.items.length} {order.items.length === 1 ? "Item" : "Items"}
+        </p>
+      </div>
 
-        <div className="flex flex-col items-end gap-2">
-          {order.orderStatus === "Ready" ? (
-            <>
-              <p className="text-green-600 bg-[#2e4a40] px-2 py-1 rounded-lg">
-                <FaCheckDouble className="inline mr-2" /> {order.orderStatus}
-              </p>
-            </>
-          ) : order.orderStatus === "Paid" ? (
-            <>
-              <p className="text-blue-400 bg-[#2e4a40] px-2 py-1 rounded-lg">
-                <FaCheckDouble className="inline mr-2" /> {order.orderStatus}
-              </p>
-            </>
-          ) : (
-            <>
-              <p className="text-yellow-600 bg-[#4a452e] px-2 py-1 rounded-lg">
-                <FaCircle className="inline mr-2" /> {order.orderStatus}
-              </p>
-            </>
-          )}
-        </div>
+      {/* Table Info */}
+      <div className="flex items-center gap-2 px-3 py-1 border border-[#f6b100] text-[#f6b100] font-medium rounded-lg">
+        <span>Table</span>
+        <FaLongArrowAltRight className="text-[#ababab]" />
+        <span>{order.table?.tableNo ? order.table.tableNo : "Take Out"}</span>
+      </div>
+
+      {/* Status */}
+      <div>
+        {order.orderStatus === "Ready" && (
+          <p className="flex items-center gap-2 px-3 py-1 text-sm font-medium text-green-500 rounded-lg bg-green-900/30">
+            <FaCheckDouble /> {order.orderStatus}
+          </p>
+        )}
+
+        {order.orderStatus === "Paid" && (
+          <p className="flex items-center gap-2 px-3 py-1 text-sm font-medium text-blue-400 rounded-lg bg-blue-900/30">
+            <FaCheckDouble /> {order.orderStatus}
+          </p>
+        )}
+
+        {order.orderStatus !== "Ready" && order.orderStatus !== "Paid" && (
+          <p className="flex items-center gap-2 px-3 py-1 text-sm font-medium text-yellow-400 rounded-lg bg-yellow-900/30">
+            <FaCircle /> {order.orderStatus}
+          </p>
+        )}
       </div>
     </div>
   );

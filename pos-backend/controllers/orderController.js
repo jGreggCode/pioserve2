@@ -8,9 +8,9 @@ const addOrder = async (req, res, next) => {
   session.startTransaction();
 
   try {
-    const { items } = req.body;
+    const { items, table } = req.body;
 
-    // 🔹 Validate stock before placing the order
+    // Validate stock before placing the order
     for (const item of items) {
       const dish = await Dish.findById(item.id).session(session);
       if (!dish) {
@@ -24,11 +24,18 @@ const addOrder = async (req, res, next) => {
       }
     }
 
-    // 🔹 Save the order
-    const order = new Order(req.body);
+    // Decide takeout vs dine-in
+    const isTakeOut = !table || table === "0" || table === 0;
+
+    const order = new Order({
+      ...req.body,
+      table: isTakeOut ? null : table,
+      isTakeOut,
+    });
+
     await order.save({ session });
 
-    // 🔹 Decrement stock for each dish
+    // Decrement stock
     for (const item of items) {
       await Dish.findByIdAndUpdate(
         item.id,
@@ -177,18 +184,32 @@ const getOrdersCount = async (req, res, next) => {
 
 const getTotalOrders = async (req, res, next) => {
   try {
-    const orders = await Order.find({}).select("bills.totalWithTax").lean();
+    // Get only needed fields
+    const orders = await Order.find({})
+      .select("bills.totalWithTax orderStatus")
+      .lean();
 
-    const dailyTotal = orders.reduce((sum, order) => {
+    // ✅ Overall total (all orders, regardless of status)
+    const overallTotal = orders.reduce((sum, order) => {
       return sum + (order.bills?.totalWithTax || 0);
     }, 0);
 
-    // Format the final total to exactly two decimal places
-    const formattedTotal = dailyTotal.toFixed(2);
+    // ✅ Total for Paid orders
+    const paidTotal = orders
+      .filter((order) => order.orderStatus === "Paid")
+      .reduce((sum, order) => sum + (order.bills?.totalWithTax || 0), 0);
 
-    res
-      .status(200)
-      .json({ success: true, data: { dailyTotal: formattedTotal } });
+    // ✅ Total for Not Paid orders
+    const unpaidTotal = overallTotal - paidTotal;
+
+    res.status(200).json({
+      success: true,
+      data: {
+        overallTotal: overallTotal.toFixed(2),
+        paidTotal: paidTotal.toFixed(2),
+        unpaidTotal: unpaidTotal.toFixed(2),
+      },
+    });
   } catch (error) {
     next(error);
   }

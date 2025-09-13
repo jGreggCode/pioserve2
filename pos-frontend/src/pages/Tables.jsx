@@ -5,9 +5,33 @@ import TableCard from "../components/tables/TableCard";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { getTables } from "../https";
 import { enqueueSnackbar } from "notistack";
+import { useSelector, useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+
+import { updateTable } from "../redux/slices/customerSlice";
+
+// Icons
+import { FaTh, FaChair, FaRegCheckCircle, FaShoppingBag } from "react-icons/fa";
 
 const Tables = () => {
   const [status, setStatus] = useState("all");
+  const [isChecked, setIsChecked] = useState(false);
+  const customerData = useSelector((state) => state.customer);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  // Event handler to toggle the state
+  const handleOnChange = () => {
+    setIsChecked(!isChecked);
+  };
+
+  const handleTakeOut = () => {
+    if (customerData.orderId === "") return;
+
+    const table = { tableId: null, tableNo: 0 };
+    dispatch(updateTable({ table }));
+    navigate(`/menu`);
+  };
 
   useEffect(() => {
     document.title = "POS | Tables";
@@ -29,32 +53,77 @@ const Tables = () => {
   return (
     <section className="bg-[#1f1f1f] h-[calc(100vh-5rem)] flex flex-col">
       {/* Header */}
-      <div className="flex flex-col items-center justify-between gap-4 px-4 py-4 md:flex-row md:px-10">
-        <div className="flex items-center gap-3">
+      <div className="flex flex-col items-center justify-between gap-6 px-6 py-6 md:flex-row">
+        {/* Left: Title + Controls */}
+        <div className="flex flex-wrap items-center gap-4">
           <BackButton />
-          <h1 className="text-[#f5f5f5] text-xl md:text-2xl font-bold tracking-wider">
+          <h1 className="text-[#f5f5f5] text-2xl font-bold tracking-wide">
             Tables
           </h1>
+
+          {/* Toggle */}
+          <div className="flex items-center gap-3">
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                checked={isChecked}
+                onChange={handleOnChange}
+                className="sr-only peer"
+              />
+              <div
+                className="w-12 h-6 bg-gray-400 rounded-full peer-focus:ring-2 peer-focus:ring-accent
+              peer dark:bg-gray-600 peer-checked:bg-primary
+              after:content-[''] after:absolute after:top-[2px] after:left-[2px] 
+              after:w-5 after:h-5 after:bg-white after:rounded-full after:transition-all
+              peer-checked:after:translate-x-6 shadow-md"
+              ></div>
+            </label>
+            <span className="text-sm font-medium text-white whitespace-nowrap">
+              Ignore Seat Requirement
+            </span>
+          </div>
+
+          {/* Take Out Button */}
+          <button
+            onClick={handleTakeOut}
+            className="flex items-center gap-2 px-4 py-1.5 font-semibold text-white bg-[#f56f21] rounded-lg shadow-md transition-all duration-300 hover:bg-primary hover:scale-105 active:scale-95"
+          >
+            <FaShoppingBag className="text-lg text-white" />
+            Take Out
+          </button>
         </div>
-        {/* Status filter buttons */}
-        <div className="flex flex-wrap items-center justify-center gap-2 md:gap-4">
-          {["all", "booked", "available"].map((type) => (
+
+        {/* Right: Status Filter Buttons */}
+        <div className="flex flex-wrap items-center justify-center gap-3">
+          {[
+            { key: "all", label: "All", icon: <FaTh /> },
+            { key: "booked", label: "Booked", icon: <FaChair /> },
+            {
+              key: "available",
+              label: "Available",
+              icon: <FaRegCheckCircle />,
+            },
+          ].map(({ key, label, icon }) => (
             <button
-              key={type}
-              onClick={() => setStatus(type)}
-              className={`text-[#ababab] text-sm md:text-lg ${
-                status === type && "bg-[#383838]"
-              } rounded-lg px-3 md:px-5 py-2 font-semibold`}
+              key={key}
+              onClick={() => setStatus(key)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm md:text-base transition-all duration-300
+            ${
+              status === key
+                ? "bg-[#383838] text-white shadow-md scale-105"
+                : "text-[#ababab] hover:bg-[#2a2a2a] hover:text-white"
+            }`}
             >
-              {type.charAt(0).toUpperCase() + type.slice(1)}
+              {icon}
+              {label}
             </button>
           ))}
         </div>
       </div>
 
       {/* Tables grid */}
-      <div className="flex-1 px-4 py-4 mb-24 overflow-y-auto scrollbar-hide md:px-8 lg:px-16">
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 md:grid-cols-2 xl:grid-cols-5">
+      <div className="flex-1 px-6 py-6 mb-24 overflow-y-auto scrollbar-hide md:px-10 lg:px-16">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5">
           {resData?.data.data
             ?.filter((table) => {
               if (status === "all") return true;
@@ -68,6 +137,7 @@ const Tables = () => {
                 status={table.status}
                 initials={table?.currentOrder?.customerDetails?.name || ""}
                 seats={table.seats}
+                isChecked={isChecked}
               />
             ))}
         </div>

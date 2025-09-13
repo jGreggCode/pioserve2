@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { IoMdClose } from "react-icons/io";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { addDish } from "../../https";
 import { enqueueSnackbar } from "notistack";
 
 const AddDishModal = ({ setIsDishModalOpen }) => {
+  const queryClient = useQueryClient();
   const [dishData, setDishData] = useState({
     name: "",
     description: "",
@@ -33,9 +34,10 @@ const AddDishModal = ({ setIsDishModalOpen }) => {
   const dishMutation = useMutation({
     mutationFn: (reqData) => addDish(reqData),
     onSuccess: (res) => {
-      setIsDishModalOpen(false);
       const { data } = res;
       enqueueSnackbar(data.message, { variant: "success" });
+      queryClient.invalidateQueries(["dishes"]); // ✅ refresh dishes list
+      setIsDishModalOpen(false);
     },
     onError: (error) => {
       const { data } = error.response;
@@ -167,7 +169,7 @@ const AddDishModal = ({ setIsDishModalOpen }) => {
             type="submit"
             className="w-full py-3 mt-6 text-lg font-bold text-gray-900 bg-yellow-400 rounded-lg"
           >
-            Add Dish
+            {dishMutation.isLoading ? "Adding..." : "Add Dish"}
           </button>
         </form>
       </motion.div>

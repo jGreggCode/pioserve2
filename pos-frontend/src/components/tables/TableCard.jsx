@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAvatarName, getBgColor } from "../../utils";
 import { useDispatch, useSelector } from "react-redux";
@@ -8,7 +8,12 @@ import { freeTable } from "../../https";
 import { enqueueSnackbar } from "notistack";
 import { useQueryClient } from "@tanstack/react-query";
 
-const TableCard = ({ id, name, status, initials, seats }) => {
+// Icons
+import { FaChair, FaUser } from "react-icons/fa";
+import { MdEventSeat } from "react-icons/md";
+import { IoMdCloseCircle } from "react-icons/io";
+
+const TableCard = ({ id, name, status, initials, seats, isChecked }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const customerData = useSelector((state) => state.customer);
@@ -29,6 +34,12 @@ const TableCard = ({ id, name, status, initials, seats }) => {
 
   const handleClick = (name) => {
     if (status === "Booked") return;
+
+    if (!isChecked) {
+      if (customerData.guests > seats)
+        return enqueueSnackbar(`Out of space`, { variant: "warning" });
+    }
+
     if (customerData.orderId === "") return;
 
     const table = { tableId: id, tableNo: name };
@@ -47,43 +58,52 @@ const TableCard = ({ id, name, status, initials, seats }) => {
     <div
       onClick={() => handleClick(name)}
       key={id}
-      className="w-[300px] hover:bg-[#2c2c2c] bg-[#262626] p-4 rounded-lg cursor-pointer"
+      className="hover:bg-[#2c2c2c] bg-[#262626] p-4 rounded-xl cursor-pointer shadow-md transition-transform duration-300 hover:scale-[1.02] flex flex-col justify-between"
     >
-      <div className="flex items-center justify-between px-1">
-        <h1 className="text-[#f5f5f5] text-xl font-semibold">
-          Table <FaLongArrowAltRight className="text-[#ababab] ml-2 inline" />{" "}
-          {name}
+      {/* Header: Table Name + Status */}
+      <div className="flex items-center justify-between">
+        <h1 className="text-[#f5f5f5] text-lg md:text-xl font-semibold flex items-center gap-2">
+          Table <FaLongArrowAltRight className="text-[#ababab]" /> {name}
         </h1>
-        <p
-          className={`${
+        <span
+          className={`text-xs md:text-sm px-3 py-1 rounded-full font-medium ${
             status === "Booked"
-              ? "text-green-600 bg-[#2e4a40]"
-              : "bg-[#664a04] text-white"
-          } px-2 py-1 rounded-lg`}
+              ? "text-green-400 bg-[#2e4a40]"
+              : "text-yellow-300 bg-[#4a3b1f]"
+          }`}
         >
           {status}
-        </p>
+        </span>
       </div>
-      <div className="flex items-center justify-center mt-5 mb-8">
-        <h1
-          className={`text-white rounded-full p-5 text-xl bg-orange-400`}
+
+      {/* Avatar / Customer Initials */}
+      <div className="flex items-center justify-center my-6">
+        <div
+          className={`flex items-center justify-center w-16 h-16 md:w-20 md:h-20 rounded-full text-lg md:text-xl font-bold text-white shadow-md`}
           style={{ backgroundColor: initials ? getBgColor() : "#1f1f1f" }}
         >
-          {getAvatarName(initials) || "N/A"}
-        </h1>
+          {getAvatarName(initials) || (
+            <FaUser className="text-[#ababab] text-2xl" />
+          )}
+        </div>
       </div>
-      <div className="flex flex-row justify-between gap-2">
-        <p className="text-[#ababab] text-xs">
-          Seats: <span className="text-[#f5f5f5]">{seats}</span>
+
+      {/* Footer: Seats + Action */}
+      <div className="flex items-center justify-between text-xs md:text-sm">
+        <p className="flex items-center gap-1 text-[#ababab]">
+          <MdEventSeat className="text-[#f56f21]" />
+          Seats: <span className="text-[#f5f5f5] font-medium">{seats}</span>
         </p>
+
         {status === "Booked" && (
           <button
             onClick={(e) => {
               e.stopPropagation();
               handleFree(id);
             }}
-            className="text-xs text-red-500"
+            className="flex items-center gap-1 text-red-500 transition-colors hover:text-red-400"
           >
+            <IoMdCloseCircle className="text-lg" />
             Free Table
           </button>
         )}

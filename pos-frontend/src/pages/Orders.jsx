@@ -4,6 +4,12 @@ import OrderCard from "../components/orders/OrderCard";
 import BackButton from "../components/shared/BackButton";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { getOrders } from "../https/index";
+import {
+  FaList,
+  FaHourglassHalf,
+  FaCheckCircle,
+  FaInbox,
+} from "react-icons/fa";
 import { enqueueSnackbar } from "notistack";
 
 const Orders = () => {
@@ -28,42 +34,45 @@ const Orders = () => {
 
   return (
     <section className="bg-[#1f1f1f] min-h-screen lg:h-[calc(100vh-5rem)] flex flex-col overflow-y-auto lg:overflow-hidden">
-      <div className="flex items-center justify-between px-6 py-4 md:px-10">
+      {/* Header */}
+      <div className="flex flex-col items-start justify-between gap-4 px-6 py-6 md:flex-row md:items-center md:px-10">
+        {/* Title + Back */}
         <div className="flex items-center gap-4">
           <BackButton />
-          <h1 className="text-[#f5f5f5] text-2xl font-bold tracking-wider">
+          <h1 className="text-[#f5f5f5] text-2xl md:text-3xl font-bold tracking-wide">
             Orders
           </h1>
         </div>
-        <div className="flex items-center justify-around gap-2 md:gap-4">
-          <button
-            onClick={() => setStatus("all")}
-            className={`text-[#ababab] text-lg ${
-              status === "all" && "bg-[#383838] rounded-lg px-5 py-2"
-            } rounded-lg px-5 py-2 font-semibold`}
-          >
-            All
-          </button>
-          <button
-            onClick={() => setStatus("progress")}
-            className={`text-[#ababab] text-lg ${
-              status === "progress" && "bg-[#383838] rounded-lg px-5 py-2"
-            } rounded-lg px-5 py-2 font-semibold`}
-          >
-            In Progress
-          </button>
-          <button
-            onClick={() => setStatus("ready")}
-            className={`text-[#ababab] text-lg ${
-              status === "ready" && "bg-[#383838] rounded-lg px-5 py-2"
-            } rounded-lg px-5 py-2 font-semibold`}
-          >
-            Ready
-          </button>
+
+        {/* Filter Buttons */}
+        <div className="flex items-center justify-center gap-3">
+          {[
+            { key: "all", label: "All", icon: <FaList /> },
+            {
+              key: "progress",
+              label: "In Progress",
+              icon: <FaHourglassHalf />,
+            },
+            { key: "ready", label: "Ready", icon: <FaCheckCircle /> },
+          ].map(({ key, label, icon }) => (
+            <button
+              key={key}
+              onClick={() => setStatus(key)}
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm md:text-base transition-all duration-300 ${
+                status === key
+                  ? "bg-[#383838] text-white shadow-md scale-105"
+                  : "text-[#ababab] hover:bg-[#2a2a2a] hover:text-white"
+              }`}
+            >
+              {icon}
+              {label}
+            </button>
+          ))}
         </div>
       </div>
 
-      <div className="grid flex-1 gap-3 px-6 py-4 mb-24 overflow-y-auto md:grid-cols-1 md:px-16 lg:grid-cols-3 scrollbar-hide">
+      {/* Orders Grid */}
+      <div className="grid flex-1 gap-6 px-6 py-6 mb-24 overflow-y-auto scrollbar-hide md:px-10 lg:grid-cols-2 xl:grid-cols-3">
         {resData?.data.data.length > 0 ? (
           resData.data.data
             .filter((order) => {
@@ -75,7 +84,15 @@ const Orders = () => {
             })
             .map((order) => <OrderCard key={order._id} order={order} />)
         ) : (
-          <p className="col-span-3 text-gray-500">No orders available</p>
+          <div className="flex flex-col items-center justify-center py-20 text-center col-span-full">
+            <FaInbox className="text-6xl mb-4 text-[#ababab]" />
+            <p className="text-lg font-semibold text-white">
+              No orders available
+            </p>
+            <p className="text-sm text-[#ababab]">
+              Orders will appear here once created
+            </p>
+          </div>
         )}
       </div>
 

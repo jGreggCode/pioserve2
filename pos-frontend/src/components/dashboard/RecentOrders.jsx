@@ -16,7 +16,7 @@ import { useSelector } from "react-redux";
 import { useState } from "react";
 
 const RecentOrders = () => {
-  const [selected, setSelected] = useState("All");
+  const [selected, setSelected] = useState("Today");
   const userData = useSelector((state) => state.user);
   const queryClient = useQueryClient();
 
@@ -89,22 +89,35 @@ const RecentOrders = () => {
   console.log(resData?.data?.data);
 
   return (
-    <div className="container mx-auto bg-[#262626] p-4 rounded-lg">
-      <div className="flex justify-between px-2 mb-4">
-        <h2 className="text-[#f5f5f5] text-xl font-semibold">Recent Orders</h2>
+    <div className="container mx-auto bg-[#262626] p-6 rounded-xl shadow-lg">
+      {/* Section Header */}
+      <div className="px-2 mb-6">
+        <h2 className="font-semibold text-[#f5f5f5] text-xl">Recent Orders</h2>
+        <p className="text-sm text-[#ababab]">
+          Track your latest customer orders with status, table assignments, and
+          payments.
+        </p>
+      </div>
+
+      {/* Filter Buttons */}
+      <div className="flex justify-end px-2 mb-6">
         <div className="flex gap-2">
           <button
             onClick={() => setSelected("Today")}
-            className={`px-8 rounded-lg text-[#f5f5f5] font-semibold text-md flex items-center gap-2 ${
-              selected === "Today" ? "bg-slate-400" : "bg-[#1a1a1a]"
+            className={`px-6 py-2 rounded-lg text-sm font-medium transition-colors ${
+              selected === "Today"
+                ? "bg-slate-400 text-black"
+                : "bg-[#1a1a1a] text-[#f5f5f5] hover:bg-[#333]"
             }`}
           >
             Today
           </button>
           <button
             onClick={() => setSelected("All")}
-            className={`px-8 rounded-lg text-[#f5f5f5] font-semibold text-md flex items-center gap-2 ${
-              selected === "All" ? "bg-slate-400" : "bg-[#1a1a1a]"
+            className={`px-6 py-2 rounded-lg text-sm font-medium transition-colors ${
+              selected === "All"
+                ? "bg-slate-400 text-black"
+                : "bg-[#1a1a1a] text-[#f5f5f5] hover:bg-[#333]"
             }`}
           >
             All
@@ -112,40 +125,43 @@ const RecentOrders = () => {
         </div>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full text-left text-[#f5f5f5]">
-          <thead className="bg-[#333] text-[#ababab]">
+      {/* Table */}
+      <div className="overflow-x-auto border border-gray-700 rounded-lg">
+        <table className="w-full text-left text-sm text-[#f5f5f5]">
+          <thead className="bg-[#333] text-[#ababab] text-sm uppercase tracking-wider">
             <tr>
-              <th className="p-3">Order ID</th>
-              <th className="p-3">Customer</th>
-              <th className="p-3">Status</th>
-              <th className="p-3">Date & Time</th>
-              <th className="p-3">Items</th>
-              <th className="p-3">Table No</th>
-              <th className="p-3">Total</th>
-              <th className="p-3 text-center">Payment Method</th>
+              <th className="px-4 py-3">Order ID</th>
+              <th className="px-4 py-3">Customer</th>
+              <th className="px-4 py-3">Status</th>
+              <th className="px-4 py-3">Date & Time</th>
+              <th className="px-4 py-3">Items</th>
+              <th className="px-4 py-3">Table No</th>
+              <th className="px-4 py-3">Total</th>
+              <th className="px-4 py-3 text-center">Payment</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="divide-y divide-gray-700">
             {resData?.data.data
               .sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate))
               .map((order, index) => (
                 <tr
                   key={index}
-                  className="border-b border-gray-600 hover:bg-[#333]"
+                  className={`transition-colors ${
+                    index % 2 === 0 ? "bg-[#2d2d2d]" : "bg-[#262626]"
+                  } hover:bg-[#3a3a3a]`}
                 >
-                  <td className="p-4">
+                  <td className="px-4 py-4 font-mono text-gray-300">
                     #{Math.floor(new Date(order.orderDate).getTime())}
                   </td>
-                  <td className="p-4">{order.customerDetails.name}</td>
-                  <td className="p-4">
+                  <td className="px-4 py-4">{order.customerDetails.name}</td>
+                  <td className="px-4 py-4">
                     <select
-                      className={`bg-[#1a1a1a] text-[#f5f5f5] border border-gray-500 p-2 rounded-lg focus:outline-none ${
+                      className={`bg-[#1a1a1a] border border-gray-600 px-3 py-1.5 rounded-lg focus:outline-none text-sm ${
                         order.orderStatus === "Ready"
-                          ? "text-green-500"
+                          ? "text-green-400"
                           : order.orderStatus === "Paid"
                           ? "text-blue-300"
-                          : "text-yellow-500"
+                          : "text-yellow-400"
                       }`}
                       value={order.orderStatus}
                       onChange={(e) =>
@@ -155,35 +171,44 @@ const RecentOrders = () => {
                         })
                       }
                     >
-                      <option className="text-yellow-500" value="In Progress">
+                      <option className="text-yellow-400" value="In Progress">
                         In Progress
                       </option>
-                      <option className="text-green-500" value="Ready">
+                      <option className="text-green-400" value="Ready">
                         Ready
                       </option>
                       {userData.role === "Admin" && (
                         <>
-                          <option className="text-red-500" value="Delete">
+                          <option className="text-red-400" value="Delete">
                             Delete
                           </option>
-                          <option className="text-blue-500" value="Paid">
+                          <option className="text-blue-400" value="Paid">
                             Paid
                           </option>
                         </>
                       )}
                     </select>
                   </td>
-                  <td className="p-4">{formatDateAndTime(order.orderDate)}</td>
-                  <td className="p-4">
+                  <td className="px-4 py-4 text-gray-300">
+                    {formatDateAndTime(order.orderDate)}
+                  </td>
+                  <td className="px-4 py-4 text-gray-300">
                     {order.items.map((item, index) => (
                       <div key={item.id}>
-                        {item.name} {item.quantity}x
+                        {item.name}{" "}
+                        <span className="text-gray-400">x{item.quantity}</span>
                       </div>
                     ))}
                   </td>
-                  <td className="p-4">Table - {order.table.tableNo}</td>
-                  <td className="p-4">&#8369;{order.bills.totalWithTax}</td>
-                  <td className="p-4">{order.paymentMethod}</td>
+                  <td className="px-4 py-4">
+                    {order.table ? `Table ${order.table.tableNo}` : "Take Out"}
+                  </td>
+                  <td className="px-4 py-4 font-semibold text-[#f5f5f5]">
+                    ₱{order.bills.totalWithTax}
+                  </td>
+                  <td className="px-4 py-4 text-center">
+                    {order.paymentMethod}
+                  </td>
                 </tr>
               ))}
           </tbody>

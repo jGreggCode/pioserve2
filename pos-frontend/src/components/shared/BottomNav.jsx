@@ -51,119 +51,112 @@ const BottomNav = () => {
   };
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-[#262626] p-2 h-16 flex justify-around z-50 shadow-lg">
-      {/* Home */}
-      <button
-        onClick={() => navigate("/")}
-        className={`flex flex-1 items-center justify-center font-bold py-2 mx-1 rounded-[20px] transition ${
-          isActive("/") ? "text-[#f5f5f5] bg-[#343434]" : "text-[#ababab]"
-        }`}
-      >
-        <FaHome size={22} />
-        <span className="hidden ml-2 sm:inline">Home</span>
-      </button>
+    <div className="fixed bottom-0 left-0 right-0 bg-[#262626] p-2 h-16 flex justify-around items-center z-50 shadow-lg">
+      {/* Navigation Buttons */}
+      {[
+        { path: "/", icon: <FaHome size={22} />, label: "Home" },
+        {
+          path: "/orders",
+          icon: <MdOutlineReorder size={22} />,
+          label: "Orders",
+        },
+        { path: "/tables", icon: <MdTableBar size={22} />, label: "Tables" },
+        { path: "/menu", icon: <IoFastFood size={22} />, label: "Menu" },
+      ].map(({ path, icon, label }) => (
+        <button
+          key={path}
+          onClick={() => navigate(path)}
+          className={`flex flex-1 flex-col items-center justify-center py-2 mx-1 rounded-[20px] transition-all duration-200 ${
+            isActive(path)
+              ? "text-white bg-[#343434] scale-105 shadow-md"
+              : "text-[#ababab] hover:text-white hover:bg-[#2a2a2a]"
+          }`}
+        >
+          {icon}
+          <span className="hidden mt-1 text-xs font-medium sm:inline">
+            {label}
+          </span>
+        </button>
+      ))}
 
-      {/* Orders */}
-      <button
-        onClick={() => navigate("/orders")}
-        className={`flex flex-1 items-center justify-center font-bold py-2 mx-1 rounded-[20px] transition ${
-          isActive("/orders") ? "text-[#f5f5f5] bg-[#343434]" : "text-[#ababab]"
-        }`}
-      >
-        <MdOutlineReorder size={22} />
-        <span className="hidden ml-2 sm:inline">Orders</span>
-      </button>
-
-      {/* Tables */}
-      <button
-        onClick={() => navigate("/tables")}
-        className={`flex flex-1 items-center justify-center font-bold py-2 mx-1 rounded-[20px] transition ${
-          isActive("/tables") ? "text-[#f5f5f5] bg-[#343434]" : "text-[#ababab]"
-        }`}
-      >
-        <MdTableBar size={22} />
-        <span className="hidden ml-2 sm:inline">Tables</span>
-      </button>
-
-      {/* More */}
-      {/* <button className="flex flex-1 items-center justify-center font-bold text-[#ababab] py-2 mx-1 rounded-[20px] transition">
-        <CiCircleMore size={22} />
-        <span className="hidden ml-2 sm:inline">Menu</span>
-      </button> */}
-      <button
-        onClick={() => navigate("/menu")}
-        className={`flex flex-1 items-center justify-center font-bold py-2 mx-1 rounded-[20px] transition ${
-          isActive("/menu") ? "text-[#f5f5f5] bg-[#343434]" : "text-[#ababab]"
-        }`}
-      >
-        <IoFastFood size={22} />
-        <span className="hidden ml-2 sm:inline">Menu</span>
-      </button>
-
-      {/* Floating Action (Dish Button) */}
+      {/* Floating Action Button */}
       <button
         disabled={isActive("/tables") || isActive("/menu")}
         onClick={openModal}
-        className="absolute bottom-8 bg-[#F6B100] text-[#f5f5f5] rounded-full p-4 shadow-lg"
+        className="absolute p-4 text-white transition-transform duration-300 transform -translate-x-1/2 rounded-full shadow-xl -top-6 left-1/2 bg-primary hover:scale-110"
       >
         <BiSolidDish size={32} />
       </button>
 
       {/* Modal */}
       <Modal isOpen={isModalOpen} onClose={closeModal} title="Create Order">
-        <div>
-          <label className="block text-[#ababab] mb-2 text-sm font-medium">
-            Customer Name
-          </label>
-          <div className="flex items-center rounded-lg p-3 px-4 bg-[#1f1f1f]">
-            <input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              type="text"
-              placeholder="Enter customer name"
-              className="flex-1 text-white bg-transparent focus:outline-none"
-            />
+        <div className="flex flex-col gap-4">
+          {/* Customer Name */}
+          <div>
+            <label className="block text-sm font-medium text-[#ababab] mb-2">
+              Customer Name
+            </label>
+            <div className="flex items-center bg-[#1f1f1f] rounded-lg px-4 py-3">
+              <input
+                type="text"
+                placeholder="Enter customer name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="flex-1 text-white bg-transparent focus:outline-none placeholder:text-gray-400"
+              />
+            </div>
           </div>
-        </div>
 
-        <div>
-          <label className="block text-[#ababab] mb-2 mt-3 text-sm font-medium">
-            Customer Phone
-          </label>
-          <div className="flex items-center rounded-lg p-3 px-4 bg-[#1f1f1f]">
-            <h2 className="text-white">+63 | </h2>
-            <input
-              value={phone}
-              onChange={handleInputChange}
-              type="tel"
-              placeholder="9917822877"
-              className="flex-1 py-3 pl-2 text-white bg-transparent focus:outline-none"
-              required
-            />
+          {/* Customer Phone */}
+          <div>
+            <label className="block text-sm font-medium text-[#ababab] mb-2 mt-3">
+              Customer Phone
+            </label>
+            <div className="flex items-center bg-[#1f1f1f] rounded-lg px-4 py-3 gap-2">
+              <span className="text-white">+63 |</span>
+              <input
+                type="tel"
+                placeholder="9917822877"
+                value={phone}
+                onChange={handleInputChange}
+                className="flex-1 text-white bg-transparent focus:outline-none placeholder:text-gray-400"
+                required
+              />
+            </div>
           </div>
-        </div>
 
-        <div>
-          <label className="block mb-2 mt-3 text-sm font-medium text-[#ababab]">
-            Guest
-          </label>
-          <div className="flex items-center justify-between bg-[#1f1f1f] px-4 py-3 rounded-lg">
-            <button onClick={decrement} className="text-2xl text-yellow-500">
-              &minus;
-            </button>
-            <span className="text-white">{guestCount} Person</span>
-            <button onClick={increment} className="text-2xl text-yellow-500">
-              &#43;
-            </button>
+          {/* Guest Count */}
+          <div>
+            <label className="block text-sm font-medium text-[#ababab] mb-2 mt-3">
+              Guest
+            </label>
+            <div className="flex items-center justify-between bg-[#1f1f1f] px-4 py-3 rounded-lg">
+              <button
+                onClick={decrement}
+                className="text-2xl text-yellow-500 transition-colors hover:text-yellow-400"
+              >
+                &minus;
+              </button>
+              <span className="font-medium text-white">
+                {guestCount} Person{guestCount > 1 ? "s" : ""}
+              </span>
+              <button
+                onClick={increment}
+                className="text-2xl text-yellow-500 transition-colors hover:text-yellow-400"
+              >
+                &#43;
+              </button>
+            </div>
           </div>
-        </div>
 
-        <button
-          onClick={handleCreateOrder}
-          className="w-full bg-[#F6B100] text-[#f5f5f5] rounded-lg py-3 mt-8 hover:bg-yellow-700"
-        >
-          Create Order
-        </button>
+          {/* Create Order Button */}
+          <button
+            onClick={handleCreateOrder}
+            className="w-full py-3 mt-6 font-semibold text-white transition-colors rounded-lg bg-primary hover:bg-primary/90"
+          >
+            Create Order
+          </button>
+        </div>
       </Modal>
     </div>
   );

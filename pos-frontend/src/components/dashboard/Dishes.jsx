@@ -110,7 +110,6 @@ const Dishes = () => {
               <th className="p-3">Category</th>
               <th className="p-3">Sub Category</th>
               <th className="p-3">Price</th>
-              <th className="p-3">Date Added</th>
               {userData.role === "Admin" && (
                 <th className="p-3 text-center">Actions</th>
               )}
@@ -126,14 +125,13 @@ const Dishes = () => {
                 >
                   <td className="p-4">#{dish._id?.slice(-6)}</td>
                   <td className="p-4">{dish.name}</td>
-                  <td className="p-4">{dish.stock}</td>
                   <td className="p-4">{dish.description}</td>
+                  <td className="p-4">{dish.stock}</td>
                   <td className="p-4">{dish.category}</td>
                   <td className="p-4">{dish.subcategory}</td>
                   <td className="p-4">&#8369;{dish.price}</td>
-                  <td className="p-4">{formatDateAndTime(dish.createdAt)}</td>
                   {userData.role === "Admin" && (
-                    <td className="flex gap-2 p-4 text-center">
+                    <td className="flex justify-center gap-2 p-4">
                       <button
                         onClick={() => setEditingDish(dish)}
                         className="px-4 py-2 text-white bg-yellow-600 rounded-lg"

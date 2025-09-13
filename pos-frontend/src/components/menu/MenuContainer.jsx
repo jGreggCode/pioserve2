@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
-import { GrRadialSelected } from "react-icons/gr";
-import { FaShoppingCart } from "react-icons/fa";
 import { useDispatch } from "react-redux";
 import { addItems } from "../../redux/slices/cartSlice";
 import { getDish } from "../../https";
+import { enqueueSnackbar } from "notistack";
+
+// Icons
+import { GrRadialSelected } from "react-icons/gr";
+import { FaShoppingCart, FaSearch, FaTimes } from "react-icons/fa";
 
 const MenuContainer = () => {
   const [menus, setMenus] = useState([]);
@@ -84,6 +87,10 @@ const MenuContainer = () => {
     });
   };
 
+  const handleOutOFStock = (itemName) => {
+    enqueueSnackbar(`${itemName} is out of stock!`, { variant: "warning" });
+  };
+
   const handleAddToCart = (item) => {
     const quantity = counts[item.id] || 0;
     if (quantity === 0) return;
@@ -107,44 +114,50 @@ const MenuContainer = () => {
       {/* Search Bar */}
       <div className="px-4 mt-4 sm:px-6 lg:px-10">
         <div className="relative w-full">
+          <FaSearch className="absolute text-gray-500 -translate-y-1/2 left-3 top-1/2" />
           <input
             type="text"
             placeholder="Search items..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full p-3 rounded-lg bg-[#1a1a1a] text-white border border-gray-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 pr-10"
+            className="w-full pl-10 pr-10 py-3 rounded-xl bg-[#1a1a1a] text-white border border-[#2a2a2a] focus:outline-none focus:ring-2 focus:ring-primary transition"
           />
           {search && (
             <button
               onClick={() => setSearch("")}
-              className="absolute inset-y-0 flex items-center text-gray-400 right-3 hover:text-white"
+              className="absolute text-gray-400 transition -translate-y-1/2 right-3 top-1/2 hover:text-white"
             >
-              ✕
+              <FaTimes />
             </button>
           )}
         </div>
       </div>
+
       {/* Categories */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 px-4 sm:px-6 lg:px-10 py-4 w-full h-[200px] overflow-y-auto scrollbar-hide">
         {menus.map((menu) => (
           <div
             key={menu.id}
-            className="flex flex-col items-start justify-between p-4 rounded-lg h-[100px] cursor-pointer"
-            style={{ backgroundColor: menu.bgColor }}
+            className={`flex flex-col items-start justify-between p-4 rounded-xl h-[100px] cursor-pointer border shadow-sm transition 
+          ${
+            selected?.id === menu.id
+              ? "border-primary bg-[#2a2a2a]"
+              : "border-[#2a2a2a] bg-[#1f1f1f] hover:bg-[#2a2a2a]"
+          }`}
             onClick={() => {
               setSelected(menu);
               if (search.trim() === "") setFilteredItems(menu.items); // reset when switching
             }}
           >
             <div className="flex items-center justify-between w-full">
-              <h1 className="text-[#f5f5f5] text-lg font-semibold">
+              <h1 className="text-[#f5f5f5] text-lg font-semibold flex items-center gap-2">
                 {menu.icon} {menu.name}
               </h1>
               {selected?.id === menu.id && (
-                <GrRadialSelected className="text-white" size={20} />
+                <GrRadialSelected className="text-primary" size={20} />
               )}
             </div>
-            <p className="text-[#f5f5f5] text-sm font-semibold">
+            <p className="text-[#ababab] text-sm font-medium">
               {menu.items.length} Items
             </p>
           </div>
@@ -161,53 +174,62 @@ const MenuContainer = () => {
             return (
               <div
                 key={item.id}
-                className="flex flex-col items-start justify-between p-4 rounded-lg h-[150px] cursor-pointer hover:bg-[#2a2a2a] bg-[#1a1a1a]"
+                className="flex flex-col items-start justify-between p-4 rounded-xl h-[170px] cursor-pointer hover:shadow-lg hover:border-primary bg-[#1a1a1a] border border-[#2a2a2a] transition"
               >
+                {/* Name + Add-to-Cart */}
                 <div className="flex items-start justify-between w-full">
                   <div>
-                    <h1 className="text-[#f5f5f5] text-lg font-semibold">
+                    <h1 className="text-[#f5f5f5] text-lg font-semibold truncate">
                       {item.name}
                     </h1>
-                    <p className="text-[#f5f5f5] text-sm italic">
+                    <p className="text-[#ababab] text-sm italic">
                       {item.category}
                     </p>
                   </div>
                   {item.stock === 0 ? (
-                    <span className="text-sm font-semibold text-red-500">
-                      Out of Stock
-                    </span>
+                    <button
+                      onClick={() => handleOutOFStock(item.name)}
+                      className="p-2 rounded-lg bg-[#2e2e2e] text-red-500 hover:bg-red-500 hover:text-white transition"
+                    >
+                      <FaShoppingCart size={18} />
+                    </button>
                   ) : (
                     <button
                       onClick={() => handleAddToCart(item)}
-                      className="bg-[#2e4a40] text-[#02ca3a] p-2 rounded-lg"
+                      className="p-2 rounded-lg bg-[#2e2e2e] text-green-400 hover:bg-green-500 hover:text-white transition"
                     >
-                      <FaShoppingCart size={20} />
+                      <FaShoppingCart size={18} />
                     </button>
                   )}
                 </div>
 
-                <div className="flex items-center justify-between w-full">
-                  <p className="text-[#f5f5f5] text-xl font-bold">
+                {/* Price + Counter */}
+                <div className="flex items-center justify-between w-full mt-3">
+                  <p className="text-[#f5f5f5] text-lg font-bold">
                     &#8369;{item.price}
                   </p>
-                  <div className="flex items-center justify-between bg-[#1f1f1f] px-4 py-3 rounded-lg gap-6 w-[50%]">
+                  <div className="flex items-center justify-between bg-[#2a2a2a] px-4 py-2 rounded-lg gap-6 w-[50%]">
                     <button
                       disabled={currentCount === 0}
                       onClick={() => decrement(item.id)}
-                      className={`text-2xl ${
-                        currentCount === 0 ? "text-gray-600" : "text-yellow-500"
+                      className={`text-xl font-bold transition ${
+                        currentCount === 0
+                          ? "text-gray-600 cursor-not-allowed"
+                          : "text-primary hover:text-accent"
                       }`}
                     >
                       &minus;
                     </button>
-                    <span className="text-white">{currentCount}</span>
+                    <span className="font-medium text-white">
+                      {currentCount}
+                    </span>
                     <button
                       disabled={currentCount >= item.stock}
                       onClick={() => increment(item.id, item.stock)}
-                      className={`text-2xl ${
+                      className={`text-xl font-bold transition ${
                         currentCount >= item.stock
-                          ? "text-gray-600"
-                          : "text-yellow-500"
+                          ? "text-gray-600 cursor-not-allowed"
+                          : "text-primary hover:text-accent"
                       }`}
                     >
                       &#43;
@@ -215,14 +237,17 @@ const MenuContainer = () => {
                   </div>
                 </div>
 
-                <p className="mt-1 text-xs text-gray-400">
+                {/* Stock Info */}
+                <p className="mt-2 text-xs text-gray-400">
                   {item.stock - currentCount} left in stock
                 </p>
               </div>
             );
           })
         ) : (
-          <p className="text-center text-white col-span-full">No items found</p>
+          <p className="text-center text-[#ababab] col-span-full">
+            No items found
+          </p>
         )}
       </div>
     </>

@@ -24,22 +24,43 @@ const OrderCard = ({ order }) => {
   const orderStatusUpdateMutation = useMutation({
     mutationFn: ({ orderId, orderStatus }) =>
       updateOrderStatus({ orderId, orderStatus }),
-    onSuccess: () => {
+
+    onSuccess: (res, variables) => {
       enqueueSnackbar("Order status updated successfully!", {
         variant: "success",
       });
       queryClient.invalidateQueries(["orders"]);
       setShowInvoice(true);
 
-      // 🔹 Update the table to "Booked" with the new orderId
-      tableUpdateMutation.mutate({
-        tableId: customerData.table.tableId,
-        status: "Booked",
-        orderId: data._id,
-      });
+      // ✅ Now use variables.orderStatus
+      if (variables.orderStatus === "Paid") {
+        tableUpdateMutation.mutate({
+          tableId: order.table._id,
+          status: "Available",
+          orderId: null,
+        });
+      } else if (variables.orderStatus === "Ready") {
+        tableUpdateMutation.mutate({
+          tableId: order.table._id,
+          status: "Booked",
+          orderId: order._id,
+        });
+      }
     },
+
     onError: () => {
       enqueueSnackbar("Failed to update order status!", { variant: "error" });
+    },
+  });
+
+  const tableUpdateMutation = useMutation({
+    mutationFn: (reqData) => updateTable(reqData),
+    onSuccess: (resData) => {
+      // console.log("Table updated:", resData);
+      dispatch(removeAllItems());
+    },
+    onError: (error) => {
+      console.error("Table update failed:", error);
     },
   });
 
@@ -53,19 +74,6 @@ const OrderCard = ({ order }) => {
       console.error(error);
     }
   };
-
-  const tableUpdateMutation = useMutation({
-    mutationFn: (reqData) => updateTable(reqData),
-    onSuccess: (resData) => {
-      // console.log(resData);
-      setTableInfo(resData.data); // ✅ Store the table response
-      dispatch(removeCustomer());
-      dispatch(removeAllItems());
-    },
-    onError: (error) => {
-      console.log(error);
-    },
-  });
 
   const handleEditOrder = () => {
     // preload customer slice
@@ -87,7 +95,7 @@ const OrderCard = ({ order }) => {
   };
 
   return (
-    <div className="w-[500px] h-[260px] bg-[#262626] p-4 rounded-lg mb-4">
+    <div className="h-[260px] bg-[#262626] p-4 rounded-lg mb-4">
       <div className="flex items-center gap-5">
         <button className="bg-[#f6b100] p-3 text-xl font-bold rounded-lg">
           {getAvatarName(order.customerDetails.name)}
@@ -101,7 +109,7 @@ const OrderCard = ({ order }) => {
               #{Math.floor(new Date(order.orderDate).getTime())} / Dine in
             </p>
             <p className="text-[#ababab] text-sm">
-              Table {order.table.tableNo}
+              {order.table ? `Table ${order.table.tableNo}` : "Take Out"}
             </p>
           </div>
           <div className="flex flex-col items-end gap-2">
