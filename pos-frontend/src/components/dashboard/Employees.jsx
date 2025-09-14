@@ -2,9 +2,16 @@ import React, { useEffect, useState } from "react";
 import { getUsers, updateUser, deleteUser } from "../../https"; // adjust path if needed
 import { enqueueSnackbar } from "notistack";
 
+// Icon
+import { IoMdClose } from "react-icons/io";
+
+// Animation
+import { motion } from "framer-motion";
+
 const Metrics = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isSaveLoading, setIsSaveLoading] = useState(false);
 
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
@@ -28,6 +35,7 @@ const Metrics = () => {
 
   const handleUpdateUser = async () => {
     try {
+      setIsSaveLoading(true);
       // build payload
       const payload = { ...selectedUser };
       if (newPassword.trim()) {
@@ -49,6 +57,8 @@ const Metrics = () => {
     } catch (error) {
       console.error(error);
       enqueueSnackbar("Error updating user", { variant: "error" });
+    } finally {
+      setIsSaveLoading(false);
     }
   };
 
@@ -173,16 +183,16 @@ const Metrics = () => {
                   </td>
                   <td className="px-6 py-4 space-x-2 text-center">
                     <button
+                      onClick={() => handleEdit(u)}
+                      className="px-3 py-1 text-xs font-medium text-black transition-colors rounded-md bg-primary hover:bg-accent"
+                    >
+                      Edit
+                    </button>
+                    <button
                       onClick={() => handleDelete(u)}
                       className="px-3 py-1 text-xs font-medium text-white transition-colors bg-red-600 rounded-md hover:bg-red-700"
                     >
                       Delete
-                    </button>
-                    <button
-                      onClick={() => handleEdit(u)}
-                      className="px-3 py-1 text-xs font-medium text-black transition-colors bg-yellow-400 rounded-md hover:bg-yellow-500"
-                    >
-                      Edit
                     </button>
                   </td>
                 </tr>
@@ -245,88 +255,154 @@ const Metrics = () => {
         )}
       </div>
       {/* ==================== EDIT MODAL ==================== */}
+
       {isEditOpen && selectedUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
-          <div className="bg-[#1a1a1a] rounded-lg shadow-lg w-full max-w-md p-6">
-            <h3 className="text-lg font-semibold text-[#f5f5f5] mb-4">
-              Edit Employee
-            </h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="bg-[#262626] p-6 rounded-lg shadow-lg w-[90%] max-w-md"
+          >
+            {/* Modal Header */}
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-[#f5f5f5] text-xl font-semibold truncate">
+                Add Dish
+              </h2>
+              <button
+                onClick={() => setIsEditOpen(false)}
+                className="text-[#f5f5f5] hover:text-red-500 flex-shrink-0"
+              >
+                <IoMdClose size={24} />
+              </button>
+            </div>
+
+            {/* Modal Body */}
             <form
-              className="space-y-4"
+              className="mt-6 space-y-4"
               onSubmit={(e) => {
                 e.preventDefault();
                 handleUpdateUser(); // ✅ call update function
               }}
             >
-              <input
-                type="text"
-                value={selectedUser?.name || ""}
-                onChange={(e) =>
-                  setSelectedUser({ ...selectedUser, name: e.target.value })
-                }
-                className="w-full px-3 py-2 rounded-md bg-[#2d2d2d] text-[#f5f5f5] 
-                     border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Name"
-              />
-              <input
-                type="email"
-                value={selectedUser?.email || ""}
-                onChange={(e) =>
-                  setSelectedUser({ ...selectedUser, email: e.target.value })
-                }
-                className="w-full px-3 py-2 rounded-md bg-[#2d2d2d] text-[#f5f5f5] 
-                     border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Email"
-              />
-              <input
-                type="number"
-                value={selectedUser?.phone || ""}
-                onChange={(e) =>
-                  setSelectedUser({ ...selectedUser, phone: e.target.value })
-                }
-                className="w-full px-3 py-2 rounded-md bg-[#2d2d2d] text-[#f5f5f5] 
-                     border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Phone"
-              />
-              <input
-                type="password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                className="w-full px-3 py-2 rounded-md bg-[#2d2d2d] text-[#f5f5f5] 
-                     border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="New Password (optional)"
-              />
-              <select
-                value={selectedUser?.role || "Employee"}
-                onChange={(e) =>
-                  setSelectedUser({ ...selectedUser, role: e.target.value })
-                }
-                className="w-full px-3 py-2 rounded-md bg-[#2d2d2d] text-[#f5f5f5] 
-                     border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="Chef">Chef</option>
-                <option value="Waiter">Waiter</option>
-                <option value="Cashier">Cashier</option>
-                <option value="Admin">Admin</option>
-              </select>
+              <div>
+                <label className="block text-[#ababab] mb-2 text-sm font-medium">
+                  Name
+                </label>
+                <div className="flex items-center rounded-lg p-3 px-4 bg-[#1f1f1f]">
+                  <input
+                    type="text"
+                    name="name"
+                    value={selectedUser?.name || ""}
+                    onChange={(e) =>
+                      setSelectedUser({
+                        ...selectedUser,
+                        name: e.target.value,
+                      })
+                    }
+                    className="flex-1 text-white bg-transparent focus:outline-none"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[#ababab] mb-2 text-sm font-medium">
+                  Email
+                </label>
+                <div className="flex items-center rounded-lg p-3 px-4 bg-[#1f1f1f]">
+                  <input
+                    type="email"
+                    name="email"
+                    value={selectedUser?.email || ""}
+                    onChange={(e) =>
+                      setSelectedUser({
+                        ...selectedUser,
+                        email: e.target.value,
+                      })
+                    }
+                    className="flex-1 text-white bg-transparent focus:outline-none"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[#ababab] mb-2 text-sm font-medium">
+                  Phone Number
+                </label>
+                <div className="flex items-center rounded-lg p-3 px-4 bg-[#1f1f1f]">
+                  <input
+                    type="number"
+                    name="email"
+                    value={selectedUser?.phone || ""}
+                    onChange={(e) =>
+                      setSelectedUser({
+                        ...selectedUser,
+                        email: e.target.value,
+                      })
+                    }
+                    className="flex-1 text-white bg-transparent focus:outline-none"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[#ababab] mb-2 text-sm font-medium">
+                  Password
+                </label>
+                <div className="flex items-center rounded-lg p-3 px-4 bg-[#1f1f1f]">
+                  <input
+                    type="password"
+                    name="password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    className="flex-1 text-white bg-transparent focus:outline-none"
+                    placeholder="New Password (optional)"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[#ababab] mb-2 text-sm font-medium">
+                  Role
+                </label>
+                <div className="flex items-center rounded-lg p-3 px-4 bg-[#1f1f1f]">
+                  <select
+                    value={selectedUser?.role || "Employee"}
+                    onChange={(e) =>
+                      setSelectedUser({ ...selectedUser, role: e.target.value })
+                    }
+                    className="flex-1 text-white bg-transparent focus:outline-none"
+                  >
+                    <option className="bg-[#1f1f1f] text-white" value="Chef">
+                      Chef
+                    </option>
+                    <option className="bg-[#1f1f1f] text-white" value="Waiter">
+                      Waiter
+                    </option>
+                    <option className="bg-[#1f1f1f] text-white" value="Cashier">
+                      Cashier
+                    </option>
+                    <option className="bg-[#1f1f1f] text-white" value="Admin">
+                      Admin
+                    </option>
+                  </select>
+                </div>
+              </div>
 
               <div className="flex justify-end gap-2 mt-6">
                 <button
-                  type="button"
-                  onClick={() => setIsEditOpen(false)}
-                  className="px-4 py-2 text-white bg-gray-600 rounded-md hover:bg-gray-700"
-                >
-                  Cancel
-                </button>
-                <button
                   type="submit"
-                  className="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700"
+                  className="w-full py-3 mt-6 text-lg font-bold text-gray-900 rounded-lg bg-primary"
                 >
-                  Save
+                  {isSaveLoading ? "Updating..." : "Update"}
                 </button>
               </div>
             </form>
-          </div>
+          </motion.div>
         </div>
       )}
       {/* ==================== DELETE MODAL ==================== */}

@@ -12,7 +12,7 @@ export default {
           dark: "#3730A3",
         },
         primary: "#ff874d", // 'text-primary' or 'bg-primary'
-        dark: "#a33e0b",
+        dark: "#482720",
         accent: "#f8aa82",
       },
       animation: {

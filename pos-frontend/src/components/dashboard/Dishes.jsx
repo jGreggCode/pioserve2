@@ -19,7 +19,10 @@ import { useState } from "react";
 
 const Dishes = () => {
   const [category, setCategory] = useState("All");
+  const [search, setSearch] = useState("");
   const [editingDish, setEditingDish] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1); // ✅ pagination state
+  const itemsPerPage = 5; // ✅ how many dishes per page
   const userData = useSelector((state) => state.user);
   const queryClient = useQueryClient();
 
@@ -50,13 +53,11 @@ const Dishes = () => {
 
   // ✅ Fetch dishes
   const { data: dishes = [], isError } = useQuery({
-    queryKey: ["dishes", category],
+    queryKey: ["dishes"],
     queryFn: async () => {
       const response = await getAllDishes();
       const allDishes = response.data?.data || response.data || [];
-      const dishArray = Array.isArray(allDishes) ? allDishes : [];
-      if (category === "All") return dishArray;
-      return dishArray.filter((dish) => dish.category === category);
+      return Array.isArray(allDishes) ? allDishes : [];
     },
     placeholderData: keepPreviousData,
   });
@@ -71,6 +72,25 @@ const Dishes = () => {
     enqueueSnackbar("Something went wrong!", { variant: "error" });
   }
 
+  // ✅ Filter dishes by category + search
+  const filteredDishes = dishes
+    .filter((dish) => category === "All" || dish.category === category)
+    .filter((dish) => {
+      const searchLower = search.toLowerCase();
+      return (
+        dish.name.toLowerCase().includes(searchLower) ||
+        dish.description.toLowerCase().includes(searchLower) ||
+        String(dish.stock).toLowerCase().includes(searchLower) // ✅ added stock search
+      );
+    })
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+  // ✅ Pagination logic
+  const indexOfLastDish = currentPage * itemsPerPage;
+  const indexOfFirstDish = indexOfLastDish - itemsPerPage;
+  const currentDishes = filteredDishes.slice(indexOfFirstDish, indexOfLastDish);
+  const totalPages = Math.ceil(filteredDishes.length / itemsPerPage);
+
   const handleEditSubmit = (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
@@ -82,11 +102,27 @@ const Dishes = () => {
     <div className="container mx-auto bg-[#262626] p-4 rounded-lg">
       <div className="flex flex-col items-start justify-between gap-3 px-2 mb-4 md:flex-row md:items-center">
         <h2 className="text-[#f5f5f5] text-xl font-semibold">Dishes</h2>
-        <div className="flex gap-2">
+        <div className="flex flex-col gap-2 md:flex-row">
+          {/* ✅ Search Bar */}
+          <input
+            type="text"
+            placeholder="Search dishes..."
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setCurrentPage(1); // reset to page 1 on search
+            }}
+            className="px-4 py-2 text-sm rounded-lg bg-[#2d2d2d] text-[#f5f5f5] border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+
+          {/* ✅ Category Filter */}
           <select
             value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            className="px-4 py-2 rounded-lg text-[#f5f5f5] bg-[#1a1a1a] border border-gray-500 focus:outline-none"
+            onChange={(e) => {
+              setCategory(e.target.value);
+              setCurrentPage(1); // reset to page 1 on filter
+            }}
+            className="px-4 py-2 text-sm rounded-lg bg-[#2d2d2d] text-[#f5f5f5] border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="All">All</option>
             {categoriesRes?.data?.data?.map((cat) => (
@@ -116,52 +152,83 @@ const Dishes = () => {
             </tr>
           </thead>
           <tbody>
-            {dishes
-              .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-              .map((dish, index) => (
-                <tr
-                  key={index}
-                  className="border-b border-gray-600 hover:bg-[#333]"
-                >
-                  <td className="p-4">#{dish._id?.slice(-6)}</td>
-                  <td className="p-4">{dish.name}</td>
-                  <td className="p-4">{dish.description}</td>
-                  <td className="p-4">{dish.stock}</td>
-                  <td className="p-4">{dish.category}</td>
-                  <td className="p-4">{dish.subcategory}</td>
-                  <td className="p-4">&#8369;{dish.price}</td>
-                  {userData.role === "Admin" && (
-                    <td className="flex justify-center gap-2 p-4">
-                      <button
-                        onClick={() => setEditingDish(dish)}
-                        className="px-4 py-2 text-white bg-yellow-600 rounded-lg"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => {
-                          const confirmDelete = window.confirm(
-                            "Are you sure you want to delete this dish?"
-                          );
-                          if (confirmDelete) {
-                            deleteDishMutation.mutate(dish._id);
-                          }
-                        }}
-                        className="px-4 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700"
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  )}
-                </tr>
-              ))}
+            {currentDishes.map((dish) => (
+              <tr
+                key={dish._id}
+                className="border-b border-gray-600 hover:bg-[#333]"
+              >
+                <td className="p-4">#{dish._id?.slice(-6)}</td>
+                <td className="p-4">{dish.name}</td>
+                <td className="p-4">{dish.description}</td>
+                <td className="p-4">{dish.stock}</td>
+                <td className="p-4">{dish.category}</td>
+                <td className="p-4">{dish.subcategory}</td>
+                <td className="p-4">&#8369;{dish.price}</td>
+                {userData.role === "Admin" && (
+                  <td className="flex justify-center gap-2 p-4">
+                    <button
+                      onClick={() => setEditingDish(dish)}
+                      className="px-4 py-2 text-white rounded-lg hover:bg-accent bg-primary"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => {
+                        const confirmDelete = window.confirm(
+                          "Are you sure you want to delete this dish?"
+                        );
+                        if (confirmDelete) {
+                          deleteDishMutation.mutate(dish._id);
+                        }
+                      }}
+                      className="px-4 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                )}
+              </tr>
+            ))}
           </tbody>
         </table>
+
+        {/* ✅ Pagination Controls */}
+        <div className="flex justify-center gap-2 mt-4">
+          <button
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage((prev) => prev - 1)}
+            className="px-3 py-1 text-white bg-gray-700 rounded disabled:opacity-50"
+          >
+            Prev
+          </button>
+
+          {Array.from({ length: totalPages }, (_, i) => (
+            <button
+              key={i}
+              onClick={() => setCurrentPage(i + 1)}
+              className={`px-3 py-1 rounded ${
+                currentPage === i + 1
+                  ? "bg-primary text-white"
+                  : "bg-gray-700 text-white"
+              }`}
+            >
+              {i + 1}
+            </button>
+          ))}
+
+          <button
+            disabled={currentPage === totalPages}
+            onClick={() => setCurrentPage((prev) => prev + 1)}
+            className="px-3 py-1 text-white bg-gray-700 rounded disabled:opacity-50"
+          >
+            Next
+          </button>
+        </div>
       </div>
 
       {/* ✅ Mobile Card View */}
       <div className="grid gap-4 md:hidden">
-        {dishes.map((dish) => (
+        {currentDishes.map((dish) => (
           <div
             key={dish._id}
             className="bg-[#333] p-4 rounded-lg text-[#f5f5f5] shadow-lg"
@@ -200,6 +267,27 @@ const Dishes = () => {
             )}
           </div>
         ))}
+
+        {/* ✅ Mobile Pagination */}
+        <div className="flex justify-center gap-2 mt-4">
+          <button
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage((prev) => prev - 1)}
+            className="px-3 py-1 text-white bg-gray-700 rounded disabled:opacity-50"
+          >
+            Prev
+          </button>
+          <span className="text-white">
+            Page {currentPage} of {totalPages}
+          </span>
+          <button
+            disabled={currentPage === totalPages}
+            onClick={() => setCurrentPage((prev) => prev + 1)}
+            className="px-3 py-1 text-white bg-gray-700 rounded disabled:opacity-50"
+          >
+            Next
+          </button>
+        </div>
       </div>
 
       {/* ✅ Modal for Editing */}

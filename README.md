@@ -7,9 +7,22 @@ This guide will help you configure and run the **POS Frontend** and **POS Backen
 ## 1. Pull the Latest Code
 
 Make sure you have the latest version of the project:
+And Update The Dependencies
 
 ```bash
 git pull
+```
+
+pos-frontend
+
+```bash
+npm install
+```
+
+pos-backend
+
+```bash
+npm install
 ```
 
 ## 2. Environment Files Setup
