@@ -25,6 +25,58 @@ pos-backend
 npm install
 ```
 
+## 1.5 Create app.js file
+
+Inside pos-backend create a file called 'app.js' if the file is not there yet, then copy paste the code below.
+
+```js
+const express = require("express");
+const connectDB = require("./config/database");
+const config = require("./config/config");
+const globalErrorHandler = require("./middlewares/globalErrorHandler");
+const cookieParser = require("cookie-parser");
+const cors = require("cors");
+const app = express();
+
+const PORT = config.port;
+connectDB();
+
+// Middlewares
+app.use(
+  cors({
+    credentials: true,
+    origin: [
+      "http://localhost:5173", // local dev
+      "http://192.168.1.5:5173", // Replace the 192.168.1.5 with your machines IP Address
+      // Example: "http://192.168.1.101:5173"
+    ],
+  })
+);
+app.use(express.json()); // parse incoming request in json format
+app.use(cookieParser());
+
+// Root Endpoint
+app.get("/", (req, res) => {
+  res.json({ message: "Hello from POS Server!" });
+});
+
+// Other Endpoints
+app.use("/api/user", require("./routes/userRoute"));
+app.use("/api/order", require("./routes/orderRoute"));
+app.use("/api/dish", require("./routes/dishRoute"));
+app.use("/api/table", require("./routes/tableRoute"));
+app.use("/api/payment", require("./routes/paymentRoute"));
+app.use("/api/admin", require("./routes/adminRoute"));
+
+// Global Error Handler
+app.use(globalErrorHandler);
+
+// Server
+app.listen(PORT, () => {
+  console.log(`☑️  POS Server is listening on port ${PORT}`);
+});
+```
+
 ## 2. Environment Files Setup
 
 You need to create .env files for both the backend and frontend.
