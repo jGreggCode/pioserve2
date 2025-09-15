@@ -54,7 +54,9 @@ app.use(
     credentials: true,
     origin: [
       "http://localhost:5173", // local dev
-      "http://192.168.1.5:5173", // LAN dev
+      "http://192.168.1.5:5173", // Change to your IPv4 Address
+      // If your IP is 192.168.2.101 then
+      // Example: "http://192.168.2.101:5173"
     ],
   })
 );
