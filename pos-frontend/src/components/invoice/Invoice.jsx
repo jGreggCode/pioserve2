@@ -5,6 +5,7 @@ import { formatDateAndTime } from "../../utils";
 
 const Invoice = ({ orderInfo, setShowInvoice }) => {
   const invoiceRef = useRef(null);
+  console.log(orderInfo);
 
   const handlePrint = () => {
     const printableHtml = `
@@ -188,7 +189,7 @@ const Invoice = ({ orderInfo, setShowInvoice }) => {
                       </div>
                     </div>
                     <div className="text-xs font-semibold">
-                      ₱{(item.price * item.quantity).toFixed(2)}
+                      ₱{(item.pricePerQuantity * item.quantity).toFixed(2)}
                     </div>
                   </li>
                 ))}

@@ -1,29 +1,33 @@
+// React
+import { useState } from "react";
+import { useSelector } from "react-redux";
 import {
   keepPreviousData,
   useMutation,
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import { enqueueSnackbar } from "notistack";
+// Endpoints
 import {
   getOrders,
   updateOrderStatus,
   deleteOrder,
   getAllOrders,
+  getUserDataById,
 } from "../../https/index";
+// Utils
 import { formatDateAndTime } from "../../utils";
-import { useSelector } from "react-redux";
-import { useState } from "react";
+import { enqueueSnackbar } from "notistack";
+
+// Invoice Component
+import Invoice from "../invoice/Invoice";
 
 const RecentOrders = () => {
   const [selected, setSelected] = useState("Today");
+  const [showInvoice, setShowInvoice] = useState(false);
+  const [orderData, setOrderData] = useState(null);
   const userData = useSelector((state) => state.user);
   const queryClient = useQueryClient();
-
-  // const handleStatusChange = ({ orderId, orderStatus }) => {
-  //   console.log(orderId);
-  //   orderStatusUpdateMutation.mutate({ orderId, orderStatus });
-  // };
 
   const orderStatusUpdateMutation = useMutation({
     mutationFn: ({ orderId, orderStatus }) =>
@@ -39,6 +43,17 @@ const RecentOrders = () => {
       enqueueSnackbar("Failed to update order status!", { variant: "error" });
     },
   });
+
+  const handlePrintReceipt = async (order) => {
+    try {
+      const employeeRes = await getUserDataById(order.employee);
+      const employeeData = employeeRes?.data?.data || null;
+      setOrderData({ ...order, employeeData });
+      setShowInvoice(true);
+    } catch (error) {
+      enqueueSnackbar(error, { variant: "error" });
+    }
+  };
 
   // ✅ Mutation for deleting order
   const deleteOrderMutation = useMutation({
@@ -86,7 +101,7 @@ const RecentOrders = () => {
     enqueueSnackbar("Something went wrong!", { variant: "error" });
   }
 
-  console.log(resData?.data?.data);
+  // console.log(resData?.data?.data);
 
   return (
     <div className="container mx-auto bg-[#262626] p-6 rounded-xl shadow-lg">
@@ -199,6 +214,14 @@ const RecentOrders = () => {
                         <span className="text-gray-400">x{item.quantity}</span>
                       </div>
                     ))}
+                    <button
+                      className="font-bold shadow-sm text-primary hover:text-accent"
+                      onClick={() => {
+                        handlePrintReceipt(order);
+                      }}
+                    >
+                      Show Receipt
+                    </button>
                   </td>
                   <td className="px-4 py-4">
                     {order.table ? `Table ${order.table.tableNo}` : "Take Out"}
@@ -214,6 +237,11 @@ const RecentOrders = () => {
           </tbody>
         </table>
       </div>
+
+      {/* Invoice */}
+      {showInvoice && orderData && (
+        <Invoice orderInfo={orderData} setShowInvoice={setShowInvoice} />
+      )}
     </div>
   );
 };
