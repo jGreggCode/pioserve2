@@ -1,3 +1,10 @@
+/*
+ * Licensed Software - Property of John Gregg Felicisimo / JGDDEV
+ * For authorized client use only.
+ * Unauthorized modification or redistribution is prohibited.
+ * Full license terms available in LICENSE.md
+ */
+
 // Top Dish Images
 const bakedSalmon = "/Dishes/Mains/Baked Salmon Florentine.jpg";
 const beefSalpicao = "/Dishes/Mains/Beef Salpicao.jpg";

@@ -1,3 +1,10 @@
+/*
+ * Licensed Software - Property of John Gregg Felicisimo / JGDDEV
+ * For authorized client use only.
+ * Unauthorized modification or redistribution is prohibited.
+ * Full license terms available in LICENSE.md
+ */
+
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { enqueueSnackbar } from "notistack";
 import {
@@ -106,7 +113,8 @@ const OrderCard = ({ order }) => {
               {order.customerDetails.name}
             </h1>
             <p className="text-[#ababab] text-sm">
-              #{Math.floor(new Date(order.orderDate).getTime())} / Dine in
+              #{Math.floor(new Date(order.orderDate).getTime())} /{" "}
+              {order.table ? "Dine In" : "Take Out"}
             </p>
             <p className="text-[#ababab] text-sm">
               {order.table ? `Table ${order.table.tableNo}` : "Take Out"}

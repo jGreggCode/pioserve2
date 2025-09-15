@@ -1,4 +1,22 @@
-import React, { useState, useEffect } from "react";
+/*
+ * Licensed Software - Property of John Gregg Felicisimo / JGDDEV
+ * For authorized client use only.
+ * Unauthorized modification or redistribution is prohibited.
+ * Full license terms available in LICENSE.md
+ */
+
+/*
+ * Copyright (c) 2025 John Gregg Felicisimo / JGDEV
+ *
+ * This software is licensed for use only by authorized clients of JGDEV.
+ * Redistribution, modification, or resale of this code without written permission
+ * is strictly prohibited.
+ *
+ * For full rights to the source code, including resale or modification rights,
+ * a separate license agreement and additional payment are required.
+ */
+
+import { useState, useEffect } from "react";
 import BottomNav from "../components/shared/BottomNav";
 import BackButton from "../components/shared/BackButton";
 import TableCard from "../components/tables/TableCard";
@@ -110,8 +128,8 @@ const Tables = () => {
               className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm md:text-base transition-all duration-300
             ${
               status === key
-                ? "bg-[#383838] text-white shadow-md scale-105"
-                : "text-[#ababab] hover:bg-[#2a2a2a] hover:text-white"
+                ? "bg-[#383838] text-primary shadow-md scale-105"
+                : "text-[#ababab] hover:bg-[#2a2a2a] hover:text-primary"
             }`}
             >
               {icon}

@@ -1,3 +1,10 @@
+/*
+ * Licensed Software - Property of John Gregg Felicisimo / JGDDEV
+ * For authorized client use only.
+ * Unauthorized modification or redistribution is prohibited.
+ * Full license terms available in LICENSE.md
+ */
+
 const Dish = require("../models/dishModel");
 const Order = require("../models/orderModel");
 const mongoose = require("mongoose");

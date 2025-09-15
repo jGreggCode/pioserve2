@@ -1,3 +1,10 @@
+/*
+ * Licensed Software - Property of John Gregg Felicisimo / JGDDEV
+ * For authorized client use only.
+ * Unauthorized modification or redistribution is prohibited.
+ * Full license terms available in LICENSE.md
+ */
+
 export const getBgColor = () => {
   const bgarr = ["#b73e3e"];
   const randomBg = Math.floor(Math.random() * bgarr.length);

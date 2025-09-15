@@ -2,6 +2,10 @@
 
 This guide will help you configure and run the **POS Frontend** and **POS Backend** properly on your machine.
 
+**MAKE SURE YOUR BROWSER DOESNT BLOCK ADS FOR LICENSE TO WORK**
+
+**TURN OF THE BRAVE SHIELD IF YOU ARE USING BRAVE BROWSER**
+
 ---
 
 ## 1. Pull the Latest Code
@@ -36,9 +40,12 @@ const config = require("./config/config");
 const globalErrorHandler = require("./middlewares/globalErrorHandler");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
-const app = express();
+const { validateLicense } = require("./middlewares/licenseCheck.js");
 
+const app = express();
 const PORT = config.port;
+
+// Connect DB
 connectDB();
 
 // Middlewares
@@ -47,17 +54,16 @@ app.use(
     credentials: true,
     origin: [
       "http://localhost:5173", // local dev
-      "http://192.168.1.5:5173", // Replace the 192.168.1.5 with your machines IP Address
-      // Example: "http://192.168.1.101:5173"
+      "http://192.168.1.5:5173", // LAN dev
     ],
   })
 );
-app.use(express.json()); // parse incoming request in json format
+app.use(express.json());
 app.use(cookieParser());
 
 // Root Endpoint
 app.get("/", (req, res) => {
-  res.json({ message: "Hello from POS Server!" });
+  res.send("Licensed system is running 🚀");
 });
 
 // Other Endpoints
@@ -68,13 +74,36 @@ app.use("/api/table", require("./routes/tableRoute"));
 app.use("/api/payment", require("./routes/paymentRoute"));
 app.use("/api/admin", require("./routes/adminRoute"));
 
+app.get("/api/status", async (req, res) => {
+  try {
+    // Call my license server to confirm status again
+    const axios = require("axios");
+    const response = await axios.post(
+      "https://jgdev-license-server.onrender.com/validate",
+      {
+        licenseKey: process.env.LICENSE_KEY,
+      }
+    );
+
+    res.json(response.data);
+  } catch (err) {
+    console.error("License re-check failed:", err.message);
+    res.json({ valid: false, message: "License check failed" });
+  }
+});
+
 // Global Error Handler
 app.use(globalErrorHandler);
 
-// Server
-app.listen(PORT, () => {
-  console.log(`☑️  POS Server is listening on port ${PORT}`);
-});
+// ✅ Start server only if license is valid
+async function startServer() {
+  await validateLicense(); // ⛔ shuts down if invalid
+  app.listen(PORT, () => {
+    console.log(`☑️ POS Server is listening on port ${PORT}`);
+  });
+}
+
+startServer();
 ```
 
 ## 2. Environment Files Setup
@@ -92,6 +121,7 @@ JWT_SECRET=jgadmin123
 RAZORPAY_KEY_ID=rzp_test_us_lUOr0zGAelD8XB
 RAZORPAY_KEY_SECRET=NdzBpXd7DfMbta1MbghskmPL
 RAZORPAY_WEBHOOK_SECRET=sda
+LICENSE_KEY={LICENSE} // Request this from the developer then put the license here EG: LICENSE_KEY=JGDEV-LICENSEKEY
 ```
 
 Frontend (pos-frontend/.env)

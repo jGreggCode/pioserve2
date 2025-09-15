@@ -1,3 +1,10 @@
+/*
+ * Licensed Software - Property of John Gregg Felicisimo / JGDDEV
+ * For authorized client use only.
+ * Unauthorized modification or redistribution is prohibited.
+ * Full license terms available in LICENSE.md
+ */
+
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAvatarName, getBgColor } from "../../utils";

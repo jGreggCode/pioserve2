@@ -1,3 +1,10 @@
+/*
+ * Licensed Software - Property of John Gregg Felicisimo / JGDDEV
+ * For authorized client use only.
+ * Unauthorized modification or redistribution is prohibited.
+ * Full license terms available in LICENSE.md
+ */
+
 import { useEffect, useState } from "react";
 import { getTopDishes } from "../../https/index";
 import { enqueueSnackbar } from "notistack";

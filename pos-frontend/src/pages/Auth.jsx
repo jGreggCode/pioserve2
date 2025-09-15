@@ -1,3 +1,10 @@
+/*
+ * Licensed Software - Property of John Gregg Felicisimo / JGDDEV
+ * For authorized client use only.
+ * Unauthorized modification or redistribution is prohibited.
+ * Full license terms available in LICENSE.md
+ */
+
 import React, { useState } from "react";
 import restaurant from "../assets/cover.webp"; 
 import logo from "../assets/logo.png"; 
