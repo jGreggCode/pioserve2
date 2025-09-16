@@ -27,45 +27,34 @@ import { formatDateAndTime } from "../../utils";
 import { enqueueSnackbar } from "notistack";
 
 // Invoice Component
-import Invoice from "../invoice/Invoice";
+import KitchenTicket from "../invoice/KitchenTicket";
 
 const RecentOrders = () => {
   const [selected, setSelected] = useState("Today");
-  const [showInvoice, setShowInvoice] = useState(false);
+  const [showKitchenTicket, setShowKitchenTicket] = useState(false);
   const [orderData, setOrderData] = useState(null);
   const userData = useSelector((state) => state.user);
   const queryClient = useQueryClient();
 
+  // ✅ Update status mutation
   const orderStatusUpdateMutation = useMutation({
     mutationFn: ({ orderId, orderStatus }) =>
       updateOrderStatus({ orderId, orderStatus }),
-    onSuccess: (data) => {
-      console.log;
+    onSuccess: () => {
       enqueueSnackbar("Order status updated successfully!", {
         variant: "success",
       });
-      queryClient.invalidateQueries(["orders"]); // Refresh order list
+      queryClient.invalidateQueries(["orders"]);
     },
     onError: () => {
       enqueueSnackbar("Failed to update order status!", { variant: "error" });
     },
   });
 
-  const handlePrintReceipt = async (order) => {
-    try {
-      const employeeRes = await getUserDataById(order.employee);
-      const employeeData = employeeRes?.data?.data || null;
-      setOrderData({ ...order, employeeData });
-      setShowInvoice(true);
-    } catch (error) {
-      enqueueSnackbar(error, { variant: "error" });
-    }
-  };
-
-  // ✅ Mutation for deleting order
+  // ✅ Delete mutation
   const deleteOrderMutation = useMutation({
-    mutationFn: (orderId) => deleteOrder(orderId),
-    onSuccess: (data) => {
+    mutationFn: ({ orderId }) => deleteOrder(orderId),
+    onSuccess: () => {
       enqueueSnackbar("Order deleted successfully!", { variant: "success" });
       queryClient.invalidateQueries(["orders"]);
     },
@@ -74,41 +63,47 @@ const RecentOrders = () => {
     },
   });
 
-  // ✅ Handle change in dropdown (status / delete)
+  // ✅ Handle change in dropdown
   const handleStatusChange = ({ orderId, orderStatus }) => {
-    console.log(orderId);
     if (orderStatus === "Delete") {
       const confirmDelete = window.confirm(
         "Are you sure you want to delete this order?"
       );
       if (confirmDelete) {
-        deleteOrderMutation.mutate({ orderId }); // ✅ Fix here
+        deleteOrderMutation.mutate({ orderId });
       }
       return;
     }
-
     orderStatusUpdateMutation.mutate({ orderId, orderStatus });
+  };
+
+  // ✅ Receipt
+  const handlePrintReceipt = async (order) => {
+    try {
+      const employeeRes = await getUserDataById(order.employee);
+      const employeeData = employeeRes?.data?.data || null;
+      setOrderData({ ...order, employeeData });
+      setShowKitchenTicket(true);
+    } catch (error) {
+      enqueueSnackbar(error, { variant: "error" });
+    }
   };
 
   // ✅ Fetch orders
   const { data: resData, isError } = useQuery({
-    queryKey: ["orders", selected], // ✅ depend on selected
+    queryKey: ["orders", selected],
     queryFn: async () => {
-      if (selected === "Today") {
-        return await getOrders(); // today's orders
-      }
-      return await getAllOrders(); // all orders
+      if (selected === "Today") return await getOrders();
+      return await getAllOrders();
     },
     placeholderData: keepPreviousData,
-    refetchInterval: 500, // 🔄 auto-refresh every 3s
-    refetchOnWindowFocus: true, // refresh when user comes back
+    refetchInterval: 2000,
+    refetchOnWindowFocus: true,
   });
 
   if (isError) {
     enqueueSnackbar("Something went wrong!", { variant: "error" });
   }
-
-  // console.log(resData?.data?.data);
 
   return (
     <div className="container mx-auto bg-[#262626] p-6 rounded-xl shadow-lg">
@@ -147,107 +142,107 @@ const RecentOrders = () => {
         </div>
       </div>
 
-      {/* Table */}
-      <div className="overflow-x-auto border border-gray-700 rounded-lg">
-        <table className="w-full text-left text-sm text-[#f5f5f5]">
-          <thead className="bg-[#333] text-[#ababab] text-sm uppercase tracking-wider">
-            <tr>
-              <th className="px-4 py-3">Order ID</th>
-              <th className="px-4 py-3">Customer</th>
-              <th className="px-4 py-3">Status</th>
-              <th className="px-4 py-3">Date & Time</th>
-              <th className="px-4 py-3">Items</th>
-              <th className="px-4 py-3">Table No</th>
-              <th className="px-4 py-3">Total</th>
-              <th className="px-4 py-3 text-center">Payment</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-700">
-            {resData?.data.data
-              .sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate))
-              .map((order, index) => (
-                <tr
-                  key={index}
-                  className={`transition-colors ${
-                    index % 2 === 0 ? "bg-[#2d2d2d]" : "bg-[#262626]"
-                  } hover:bg-[#3a3a3a]`}
+      {/* Orders as Grid */}
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+        {resData?.data.data
+          .sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate))
+          .map((order, index) => (
+            <div
+              key={index}
+              className="bg-[#2d2d2d] rounded-xl shadow-md p-5 hover:bg-[#333] transition-colors flex flex-col justify-between"
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between mb-3">
+                <p className="font-mono text-sm text-gray-300">
+                  #{Math.floor(new Date(order.orderDate).getTime())}
+                </p>
+                <select
+                  disabled={
+                    order.orderStatus === "Paid" && userData.role === "Chef"
+                  }
+                  className={`bg-[#1a1a1a] border border-gray-600 px-3 py-1.5 rounded-lg text-xs focus:outline-none ${
+                    order.orderStatus === "Ready"
+                      ? "text-green-400"
+                      : order.orderStatus === "Paid"
+                      ? "text-blue-300"
+                      : "text-yellow-400"
+                  }`}
+                  value={order.orderStatus}
+                  onChange={(e) =>
+                    handleStatusChange({
+                      orderId: order._id,
+                      orderStatus: e.target.value,
+                    })
+                  }
                 >
-                  <td className="px-4 py-4 font-mono text-gray-300">
-                    #{Math.floor(new Date(order.orderDate).getTime())}
-                  </td>
-                  <td className="px-4 py-4">{order.customerDetails.name}</td>
-                  <td className="px-4 py-4">
-                    <select
-                      className={`bg-[#1a1a1a] border border-gray-600 px-3 py-1.5 rounded-lg focus:outline-none text-sm ${
-                        order.orderStatus === "Ready"
-                          ? "text-green-400"
-                          : order.orderStatus === "Paid"
-                          ? "text-blue-300"
-                          : "text-yellow-400"
-                      }`}
-                      value={order.orderStatus}
-                      onChange={(e) =>
-                        handleStatusChange({
-                          orderId: order._id,
-                          orderStatus: e.target.value,
-                        })
-                      }
-                    >
-                      <option className="text-yellow-400" value="In Progress">
-                        In Progress
-                      </option>
-                      <option className="text-green-400" value="Ready">
-                        Ready
-                      </option>
-                      {userData.role === "Admin" && (
-                        <>
-                          <option className="text-red-400" value="Delete">
-                            Delete
-                          </option>
-                          <option className="text-blue-400" value="Paid">
-                            Paid
-                          </option>
-                        </>
-                      )}
-                    </select>
-                  </td>
-                  <td className="px-4 py-4 text-gray-300">
-                    {formatDateAndTime(order.orderDate)}
-                  </td>
-                  <td className="px-4 py-4 text-gray-300">
-                    {order.items.map((item, index) => (
-                      <div key={item.id}>
+                  <option value="In Progress">In Progress</option>
+                  <option value="Ready">Ready</option>
+                  {userData.role === "Admin" && (
+                    <>
+                      <option value="Delete">Delete</option>
+                      <option value="Paid">Paid</option>
+                    </>
+                  )}
+                </select>
+              </div>
+
+              {/* Content */}
+              <div className="space-y-2 text-sm text-[#f5f5f5]">
+                <p>
+                  <span className="font-semibold">Customer:</span>{" "}
+                  {order.customerDetails.name}
+                </p>
+                <p>
+                  <span className="font-semibold">Date:</span>{" "}
+                  {formatDateAndTime(order.orderDate)}
+                </p>
+                <p>
+                  <span className="font-semibold">Table:</span>{" "}
+                  {order.table ? `Table ${order.table.tableNo}` : "Take Out"}
+                </p>
+                <p>
+                  <span className="font-semibold">Payment:</span>{" "}
+                  {order.paymentMethod}
+                </p>
+                <p className="font-bold text-red-500">
+                  <span className="font-semibold">Note:</span> {order.note}
+                </p>
+
+                <div>
+                  <span className="font-semibold">Items:</span>
+                  <ul className="ml-5 text-gray-300 list-disc">
+                    {order.items.map((item) => (
+                      <li key={item.id}>
                         {item.name}{" "}
                         <span className="text-gray-400">x{item.quantity}</span>
-                      </div>
+                      </li>
                     ))}
-                    <button
-                      className="font-bold shadow-sm text-primary hover:text-accent"
-                      onClick={() => {
-                        handlePrintReceipt(order);
-                      }}
-                    >
-                      Show Receipt
-                    </button>
-                  </td>
-                  <td className="px-4 py-4">
-                    {order.table ? `Table ${order.table.tableNo}` : "Take Out"}
-                  </td>
-                  <td className="px-4 py-4 font-semibold text-[#f5f5f5]">
-                    ₱{order.bills.totalWithTax}
-                  </td>
-                  <td className="px-4 py-4 text-center">
-                    {order.paymentMethod}
-                  </td>
-                </tr>
-              ))}
-          </tbody>
-        </table>
+                  </ul>
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div className="flex items-center justify-between mt-4">
+                <p className="text-lg font-bold text-[#f5f5f5]">
+                  ₱{order.bills.totalWithTax}
+                </p>
+                <button
+                  onClick={() => handlePrintReceipt(order)}
+                  className="px-4 py-1.5 text-xs rounded-lg bg-primary hover:bg-accent text-white"
+                >
+                  Kitchen Ticket
+                </button>
+              </div>
+            </div>
+          ))}
       </div>
 
-      {/* Invoice */}
-      {showInvoice && orderData && (
-        <Invoice orderInfo={orderData} setShowInvoice={setShowInvoice} />
+      {/* Kitchen Ticket */}
+      {showKitchenTicket && orderData && (
+        <KitchenTicket
+          orderInfo={orderData}
+          setShowInvoice={setShowKitchenTicket}
+        />
       )}
     </div>
   );
