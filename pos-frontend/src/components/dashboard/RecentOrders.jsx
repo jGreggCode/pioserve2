@@ -205,7 +205,8 @@ const RecentOrders = () => {
                   {order.paymentMethod}
                 </p>
                 <p className="font-bold text-red-500">
-                  <span className="font-semibold">Note:</span> {order.note}
+                  <span className="font-semibold">Note:</span>{" "}
+                  {order.note || "None"}
                 </p>
 
                 <div>
