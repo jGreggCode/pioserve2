@@ -5,13 +5,16 @@
  * Full license terms available in LICENSE.md
  */
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { RiDeleteBin2Fill } from "react-icons/ri";
 import { FaNotesMedical } from "react-icons/fa6";
 import { useDispatch, useSelector } from "react-redux";
 import { removeItem } from "../../redux/slices/cartSlice";
+import { setNote } from "../../redux/slices/noteSlice";
 
 const CartInfo = () => {
+  const [showAddNote, setShowAddNote] = useState(false);
+  const [note, setNoteLocal] = useState("");
   const cartData = useSelector((state) => state.cart);
   const scrolLRef = useRef();
   const dispatch = useDispatch();
@@ -29,15 +32,54 @@ const CartInfo = () => {
     dispatch(removeItem(itemId));
   };
 
+  const onsave = (note) => {
+    dispatch(setNote(note)); // Redux action
+    setShowAddNote(false);
+  };
+
   return (
     <div className="px-4 py-4">
       {/* Header */}
       <h1 className="text-lg sm:text-xl text-[#f5f5f5] font-bold tracking-wide flex justify-between items-center gap-2 mb-3">
         Order Details
-        <button className="flex gap-2 justify-center items-center p-2 rounded-lg bg-[#292929] hover:bg-blue-500 text-white transition">
+        <button
+          onClick={() => setShowAddNote(true)}
+          className="flex gap-2 justify-center items-center p-2 rounded-lg bg-[#292929] hover:bg-accent text-white transition"
+        >
           <FaNotesMedical size={18} />
           <span className="text-xs">Add Note</span>
         </button>
+        {showAddNote && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="bg-[#1f1f1f] rounded-xl p-6 w-[90%] max-w-md">
+              <h2 className="mb-4 text-lg font-bold text-white">Add Note</h2>
+
+              <textarea
+                value={note}
+                onChange={(e) => setNoteLocal(e.target.value)}
+                placeholder="Type your note here..."
+                className="w-full h-28 rounded-lg p-3 bg-[#292929] text-white border border-[#3a3a3a] resize-none"
+              />
+
+              <div className="flex justify-end gap-3 mt-4">
+                <button
+                  onClick={() => setShowAddNote(false)}
+                  className="px-4 py-2 text-white bg-gray-600 rounded-lg hover:bg-gray-700"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    onsave(note);
+                  }}
+                  className="px-4 py-2 text-white rounded-lg bg-primary hover:bg-accent"
+                >
+                  Save
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </h1>
 
       {/* Cart Container */}

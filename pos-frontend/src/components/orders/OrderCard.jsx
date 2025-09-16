@@ -16,14 +16,17 @@ import { useEffect, useState } from "react";
 import { FaCheckDouble, FaLongArrowAltRight, FaCircle } from "react-icons/fa";
 import { formatDateAndTime, getAvatarName } from "../../utils/index";
 import Invoice from "../invoice/Invoice";
-import { useDispatch } from "react-redux";
+import KitchenTicket from "../invoice/KitchenTicket";
+import { useDispatch, useSelector } from "react-redux";
 import { setCustomerFromOrder } from "../../redux/slices/customerSlice";
 import { removeAllItems, addItems } from "../../redux/slices/cartSlice";
 import { useNavigate } from "react-router-dom";
 
 const OrderCard = ({ order }) => {
+  const userData = useSelector((state) => state.user);
   const [orderData, setOrderData] = useState(null);
   const [showInvoice, setShowInvoice] = useState(false);
+  const [showKitchenTicket, setShowKitchenTicket] = useState(false);
   const queryClient = useQueryClient();
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -175,18 +178,40 @@ const OrderCard = ({ order }) => {
 
       <div className="flex gap-3 mt-3">
         <button
-          onClick={(e) =>
-            handleStatusChange({ orderId: order._id, orderStatus: "Paid" })
-          }
-          disabled={order.orderStatus !== "Ready"}
+          onClick={async () => {
+            try {
+              const employeeRes = await getUserDataById(order.employee);
+              const employeeData = employeeRes?.data?.data || null;
+              setOrderData({ ...order, employeeData });
+              setShowKitchenTicket(true); // ✅ open KitchenTicket instead of changing status
+            } catch (error) {
+              console.error(error);
+            }
+          }}
+          disabled={order.orderStatus !== "In Progress"} // 👈 better: only allow print when order is being prepared
           className={`flex-1 rounded-md ${
-            order.orderStatus !== "Ready"
+            order.orderStatus !== "In Progress"
               ? "opacity-40 bg-gray-500"
-              : "bg-green-600"
+              : "bg-primary"
           }`}
         >
-          BILL OUT
+          Print Order Items
         </button>
+        {userData.role !== "Waiter" && (
+          <button
+            onClick={(e) =>
+              handleStatusChange({ orderId: order._id, orderStatus: "Paid" })
+            }
+            disabled={order.orderStatus !== "Ready"}
+            className={`flex-1 rounded-md ${
+              order.orderStatus !== "Ready"
+                ? "opacity-40 bg-gray-500"
+                : "bg-green-600"
+            }`}
+          >
+            BILL OUT
+          </button>
+        )}
         <button
           disabled={
             order.orderStatus === "Ready" || order.orderStatus === "Paid"
@@ -201,6 +226,13 @@ const OrderCard = ({ order }) => {
           EDIT ORDER
         </button>
       </div>
+
+      {showKitchenTicket && orderData && (
+        <KitchenTicket
+          orderInfo={orderData}
+          setShowInvoice={setShowKitchenTicket}
+        />
+      )}
 
       {showInvoice && orderData && (
         <Invoice orderInfo={orderData} setShowInvoice={setShowInvoice} />

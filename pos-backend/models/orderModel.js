@@ -34,6 +34,7 @@ const orderSchema = new mongoose.Schema(
       ref: "Table",
       required: false,
     },
+    note: { type: String, default: "None" },
     isTakeOut: { type: Boolean, default: false },
     paymentMethod: String,
     paymentData: {

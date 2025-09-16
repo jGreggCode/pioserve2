@@ -23,6 +23,7 @@ import Invoice from "../invoice/Invoice";
 const Bill = ({ editMode = false }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const note = useSelector((state) => state.note);
   const userData = useSelector((state) => state.user);
   const customerData = useSelector((state) => state.customer);
   const cartData = useSelector((state) => state.cart);
@@ -47,6 +48,7 @@ const Bill = ({ editMode = false }) => {
       const updateData = {
         orderId: customerData.orderId,
         items: cartData,
+        note,
         bills: {
           total,
           tax,
@@ -73,6 +75,7 @@ const Bill = ({ editMode = false }) => {
         items: cartData,
         table: customerData.table.tableId,
         paymentMethod,
+        note,
       };
       orderMutation.mutate(orderData);
     }
@@ -179,6 +182,27 @@ const Bill = ({ editMode = false }) => {
           }`}
         >
           Cash
+        </button>
+        <button
+          onClick={() => setPaymentMethod("Gcash")}
+          className={`w-full rounded-lg px-4 py-3 font-semibold transition ${
+            paymentMethod === "Gcash"
+              ? "bg-[#383737] text-[#f5f5f5]"
+              : "bg-[#1f1f1f] text-[#ababab] hover:bg-[#2a2a2a] hover:text-white"
+          }`}
+        >
+          <img src="/gcash.png" className="object-contain h-6" alt="Gcash" />
+        </button>
+
+        <button
+          onClick={() => setPaymentMethod("Card")}
+          className={`w-full rounded-lg px-4 py-3 font-semibold transition ${
+            paymentMethod === "Card"
+              ? "bg-[#383737] text-[#f5f5f5]"
+              : "bg-[#1f1f1f] text-[#ababab] hover:bg-[#2a2a2a] hover:text-white"
+          }`}
+        >
+          Card
         </button>
       </div>
 
