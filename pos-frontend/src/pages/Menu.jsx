@@ -50,7 +50,9 @@ const Menu = () => {
               </h1>
               <p className="text-xs text-[#ababab] font-medium flex items-center gap-1">
                 <MdTableRestaurant className="text-[#ababab]" />
-                {customerData.table?.tableNo == 0 ? "Take Out" : "N/A"}
+                {customerData.table?.tableNo == 0
+                  ? "Take Out"
+                  : customerData.table?.tableNo}
               </p>
             </div>
           </div>
