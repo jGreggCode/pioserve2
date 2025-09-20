@@ -58,7 +58,7 @@ export const getOrdersByEmployee = (employeeId) =>
   axiosWrapper.get(`/api/order/get/orders/${employeeId}`);
 export const getTotalToday = () =>
   axiosWrapper.get("/api/order/get/totalOrderToday");
-export const deleteOrder = ({ orderId }) =>
+export const deleteOrder = (orderId) =>
   axiosWrapper.delete(`/api/order/${orderId}`);
 
 // Admin Endpoints

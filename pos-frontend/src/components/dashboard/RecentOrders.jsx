@@ -53,7 +53,7 @@ const RecentOrders = () => {
 
   // ✅ Delete mutation
   const deleteOrderMutation = useMutation({
-    mutationFn: ({ orderId }) => deleteOrder(orderId),
+    mutationFn: (orderId) => deleteOrder(orderId),
     onSuccess: () => {
       enqueueSnackbar("Order deleted successfully!", { variant: "success" });
       queryClient.invalidateQueries(["orders"]);
@@ -70,7 +70,8 @@ const RecentOrders = () => {
         "Are you sure you want to delete this order?"
       );
       if (confirmDelete) {
-        deleteOrderMutation.mutate({ orderId });
+        console.log({ orderId });
+        deleteOrderMutation.mutate(orderId);
       }
       return;
     }
