@@ -19,6 +19,7 @@ import { removeAllItems } from "../../redux/slices/cartSlice";
 import { removeCustomer } from "../../redux/slices/customerSlice";
 import { useNavigate } from "react-router-dom";
 import Invoice from "../invoice/Invoice";
+import { clearNote } from "../../redux/slices/noteSlice";
 
 const Bill = ({ editMode = false }) => {
   const dispatch = useDispatch();
@@ -60,7 +61,7 @@ const Bill = ({ editMode = false }) => {
       // 🔹 Create new order
       const orderData = {
         customerDetails: {
-          name: customerData.customerName,
+          name: customerData.customerName || "N/A",
           phone: customerData.customerPhone,
           guests: customerData.guests,
         },
@@ -128,6 +129,7 @@ const Bill = ({ editMode = false }) => {
       setTableInfo(resData.data); // ✅ Store the table response
       dispatch(removeCustomer());
       dispatch(removeAllItems());
+      dispatch(clearNote());
 
       navigate("/orders");
     },

@@ -17,7 +17,7 @@ const CustomerInfo = () => {
     <div className="flex flex-wrap items-center justify-between gap-2 px-3 py-3 sm:px-4">
       <div className="flex flex-col items-start">
         <h1 className="text-sm sm:text-md text-[#f5f5f5] font-semibold tracking-wide">
-          {customerData.customerName || "Customer Name"}
+          {customerData.customerName || "N/A"}
         </h1>
         <p className="text-xs text-[#ababab] font-medium mt-1">
           #{customerData.orderId || "N/A"} / Dine in
@@ -27,7 +27,7 @@ const CustomerInfo = () => {
         </p>
       </div>
       <button className="p-2 text-sm font-bold rounded-lg bg-primary sm:p-3 sm:text-xl">
-        {getAvatarName(customerData.customerName) || "CN"}
+        {getAvatarName(customerData.customerName) || "N/A"}
       </button>
     </div>
   );

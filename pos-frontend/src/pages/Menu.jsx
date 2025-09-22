@@ -46,7 +46,7 @@ const Menu = () => {
             <MdRestaurantMenu className="text-[#f5f5f5] text-3xl sm:text-4xl" />
             <div className="flex flex-col items-start">
               <h1 className="text-sm sm:text-md text-[#f5f5f5] font-semibold tracking-wide">
-                {customerData.customerName || "Customer Name"}
+                {customerData.customerName || "N/A"}
               </h1>
               <p className="text-xs text-[#ababab] font-medium flex items-center gap-1">
                 <MdTableRestaurant className="text-[#ababab]" />

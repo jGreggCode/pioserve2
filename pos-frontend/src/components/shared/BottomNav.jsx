@@ -40,8 +40,8 @@ const BottomNav = () => {
   const isActive = (path) => location.pathname === path;
 
   const handleCreateOrder = () => {
-    if (!name || !guestCount) {
-      enqueueSnackbar("Fields Cannot Be Empty", { variant: "error" });
+    if (!guestCount) {
+      enqueueSnackbar("Guest cannot be zero", { variant: "error" });
       return;
     }
     dispatch(setCustomer({ name, phone, guests: guestCount }));
@@ -101,7 +101,7 @@ const BottomNav = () => {
           {/* Customer Name */}
           <div>
             <label className="block text-sm font-medium text-[#ababab] mb-2">
-              Customer Name
+              Customer Name (Optional)
             </label>
             <div className="flex items-center bg-[#1f1f1f] rounded-lg px-4 py-3">
               <input
@@ -117,7 +117,7 @@ const BottomNav = () => {
           {/* Customer Phone */}
           <div>
             <label className="block text-sm font-medium text-[#ababab] mb-2 mt-3">
-              Customer Phone
+              Customer Phone (Optional)
             </label>
             <div className="flex items-center bg-[#1f1f1f] rounded-lg px-4 py-3 gap-2">
               <span className="text-white">+63 |</span>
