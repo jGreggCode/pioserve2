@@ -65,30 +65,32 @@ const Menu = () => {
       </div>
 
       {/* Right Section */}
-      <div className="flex-[1] mb-28 w-full lg:w-auto bg-[#1a1a1a] mt-2 lg:mt-4 lg:mr-3 h-auto lg:h-[780px] rounded-2xl shadow-lg flex flex-col overflow-hidden">
-        <div className="p-4">
-          <div className="flex items-center gap-2 mb-3 text-[#f5f5f5] font-semibold">
-            <FaUserAlt className="text-blue-400" /> Customer Info
+      {customerData.orderId && (
+        <div className="flex-[1] mb-28 w-full lg:w-auto bg-[#1a1a1a] mt-2 lg:mt-4 lg:mr-3 h-auto lg:h-[780px] rounded-2xl shadow-lg flex flex-col overflow-hidden">
+          <div className="p-4">
+            <div className="flex items-center gap-2 mb-3 text-[#f5f5f5] font-semibold">
+              <FaUserAlt className="text-blue-400" /> Customer Info
+            </div>
+            <CustomerInfo />
           </div>
-          <CustomerInfo />
-        </div>
-        <hr className="border-[#2a2a2a]" />
+          <hr className="border-[#2a2a2a]" />
 
-        <div className="flex-1 p-4 overflow-y-auto scrollbar-hide">
-          <div className="flex items-center gap-2 mb-3 text-[#f5f5f5] font-semibold">
-            <FaShoppingCart className="text-green-400" /> Cart
+          <div className="flex-1 p-4 overflow-y-auto scrollbar-hide">
+            <div className="flex items-center gap-2 mb-3 text-[#f5f5f5] font-semibold">
+              <FaShoppingCart className="text-green-400" /> Cart
+            </div>
+            <CartInfo />
           </div>
-          <CartInfo />
-        </div>
-        <hr className="border-[#2a2a2a]" />
+          <hr className="border-[#2a2a2a]" />
 
-        <div className="p-4">
-          <div className="flex items-center gap-2 mb-3 text-[#f5f5f5] font-semibold">
-            <FaFileInvoiceDollar className="text-primary" /> Bill
+          <div className="p-4">
+            <div className="flex items-center gap-2 mb-3 text-[#f5f5f5] font-semibold">
+              <FaFileInvoiceDollar className="text-primary" /> Bill
+            </div>
+            <Bill editMode={Boolean(id)} /> {/* ✅ pass edit flag */}
           </div>
-          <Bill editMode={Boolean(id)} /> {/* ✅ pass edit flag */}
         </div>
-      </div>
+      )}
 
       {/* Bottom Nav (Always Visible) */}
       <BottomNav />
