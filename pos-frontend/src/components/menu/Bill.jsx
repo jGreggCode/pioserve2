@@ -36,6 +36,8 @@ const Bill = ({ editMode = false }) => {
   const [showInvoice, setShowInvoice] = useState(false);
   const [orderInfo, setOrderInfo] = useState();
 
+  console.log(note);
+
   console.log(customerData);
 
   const handlePlaceOrder = () => {
@@ -97,6 +99,7 @@ const Bill = ({ editMode = false }) => {
 
       dispatch(removeCustomer());
       dispatch(removeAllItems());
+      dispatch(clearNote());
       setPaymentMethod("Cash");
       setOrderInfo(undefined);
       setShowInvoice(false);
@@ -129,7 +132,6 @@ const Bill = ({ editMode = false }) => {
       setTableInfo(resData.data); // ✅ Store the table response
       dispatch(removeCustomer());
       dispatch(removeAllItems());
-      dispatch(clearNote());
 
       navigate("/orders");
     },

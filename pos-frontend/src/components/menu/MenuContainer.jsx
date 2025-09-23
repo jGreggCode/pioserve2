@@ -28,7 +28,7 @@ const MenuContainer = () => {
     const fetchMenus = async () => {
       try {
         const res = await getDish();
-        console.log("API response:", JSON.stringify(res.data.data, null, 2));
+        // console.log("API response:", JSON.stringify(res.data.data, null, 2));
         if (res.data.success) {
           const formatted = res.data.data.map((cat, index) => ({
             id: index + 1,

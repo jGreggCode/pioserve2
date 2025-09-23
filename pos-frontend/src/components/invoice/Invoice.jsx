@@ -47,6 +47,7 @@ const Invoice = ({ orderInfo, setShowInvoice }) => {
           .muted { color: #555; font-size: 10px; }
           .line { border-top: 1px dashed #999; margin: 6px 0; }
           .item { display: flex; justify-content: space-between; margin: 2px 0; }
+          .itemPrice {display: flex; flex-direction: column;}
           .totals { margin-top: 6px; }
           .totals .row { display:flex; justify-content:space-between; font-weight: bold; }
           .foot { margin-top: 8px; font-size: 9px; text-align:center; }
@@ -76,8 +77,10 @@ const Invoice = ({ orderInfo, setShowInvoice }) => {
               .map(
                 (i) => `
                 <div class="item">
-                  <span>${i.name} x${i.quantity}</span>
-                  <span>₱${(i.price * i.quantity).toFixed(2)}</span>
+                  <span>${i.name}(${i.pricePerQuantity.toFixed(0)} x ${
+                  i.quantity
+                })</span>
+                  <span>₱${i.price.toFixed(2)}</span>
                 </div>`
               )
               .join("")}
