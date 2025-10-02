@@ -5,15 +5,17 @@
  * Full license terms available in LICENSE.md
  */
 
-import React, { useState } from "react";
+import DiscountModal from "./DiscountModal";
+import { useState } from "react";
 import { FaHome } from "react-icons/fa";
 import { MdOutlineReorder, MdTableBar } from "react-icons/md";
 import { IoFastFood } from "react-icons/io5";
 import { BiSolidDish } from "react-icons/bi";
 import { useNavigate, useLocation } from "react-router-dom";
 import Modal from "./Modal";
-import { useDispatch } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { setCustomer } from "../../redux/slices/customerSlice";
+import { clearDiscount } from "../../redux/slices/discountSlice";
 import { enqueueSnackbar } from "notistack";
 
 const BottomNav = () => {
@@ -24,6 +26,13 @@ const BottomNav = () => {
   const [guestCount, setGuestCount] = useState(0);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+
+  // Discount
+  const discounts = useSelector((state) => state.discount);
+  const [isDiscountModalOpen, setIsDiscountModalOpen] = useState(false);
+
+  const openDiscountModal = () => setIsDiscountModalOpen(true);
+  const closeDiscountModal = () => setIsDiscountModalOpen(false);
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
@@ -156,6 +165,36 @@ const BottomNav = () => {
             </div>
           </div>
 
+          {/* Discount */}
+          <div>
+            <label className="block text-sm font-medium text-[#ababab] mb-2 mt-3">
+              Discounts (Optional)
+            </label>
+            {discounts.length === 0 ? (
+              <button
+                onClick={openDiscountModal}
+                className="w-full py-3 text-white rounded-lg bg-[#1f1f1f] hover:bg-[#2a2a2a]"
+              >
+                + Add Discount
+              </button>
+            ) : (
+              <div className="flex gap-2">
+                <button
+                  onClick={openDiscountModal}
+                  className="flex-1 py-3 text-white rounded-lg bg-[#1f1f1f] hover:bg-[#2a2a2a]"
+                >
+                  View / Edit Discounts ({discounts.length})
+                </button>
+                <button
+                  onClick={() => dispatch(clearDiscount())}
+                  className="px-3 py-3 text-white bg-red-600 rounded-lg hover:bg-red-500"
+                >
+                  Clear
+                </button>
+              </div>
+            )}
+          </div>
+
           {/* Create Order Button */}
           <button
             onClick={handleCreateOrder}
@@ -164,6 +203,12 @@ const BottomNav = () => {
             Create Order
           </button>
         </div>
+        {/* Put modal at end */}
+        <DiscountModal
+          isOpen={isDiscountModalOpen}
+          onClose={closeDiscountModal}
+          maxDiscounts={guestCount}
+        />
       </Modal>
     </div>
   );

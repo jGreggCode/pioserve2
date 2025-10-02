@@ -1,212 +1,175 @@
-/*
- * Licensed Software
- * For authorized client use only.
- * Unauthorized modification or redistribution is prohibited.
- * Full license terms available in LICENSE.md
- */
-
 import { useEffect, useState } from "react";
-import { itemsData, metricsData } from "../../constants";
-import {
-  getTotal,
-  getOrdersCount,
-  getCustomerCount,
-  getAllCounts,
-} from "../../https";
+import { fetchMetricsData } from "../../https";
 import { enqueueSnackbar } from "notistack";
-import { useSelector } from "react-redux";
+import {
+  DollarSign,
+  Users,
+  Clock,
+  CheckCircle,
+  XCircle,
+  Package,
+  Utensils,
+  Table as TableIcon,
+  User as UserIcon,
+} from "lucide-react";
+
+const ranges = [
+  { label: "Today", value: "today" },
+  { label: "This Week", value: "week" },
+  { label: "This Month", value: "month" },
+  { label: "This Year", value: "year" },
+];
 
 const Metrics = () => {
-  const [total, setTotal] = useState(0);
-  const [pendingPayment, setPendingPayment] = useState(0);
-  const [overAll, setOverAll] = useState(0);
-  const [ordersCount, setOrdersCount] = useState(0);
-  const [allData, setAllData] = useState([]);
-  const [customerCount, setCustomerCount] = useState(0);
+  const [range, setRange] = useState("today");
+  const [metrics, setMetrics] = useState(null);
+  const [customDates, setCustomDates] = useState({ from: "", to: "" });
+
+  const fetchMetrics = async () => {
+    try {
+      const params =
+        range === "custom"
+          ? { range, from: customDates.from, to: customDates.to }
+          : { range };
+      const res = await fetchMetricsData({ params });
+      if (res.data.success) {
+        setMetrics(res.data.data);
+      } else {
+        enqueueSnackbar("Failed to fetch metrics", { variant: "error" });
+      }
+    } catch (err) {
+      console.error(err);
+      enqueueSnackbar("Error fetching metrics", { variant: "error" });
+    }
+  };
 
   useEffect(() => {
-    const fetchTotals = async () => {
-      try {
-        const countedData = await getAllCounts();
-        if (countedData.data.success) {
-          const counts = countedData.data.data; // { dishes: 42, orders: 108, ... }
+    fetchMetrics();
+  }, [range]); // eslint-disable-line react-hooks/exhaustive-deps
 
-          // Transform into array for rendering
-          const formatted = [
-            {
-              title: "Dishes",
-              value: counts.dishes,
-              color: "#025cca",
-              percentage: "10%",
-            },
-            {
-              title: "Orders",
-              value: counts.orders,
-              color: "#02ca3a",
-              percentage: "15%",
-            },
-            {
-              title: "Tables",
-              value: counts.tables,
-              color: "#f6b100",
-              percentage: "8%",
-            },
-            {
-              title: "Users",
-              value: counts.users,
-              color: "#ca025c",
-              percentage: "20%",
-            },
-          ];
-
-          setAllData(formatted);
-        }
-
-        const res = await getTotal();
-        if (res.data.success) {
-          setTotal(res.data.data.paidTotal);
-          setPendingPayment(res.data.data.unpaidTotal);
-          setOverAll(res.data.data.overallTotal);
-          console.log(res);
-        } else {
-          enqueueSnackbar("Failed to fetch total orders", { variant: "error" });
-        }
-      } catch (error) {
-        console.error(error);
-        enqueueSnackbar("Error fetching totals", { variant: "error" });
-      }
-    };
-
-    const fetchOrdersCount = async () => {
-      try {
-        const res = await getOrdersCount();
-        if (res.data.success) {
-          setOrdersCount(res.data.total);
-        } else {
-          enqueueSnackbar("Failed to fetch total customer", {
-            variant: "error",
-          });
-        }
-      } catch (error) {
-        console.error(error);
-        enqueueSnackbar("Error fetching total customer", { variant: "error" });
-      }
-    };
-
-    const fetchCustomerCount = async () => {
-      try {
-        const res = await getCustomerCount();
-        if (res.data.success) {
-          setCustomerCount(res.data.total);
-        } else {
-          enqueueSnackbar("Failed to fetch total orders", { variant: "error" });
-        }
-      } catch (error) {
-        console.error(error);
-        enqueueSnackbar("Error fetching total orders", { variant: "error" });
-      }
-    };
-
-    fetchCustomerCount();
-    fetchTotals();
-    fetchOrdersCount();
-  }, []);
+  if (!metrics) return <div className="p-4 text-white">Loading...</div>;
 
   return (
-    <div className="container px-6 py-2 mx-auto md:px-4">
-      <div className="flex items-center justify-between">
+    <div className="container px-6 py-4 mx-auto">
+      {/* Header */}
+      <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
         <div>
-          <h2 className="font-semibold text-[#f5f5f5] text-xl">
-            Overall Performance
-          </h2>
-          <p className="text-sm text-[#ababab]">
-            A summary of earnings, orders, and customer activity to track
-            overall business performance.
-          </p>
-        </div>
-        <p className="flex items-center gap-1 px-4 py-2 rounded-md text-[#f5f5f5] bg-[#1a1a1a]">
-          All Time
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 gap-4 mt-6 md:grid-cols-4">
-        <div className="w-full mt-6">
-          <div className="shadow-sm rounded-lg p-4 bg-[#025cca]">
-            <div className="flex items-center justify-between">
-              <p className="font-medium text-xs text-[#f5f5f5]">
-                Total Restaurant Earnings
-              </p>
-            </div>
-            <p className="mt-1 font-semibold text-2xl text-[#f5f5f5]">
-              &#8369; {overAll}
-            </p>
-          </div>
-        </div>
-        <div className="w-full mt-6">
-          <div className="shadow-sm rounded-lg p-4 bg-[#922b28]">
-            <div className="flex items-center justify-between">
-              <p className="font-medium text-xs text-[#f5f5f5]">
-                Pending Payment
-              </p>
-            </div>
-            <p className="mt-1 font-semibold text-2xl text-[#f5f5f5]">
-              &#8369; {pendingPayment}
-            </p>
-          </div>
-        </div>
-        <div className="w-full mt-6">
-          <div className="shadow-sm rounded-lg p-4 bg-[#4af876]">
-            <div className="flex items-center justify-between">
-              <p className="font-medium text-xs text-[#f5f5f5]">Paid</p>
-            </div>
-            <p className="mt-1 font-semibold text-2xl text-[#f5f5f5]">
-              {total}
-            </p>
-          </div>
-        </div>
-        <div className="w-full mt-6">
-          <div className="shadow-sm rounded-lg p-4 bg-[#e4ba00]">
-            <div className="flex items-center justify-between">
-              <p className="font-medium text-xs text-[#f5f5f5]">
-                Total Customer
-              </p>
-            </div>
-            <p className="mt-1 font-semibold text-2xl text-[#f5f5f5]">
-              {customerCount}
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <div className="flex flex-col justify-between mt-12">
-        <div>
-          <h2 className="font-semibold text-[#f5f5f5] text-xl">
-            Resource Summary
-          </h2>
-          <p className="text-sm text-[#ababab]">
-            A quick overview of the core resources managed in the system,
-            including dishes, orders, tables, and users.
+          <h2 className="text-2xl font-bold text-white">Overall Performance</h2>
+          <p className="text-sm text-gray-400">
+            Track your earnings, orders and customer activity.
           </p>
         </div>
 
-        <div className="grid grid-cols-4 gap-4 mt-6">
-          {allData.map((item, index) => (
-            <div
-              key={index}
-              className="p-4 rounded-lg shadow-sm"
-              style={{ backgroundColor: item.color }}
+        {/* Range Buttons */}
+        <div className="flex flex-wrap gap-2 mt-2 md:mt-0">
+          {ranges.map((r) => (
+            <button
+              key={r.value}
+              className={`px-3 py-1 rounded-md transition ${
+                range === r.value
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+              }`}
+              onClick={() => setRange(r.value)}
             >
-              <div className="flex items-center justify-between">
-                <p className="font-medium text-xs text-[#f5f5f5]">
-                  {item.title}
-                </p>
-                <div className="flex items-center gap-1"></div>
-              </div>
-              <p className="mt-1 font-semibold text-2xl text-[#f5f5f5]">
-                {item.value}
-              </p>
-            </div>
+              {r.label}
+            </button>
           ))}
+          <input
+            type="date"
+            value={customDates.from}
+            onChange={(e) =>
+              setCustomDates({ ...customDates, from: e.target.value })
+            }
+            className="px-2 text-white bg-gray-800 rounded"
+          />
+          <input
+            type="date"
+            value={customDates.to}
+            onChange={(e) =>
+              setCustomDates({ ...customDates, to: e.target.value })
+            }
+            className="px-2 text-white bg-gray-800 rounded"
+          />
+          <button
+            onClick={() => {
+              setRange("custom");
+              fetchMetrics();
+            }}
+            className="px-3 py-1 text-white bg-green-600 rounded-md hover:bg-green-700"
+          >
+            Apply
+          </button>
+        </div>
+      </div>
+
+      {/* Earnings Cards */}
+      <div className="grid grid-cols-1 gap-4 mt-6 sm:grid-cols-2 md:grid-cols-4">
+        <div className="p-4 rounded-lg shadow bg-gradient-to-br from-blue-500 to-blue-700">
+          <p className="flex items-center gap-2 text-sm font-medium text-white">
+            <DollarSign size={16} />
+            Total Restaurant Earnings
+          </p>
+          <p className="mt-2 text-3xl font-bold text-white">
+            ₱ {metrics.overallTotal}
+          </p>
+        </div>
+        <div className="p-4 rounded-lg shadow bg-gradient-to-br from-red-500 to-red-700">
+          <p className="flex items-center gap-2 text-sm font-medium text-white">
+            <Clock size={16} />
+            Pending Payment
+          </p>
+          <p className="mt-2 text-3xl font-bold text-white">
+            ₱ {metrics.unpaidTotal}
+          </p>
+        </div>
+        <div className="p-4 rounded-lg shadow bg-gradient-to-br from-green-500 to-green-700">
+          <p className="flex items-center gap-2 text-sm font-medium text-white">
+            <CheckCircle size={16} />
+            Paid
+          </p>
+          <p className="mt-2 text-3xl font-bold text-white">
+            ₱ {metrics.paidTotal}
+          </p>
+        </div>
+        <div className="p-4 rounded-lg shadow bg-gradient-to-br from-yellow-500 to-yellow-700">
+          <p className="flex items-center gap-2 text-sm font-medium text-white">
+            <Users size={16} />
+            Total Customers
+          </p>
+          <p className="mt-2 text-3xl font-bold text-white">
+            {metrics.customersCount}
+          </p>
+        </div>
+      </div>
+
+      {/* Resources */}
+      <div className="mt-12">
+        <h2 className="text-2xl font-bold text-white">Resource Summary</h2>
+        <p className="text-sm text-gray-400">
+          Quick overview of dishes, orders, tables and users.
+        </p>
+
+        <div className="grid grid-cols-1 gap-4 mt-6 sm:grid-cols-2 md:grid-cols-4">
+          {Object.entries(metrics.resources).map(([key, value]) => {
+            const iconMap = {
+              dishes: <Utensils size={18} />,
+              orders: <Package size={18} />,
+              tables: <TableIcon size={18} />,
+              users: <UserIcon size={18} />,
+            };
+            return (
+              <div
+                key={key}
+                className="p-4 text-white transition bg-gray-800 rounded-lg shadow hover:bg-gray-700"
+              >
+                <p className="flex items-center gap-2 text-sm font-medium capitalize">
+                  {iconMap[key] || <Package size={18} />} {key}
+                </p>
+                <p className="mt-2 text-3xl font-bold">{value}</p>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>

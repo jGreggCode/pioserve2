@@ -174,14 +174,14 @@ const MenuContainer = () => {
       <hr className="border-[#2a2a2a] border-t-2 mt-4" />
 
       {/* Items */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 px-4 sm:px-6 lg:px-10 py-4 w-full h-[500px] overflow-y-auto scrollbar-hide">
+      <div className="grid w-full grid-cols-1 gap-4 px-4 py-4 overflow-y-auto sm:grid-cols-2 h-[450px] lg:grid-cols-4 sm:px-6 lg:px-10 scrollbar-hide">
         {filteredItems.length > 0 ? (
           filteredItems.map((item) => {
             const currentCount = counts[item.id] || 0;
             return (
               <div
                 key={item.id}
-                className="flex flex-col items-start justify-between p-4 rounded-xl h-[170px] cursor-pointer hover:shadow-lg hover:border-primary bg-[#1a1a1a] border border-[#2a2a2a] transition"
+                className="flex flex-col items-start justify-between p-4 h-[180px] rounded-xl cursor-pointer hover:shadow-lg hover:border-primary bg-[#1a1a1a] border border-[#2a2a2a] transition"
               >
                 {/* Name + Add-to-Cart */}
                 <div className="flex items-start justify-between w-full">
@@ -189,7 +189,7 @@ const MenuContainer = () => {
                     <h1 className="text-[#f5f5f5] text-lg font-semibold truncate">
                       {item.name}
                     </h1>
-                    <p className="text-[#ababab] text-sm italic">
+                    <p className="text-[#ababab] text-xs italic max-w-80">
                       {item.category}
                     </p>
                   </div>

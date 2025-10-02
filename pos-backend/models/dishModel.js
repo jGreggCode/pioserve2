@@ -35,6 +35,10 @@ const dishSchema = new mongoose.Schema(
       required: true,
       default: "None",
     },
+    itemDiscount: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true }
 );

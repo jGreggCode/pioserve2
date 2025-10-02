@@ -13,6 +13,7 @@ const orderSchema = new mongoose.Schema(
       name: { type: String, required: true },
       phone: { type: String, requried: true },
       guests: { type: Number, required: true },
+      discount: [],
     },
     orderStatus: {
       type: String,
@@ -24,6 +25,7 @@ const orderSchema = new mongoose.Schema(
     },
     bills: {
       total: { type: Number, required: true },
+      discount: { type: Number, default: 0 },
       tax: { type: Number, required: true },
       totalWithTax: { type: Number, required: true },
     },

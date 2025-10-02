@@ -20,6 +20,7 @@ import { removeCustomer } from "../../redux/slices/customerSlice";
 import { useNavigate } from "react-router-dom";
 import Invoice from "../invoice/Invoice";
 import { clearNote } from "../../redux/slices/noteSlice";
+import { clearDiscount } from "../../redux/slices/discountSlice";
 
 const Bill = ({ editMode = false }) => {
   const dispatch = useDispatch();
@@ -28,6 +29,7 @@ const Bill = ({ editMode = false }) => {
   const userData = useSelector((state) => state.user);
   const customerData = useSelector((state) => state.customer);
   const cartData = useSelector((state) => state.cart);
+  const discounts = useSelector((state) => state.discount);
   const total = useSelector(getTotalPrice);
   const taxRate = 5.25; // Change this to upate the tax
   const tax = (total * taxRate) / 100;
@@ -35,10 +37,6 @@ const Bill = ({ editMode = false }) => {
   const [paymentMethod, setPaymentMethod] = useState("Cash");
   const [showInvoice, setShowInvoice] = useState(false);
   const [orderInfo, setOrderInfo] = useState();
-
-  console.log(note);
-
-  console.log(customerData);
 
   const handlePlaceOrder = () => {
     if (cartData.length === 0) {

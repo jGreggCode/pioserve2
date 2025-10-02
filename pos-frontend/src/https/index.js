@@ -67,3 +67,7 @@ export const updateUser = (id, userData) =>
   axiosWrapper.put(`/api/admin/update/${id}`, userData);
 export const deleteUser = (id) =>
   axiosWrapper.delete(`/api/admin/delete/${id}`);
+
+// Metrics
+export const fetchMetricsData = ({ params }) =>
+  axiosWrapper.get(`api/metrics`, { params });
