@@ -15,14 +15,12 @@ const addOrder = async (req, res, next) => {
   session.startTransaction();
 
   try {
-    const { items, table } = req.body;
+    const { items, table, discounts } = req.body;
 
-    // Validate stock before placing the order
+    // --- Validate stock ---
     for (const item of items) {
       const dish = await Dish.findById(item.id).session(session);
-      if (!dish) {
-        throw createHttpError(404, `Dish not found: ${item.name}`);
-      }
+      if (!dish) throw createHttpError(404, `Dish not found: ${item.name}`);
       if (dish.stock < item.quantity) {
         throw createHttpError(
           400,
@@ -31,18 +29,18 @@ const addOrder = async (req, res, next) => {
       }
     }
 
-    // Decide takeout vs dine-in
     const isTakeOut = !table || table === "0" || table === 0;
 
     const order = new Order({
       ...req.body,
+      discounts: discounts || [],
       table: isTakeOut ? null : table,
       isTakeOut,
     });
 
     await order.save({ session });
 
-    // Decrement stock
+    // --- Decrement stock ---
     for (const item of items) {
       await Dish.findByIdAndUpdate(
         item.id,
@@ -54,9 +52,11 @@ const addOrder = async (req, res, next) => {
     await session.commitTransaction();
     session.endSession();
 
-    res
-      .status(201)
-      .json({ success: true, message: "Order created!", data: order });
+    res.status(201).json({
+      success: true,
+      message: "Order created successfully!",
+      data: order,
+    });
   } catch (error) {
     await session.abortTransaction();
     session.endSession();

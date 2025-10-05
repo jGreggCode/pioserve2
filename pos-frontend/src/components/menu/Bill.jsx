@@ -5,90 +5,63 @@
  * Full license terms available in LICENSE.md
  */
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getTotalPrice } from "../../redux/slices/cartSlice";
-import {
-  addOrder,
-  updateTable,
-  updateOrderItems, // ✅ add this in https/index.js
-} from "../../https/index";
-import { enqueueSnackbar } from "notistack";
-import { useMutation } from "@tanstack/react-query";
-import { removeAllItems } from "../../redux/slices/cartSlice";
+import { getTotalPrice, removeAllItems } from "../../redux/slices/cartSlice";
 import { removeCustomer } from "../../redux/slices/customerSlice";
-import { useNavigate } from "react-router-dom";
-import Invoice from "../invoice/Invoice";
 import { clearNote } from "../../redux/slices/noteSlice";
 import { clearDiscount } from "../../redux/slices/discountSlice";
+import { addOrder, updateTable, updateOrderItems } from "../../https/index";
+import { useMutation } from "@tanstack/react-query";
+import { enqueueSnackbar } from "notistack";
+import { useNavigate } from "react-router-dom";
+import Invoice from "../invoice/Invoice";
 
 const Bill = ({ editMode = false }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
   const note = useSelector((state) => state.note);
   const userData = useSelector((state) => state.user);
   const customerData = useSelector((state) => state.customer);
   const cartData = useSelector((state) => state.cart);
   const discounts = useSelector((state) => state.discount);
   const total = useSelector(getTotalPrice);
-  const taxRate = 5.25; // Change this to upate the tax
+  const guests = customerData?.guests || 1;
+
+  // --- TAX SETUP ---
+  const taxRate = 5.25; // %
   const tax = (total * taxRate) / 100;
-  const totalPriceWithTax = total + tax;
+
+  // --- DISCOUNT COMPUTATION ---
+  let discountAmount = 0;
+  let discountPercent = 0;
+
+  if (discounts.length > 0) {
+    const maxDiscountValue = Math.max(
+      ...discounts.map((d) => parseFloat(d.discountValue) || 0)
+    );
+    discountPercent = maxDiscountValue;
+
+    const perHead = total / guests;
+    const validIds = discounts.length;
+    discountAmount = perHead * (maxDiscountValue / 100) * validIds;
+  }
+
+  const discountedTotal = total - discountAmount;
+  const totalPriceWithTax = discountedTotal + (discountedTotal * taxRate) / 100;
+
   const [paymentMethod, setPaymentMethod] = useState("Cash");
   const [showInvoice, setShowInvoice] = useState(false);
   const [orderInfo, setOrderInfo] = useState();
 
-  const handlePlaceOrder = () => {
-    if (cartData.length === 0) {
-      enqueueSnackbar("No items in the cart!", { variant: "warning" });
-      return;
-    }
-
-    if (editMode) {
-      // 🔹 Update items only
-      const updateData = {
-        orderId: customerData.orderId,
-        items: cartData,
-        note,
-        bills: {
-          total,
-          tax,
-          totalWithTax: totalPriceWithTax,
-        },
-      };
-      updateMutation.mutate(updateData);
-    } else {
-      // 🔹 Create new order
-      const orderData = {
-        customerDetails: {
-          name: customerData.customerName || "N/A",
-          phone: customerData.customerPhone,
-          guests: customerData.guests,
-        },
-        orderStatus: "In Progress",
-        orderDate: new Date().toISOString(),
-        bills: {
-          total,
-          tax,
-          totalWithTax: totalPriceWithTax,
-        },
-        employee: userData._id,
-        items: cartData,
-        table: customerData.table.tableId,
-        paymentMethod,
-        note,
-      };
-      orderMutation.mutate(orderData);
-    }
-  };
-
+  // --- MUTATIONS ---
   const orderMutation = useMutation({
     mutationFn: (reqData) => addOrder(reqData),
     onSuccess: (resData) => {
       const { data } = resData.data;
       setOrderInfo(data);
 
-      // 🔹 Update the table to "Booked" with the new orderId
       tableUpdateMutation.mutate({
         tableId: customerData.table.tableId,
         status: "Booked",
@@ -98,9 +71,7 @@ const Bill = ({ editMode = false }) => {
       dispatch(removeCustomer());
       dispatch(removeAllItems());
       dispatch(clearNote());
-      setPaymentMethod("Cash");
-      setOrderInfo(undefined);
-      setShowInvoice(false);
+      dispatch(clearDiscount());
       enqueueSnackbar("Order Placed!", { variant: "success" });
       navigate("/orders");
     },
@@ -112,7 +83,6 @@ const Bill = ({ editMode = false }) => {
       setOrderInfo(resData.data);
       enqueueSnackbar("Order Updated!", { variant: "success" });
 
-      // 🔹 Keep table linked to updated order
       tableUpdateMutation.mutate({
         tableId: customerData.table.tableId,
         status: "Booked",
@@ -125,33 +95,65 @@ const Bill = ({ editMode = false }) => {
 
   const tableUpdateMutation = useMutation({
     mutationFn: (reqData) => updateTable(reqData),
-    onSuccess: (resData) => {
-      // console.log(resData);
-      setTableInfo(resData.data); // ✅ Store the table response
-      dispatch(removeCustomer());
-      dispatch(removeAllItems());
-
-      navigate("/orders");
-    },
-    onError: (error) => {
-      console.log(error);
-    },
+    onError: (error) => console.log(error),
   });
+
+  // --- HANDLE PLACE ORDER ---
+  const handlePlaceOrder = () => {
+    if (cartData.length === 0) {
+      enqueueSnackbar("No items in the cart!", { variant: "warning" });
+      return;
+    }
+
+    const bills = {
+      total,
+      discountAmount,
+      discountPercent,
+      tax,
+      totalWithTax: totalPriceWithTax,
+    };
+
+    if (editMode) {
+      const updateData = {
+        orderId: customerData.orderId,
+        items: cartData,
+        note,
+        bills,
+        discounts, // ✅ added discounts array to update as well
+      };
+      updateMutation.mutate(updateData);
+    } else {
+      const orderData = {
+        customerDetails: {
+          name: customerData.customerName || "N/A",
+          phone: customerData.customerPhone || "N/A",
+          guests,
+        },
+        discounts, // ✅ send discount array to backend
+        orderStatus: "In Progress",
+        orderDate: new Date().toISOString(),
+        bills,
+        employee: userData._id,
+        items: cartData,
+        table: customerData.table?.tableId || null,
+        paymentMethod,
+        note,
+      };
+      orderMutation.mutate(orderData);
+    }
+  };
 
   const handleCancel = () => {
     dispatch(removeCustomer());
     dispatch(removeAllItems());
-    setPaymentMethod("Cash");
-    setOrderInfo(undefined);
-    setShowInvoice(false);
-
-    enqueueSnackbar("Order Edit Cancel", { variant: "success" });
+    dispatch(clearDiscount());
+    enqueueSnackbar("Order Edit Cancelled", { variant: "info" });
     navigate("/");
   };
 
   return (
     <>
-      {/* Order Summary */}
+      {/* --- ORDER SUMMARY --- */}
       <div className="px-5 mt-4 space-y-3">
         <div className="flex items-center justify-between">
           <p className="text-sm text-[#ababab]">Items ({cartData.length})</p>
@@ -159,56 +161,60 @@ const Bill = ({ editMode = false }) => {
             ₱{total.toFixed(2)}
           </h1>
         </div>
+
+        {discounts.length > 0 && (
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-[#ababab]">
+              Discount ({discountPercent}% × {discounts.length} ID
+              {discounts.length > 1 ? "s" : ""})
+            </p>
+            <h1 className="text-[#4ade80] text-base font-semibold">
+              -₱{discountAmount.toFixed(2)}
+            </h1>
+          </div>
+        )}
+
         <div className="flex items-center justify-between">
           <p className="text-sm text-[#ababab]">Tax ({taxRate}%)</p>
           <h1 className="text-[#f5f5f5] text-base font-semibold">
-            ₱{tax.toFixed(2)}
+            ₱{((discountedTotal * taxRate) / 100).toFixed(2)}
           </h1>
         </div>
+
         <div className="flex items-center justify-between border-t border-[#2a2a2a] pt-3">
-          <p className="text-sm text-[#e4e4e4] font-medium">Total with Tax</p>
+          <p className="text-sm text-[#e4e4e4] font-medium">Total</p>
           <h1 className="text-lg font-bold text-primary">
             ₱{totalPriceWithTax.toFixed(2)}
           </h1>
         </div>
       </div>
 
-      {/* Payment Method */}
+      {/* --- PAYMENT METHOD --- */}
       <div className="flex items-center gap-3 px-5 mt-5">
-        <button
-          onClick={() => setPaymentMethod("Cash")}
-          className={`w-full rounded-lg px-4 py-3 font-semibold transition ${
-            paymentMethod === "Cash"
-              ? "bg-[#383737] text-[#f5f5f5]"
-              : "bg-[#1f1f1f] text-[#ababab] hover:bg-[#2a2a2a] hover:text-white"
-          }`}
-        >
-          Cash
-        </button>
-        <button
-          onClick={() => setPaymentMethod("Gcash")}
-          className={`w-full rounded-lg px-4 py-3 font-semibold transition ${
-            paymentMethod === "Gcash"
-              ? "bg-[#383737] text-[#f5f5f5]"
-              : "bg-[#1f1f1f] text-[#ababab] hover:bg-[#2a2a2a] hover:text-white"
-          }`}
-        >
-          <img src="/gcash.png" className="object-contain h-6" alt="Gcash" />
-        </button>
-
-        <button
-          onClick={() => setPaymentMethod("Card")}
-          className={`w-full rounded-lg px-4 py-3 font-semibold transition ${
-            paymentMethod === "Card"
-              ? "bg-[#383737] text-[#f5f5f5]"
-              : "bg-[#1f1f1f] text-[#ababab] hover:bg-[#2a2a2a] hover:text-white"
-          }`}
-        >
-          Card
-        </button>
+        {["Cash", "Gcash", "Card"].map((method) => (
+          <button
+            key={method}
+            onClick={() => setPaymentMethod(method)}
+            className={`w-full rounded-lg px-4 py-3 font-semibold transition ${
+              paymentMethod === method
+                ? "bg-[#383737] text-[#f5f5f5]"
+                : "bg-[#1f1f1f] text-[#ababab] hover:bg-[#2a2a2a] hover:text-white"
+            }`}
+          >
+            {method === "Gcash" ? (
+              <img
+                src="/gcash.png"
+                className="object-contain h-6 mx-auto"
+                alt="Gcash"
+              />
+            ) : (
+              method
+            )}
+          </button>
+        ))}
       </div>
 
-      {/* Place/Update Order */}
+      {/* --- ACTION BUTTONS --- */}
       <div className="flex items-center gap-3 px-5 mt-4">
         <button
           onClick={handlePlaceOrder}
@@ -218,7 +224,6 @@ const Bill = ({ editMode = false }) => {
         </button>
       </div>
 
-      {/* Cancel (edit mode only) */}
       {editMode && (
         <div className="flex items-center gap-3 px-5 mt-3">
           <button
@@ -230,7 +235,7 @@ const Bill = ({ editMode = false }) => {
         </div>
       )}
 
-      {/* Invoice Modal */}
+      {/* --- INVOICE --- */}
       {showInvoice && orderInfo && (
         <Invoice orderInfo={orderInfo} setShowInvoice={setShowInvoice} />
       )}

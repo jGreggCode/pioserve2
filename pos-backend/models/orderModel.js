@@ -7,17 +7,40 @@
 
 const mongoose = require("mongoose");
 
+const discountSchema = new mongoose.Schema(
+  {
+    type: {
+      type: String,
+      enum: ["Senior", "PWD"],
+      required: true,
+    },
+    cardId: {
+      type: String,
+      required: true,
+    },
+    discountValue: {
+      type: Number,
+      required: true,
+      min: 0,
+      max: 100,
+    },
+  },
+  { _id: false }
+);
+
 const orderSchema = new mongoose.Schema(
   {
     customerDetails: {
       name: { type: String, required: true },
-      phone: { type: String, requried: true },
+      phone: { type: String, required: true },
       guests: { type: Number, required: true },
-      discount: [],
     },
+    discounts: [discountSchema], // ✅ store array of discounts applied
     orderStatus: {
       type: String,
       required: true,
+      enum: ["In Progress", "Completed", "Cancelled"],
+      default: "In Progress",
     },
     orderDate: {
       type: Date,
@@ -25,12 +48,17 @@ const orderSchema = new mongoose.Schema(
     },
     bills: {
       total: { type: Number, required: true },
-      discount: { type: Number, default: 0 },
+      discountAmount: { type: Number, default: 0 },
+      discountPercent: { type: Number, default: 0 },
       tax: { type: Number, required: true },
       totalWithTax: { type: Number, required: true },
     },
     employee: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-    items: [],
+    items: {
+      type: Array,
+      required: true,
+      default: [],
+    },
     table: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Table",
@@ -38,7 +66,11 @@ const orderSchema = new mongoose.Schema(
     },
     note: { type: String, default: "None" },
     isTakeOut: { type: Boolean, default: false },
-    paymentMethod: String,
+    paymentMethod: {
+      type: String,
+      enum: ["Cash", "Card", "Gcash"],
+      default: "Cash",
+    },
     paymentData: {
       razorpay_order_id: String,
       razorpay_payment_id: String,

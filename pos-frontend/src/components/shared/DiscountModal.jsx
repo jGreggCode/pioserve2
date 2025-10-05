@@ -1,16 +1,31 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Modal from "./Modal";
 import { useDispatch, useSelector } from "react-redux";
 import { addDiscount, clearDiscount } from "../../redux/slices/discountSlice";
 
-const DiscountModal = ({ isOpen, onClose, maxDiscounts }) => {
+const DiscountModal = ({ isOpen, onClose, maxDiscounts = 3 }) => {
   const dispatch = useDispatch();
-  const discounts = useSelector((state) => state.discount); // array
+  const discounts = useSelector((state) => state.discount); // redux array
   const [rows, setRows] = useState([]);
+
+  // Sync rows with Redux data when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setRows(
+        discounts.length > 0
+          ? discounts
+          : [{ type: "", cardId: "", discountValue: "" }]
+      );
+    }
+  }, [isOpen, discounts]);
 
   const handleAddRow = () => {
     if (rows.length >= maxDiscounts) return;
-    setRows((prev) => [...prev, { type: "", cardId: "" }]);
+    setRows((prev) => [...prev, { type: "", cardId: "", discountValue: "" }]);
+  };
+
+  const handleRemoveRow = (index) => {
+    setRows((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleChange = (index, field, value) => {
@@ -20,53 +35,91 @@ const DiscountModal = ({ isOpen, onClose, maxDiscounts }) => {
   };
 
   const handleConfirm = () => {
-    // push all to redux
     dispatch(clearDiscount());
     rows.forEach((r) => {
-      if (r.type && r.cardId) dispatch(addDiscount(r));
+      if (r.type && r.cardId && r.discountValue) dispatch(addDiscount(r));
     });
     onClose();
   };
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Add Discounts">
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-4 text-sm">
         {rows.map((row, idx) => (
-          <div key={idx} className="flex items-center gap-2">
-            <select
-              value={row.type}
-              onChange={(e) => handleChange(idx, "type", e.target.value)}
-              className="flex-1 text-white bg-[#1f1f1f] rounded-lg px-2 py-2"
+          <div
+            key={idx}
+            className="flex flex-wrap md:flex-nowrap items-center gap-2 bg-[#2b2b2b] border border-gray-700 p-3 rounded-lg"
+          >
+            <div className="flex-1 min-w-[120px]">
+              <label className="block mb-1 text-xs text-gray-400">
+                Discount Type
+              </label>
+              <select
+                value={row.type}
+                onChange={(e) => handleChange(idx, "type", e.target.value)}
+                className="w-full bg-[#1f1f1f] border border-gray-700 rounded-md px-2 py-2 text-white focus:outline-none focus:ring-1 focus:ring-primary"
+              >
+                <option value="">Select Type</option>
+                <option value="Senior">Senior Citizen</option>
+                <option value="PWD">PWD</option>
+              </select>
+            </div>
+
+            <div className="flex-1 min-w-[120px]">
+              <label className="block mb-1 text-xs text-gray-400">
+                Card ID
+              </label>
+              <input
+                type="text"
+                value={row.cardId}
+                onChange={(e) => handleChange(idx, "cardId", e.target.value)}
+                placeholder="Enter card ID"
+                className="w-full bg-[#1f1f1f] border border-gray-700 rounded-md px-2 py-2 text-white placeholder:text-gray-500 focus:outline-none focus:ring-1 focus:ring-primary"
+              />
+            </div>
+
+            <div className="flex-1 min-w-[100px]">
+              <label className="block mb-1 text-xs text-gray-400">
+                Discount (%)
+              </label>
+              <input
+                type="number"
+                value={row.discountValue}
+                onChange={(e) =>
+                  handleChange(idx, "discountValue", e.target.value)
+                }
+                placeholder="0"
+                className="w-full bg-[#1f1f1f] border border-gray-700 rounded-md px-2 py-2 text-white placeholder:text-gray-500 focus:outline-none focus:ring-1 focus:ring-primary"
+              />
+            </div>
+
+            <button
+              type="button"
+              onClick={() => handleRemoveRow(idx)}
+              className="p-2 mt-6 text-xs font-medium text-white transition-colors bg-red-600 rounded-md hover:bg-red-700"
             >
-              <option value="">Select Type</option>
-              <option value="Senior">Senior Citizen Discount</option>
-              <option value="PWD">PWD Discount</option>
-            </select>
-            <input
-              type="text"
-              placeholder="Card ID"
-              value={row.cardId}
-              onChange={(e) => handleChange(idx, "cardId", e.target.value)}
-              className="flex-1 text-white bg-[#1f1f1f] rounded-lg px-2 py-2 placeholder:text-gray-400"
-            />
+              ✕
+            </button>
           </div>
         ))}
 
-        <button
-          type="button"
-          onClick={handleAddRow}
-          disabled={rows.length >= maxDiscounts}
-          className="px-3 py-2 mt-2 text-sm font-medium text-white rounded bg-primary hover:bg-primary/90 disabled:opacity-50"
-        >
-          + Add Discount
-        </button>
+        <div className="flex justify-between mt-2">
+          <button
+            type="button"
+            onClick={handleAddRow}
+            disabled={rows.length >= maxDiscounts}
+            className="px-4 py-2 text-sm font-medium rounded-md bg-[#3a3a3a] text-white hover:bg-[#4a4a4a] disabled:opacity-50 transition-colors"
+          >
+            + Add Discount
+          </button>
 
-        <button
-          onClick={handleConfirm}
-          className="w-full py-3 mt-4 font-semibold text-white rounded bg-primary hover:bg-primary/90"
-        >
-          Confirm Discounts
-        </button>
+          <button
+            onClick={handleConfirm}
+            className="px-5 py-2 font-semibold text-white transition-colors rounded-md bg-primary hover:bg-primary/90"
+          >
+            Confirm
+          </button>
+        </div>
       </div>
     </Modal>
   );

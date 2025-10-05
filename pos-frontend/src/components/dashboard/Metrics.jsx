@@ -111,7 +111,7 @@ const Metrics = () => {
             Total Restaurant Earnings
           </p>
           <p className="mt-2 text-3xl font-bold text-white">
-            ₱ {metrics.overallTotal}
+            ₱ {metrics.overallTotal.toFixed(2)}
           </p>
         </div>
         <div className="p-4 rounded-lg shadow bg-gradient-to-br from-red-500 to-red-700">
@@ -120,7 +120,7 @@ const Metrics = () => {
             Pending Payment
           </p>
           <p className="mt-2 text-3xl font-bold text-white">
-            ₱ {metrics.unpaidTotal}
+            ₱ {metrics.unpaidTotal.toFixed(2)}
           </p>
         </div>
         <div className="p-4 rounded-lg shadow bg-gradient-to-br from-green-500 to-green-700">
@@ -129,7 +129,7 @@ const Metrics = () => {
             Paid
           </p>
           <p className="mt-2 text-3xl font-bold text-white">
-            ₱ {metrics.paidTotal}
+            ₱ {metrics.paidTotal.toFixed(2)}
           </p>
         </div>
         <div className="p-4 rounded-lg shadow bg-gradient-to-br from-yellow-500 to-yellow-700">
