@@ -8,14 +8,24 @@ This guide will help you configure and run the **POS Frontend** and **POS Backen
 
 ---
 
-## 1. Pull the Latest Code
+## 1. Pull the Latest Code Or Clone The Repo
 
 Make sure you have the latest version of the project:
 And Update The Dependencies
 
+Clone
+
+```bash
+git clone https://github.com/jgdev101613/pioserve2.git
+```
+
+Pull
+
 ```bash
 git pull
 ```
+
+After pulling or cloning make sure to install the required dependencies
 
 pos-frontend
 
