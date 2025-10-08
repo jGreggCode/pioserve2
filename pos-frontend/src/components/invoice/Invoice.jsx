@@ -15,103 +15,133 @@ const Invoice = ({ orderInfo, setShowInvoice }) => {
 
   const handlePrint = () => {
     const printableHtml = `
-    <!doctype html>
-    <html>
-      <head>
-        <meta charset="utf-8" />
-        <title>Receipt</title>
-        <style>
-          @page {
-            size: 72mm auto;
-            margin: 0;
-          }
-          body {
-            font-family: "Courier New", monospace;
-            font-size: 11px;
-            margin: 0;
-            padding: 0;
-          }
-          .receipt {
-            width: 72mm;
-            padding: 8px;
-            margin: 0 auto;
-          }
-          .center { text-align: center; }
-          .logo {
-            width: 60px;
-            margin: 0 auto 4px;
-          }
-          h2 { margin: 3px 0; font-size: 13px; text-transform: uppercase; }
-          .muted { color: #666; font-size: 10px; }
-          .line { border-top: 1px dashed #999; margin: 6px 0; }
-          .item { display: flex; justify-content: space-between; margin: 2px 0; }
-          .totals .row { display: flex; justify-content: space-between; font-weight: bold; }
-          .foot { margin-top: 8px; font-size: 9px; text-align: center; color: #444; }
-        </style>
-      </head>
-      <body>
-        <div class="receipt">
-          <div class="center">
-            <img src="/logo.png" alt="logo" class="logo" />
-            <h2>Order Receipt</h2>
-            <div class="muted">${formatDateAndTime(orderInfo.orderDate)}</div>
-          </div>
-
-          <p><strong>Order ID:</strong> ${Math.floor(
-            new Date(orderInfo.orderDate).getTime()
-          )}</p>
-          <p><strong>Server:</strong> ${orderInfo.employeeData?.name}</p>
-          <p><strong>Table:</strong> ${orderInfo.table?.tableNo}</p>
-          <p><strong>Customer:</strong> ${
-            orderInfo.customerDetails?.name ?? "N/A"
-          }</p>
-
-          <div class="line"></div>
-
-          ${orderInfo.items
-            .map(
-              (i) => `
-              <div class="item">
-                <span>${i.name} (${i.pricePerQuantity.toFixed(0)} × ${
-                i.quantity
-              })</span>
-                <span>₱${i.price.toFixed(2)}</span>
-              </div>`
-            )
-            .join("")}
-
-          <div class="line"></div>
-
-          <div class="totals">
-            <div class="row"><span>Subtotal</span><span>₱${orderInfo.bills.total.toFixed(
-              2
-            )}</span></div>
-            <div class="row"><span>Tax</span><span>₱${orderInfo.bills.tax.toFixed(
-              2
-            )}</span></div>
-            ${
-              orderInfo.bills.discountAmount
-                ? `<div class="row"><span>Discount</span><span>-₱${orderInfo.bills.discountAmount.toFixed(
-                    2
-                  )}</span></div>`
-                : ""
-            }
-            <div class="row"><span>Grand Total</span><span>₱${orderInfo.bills.totalWithTax.toFixed(
-              2
-            )}</span></div>
-          </div>
-
-          <div class="line"></div>
-
-          <div class="center">
-            <strong>Payment Method:</strong> ${orderInfo.paymentMethod}
-          </div>
-
-          <div class="foot">Thank you for dining with us!<br/>Powered by PioServe</div>
+  <!doctype html>
+  <html>
+    <head>
+      <meta charset="utf-8" />
+      <title>Receipt</title>
+      <style>
+        @page {
+          size: 58mm auto;
+          margin: 0;
+        }
+        body {
+          font-family: "Courier New", monospace;
+          font-size: 10px;
+          margin: 0;
+          padding: 0;
+        }
+        .receipt {
+          width: 58mm;
+          padding: 5px;
+          margin: 0 auto;
+          box-sizing: border-box;
+        }
+        .center { text-align: center; }
+        .logo {
+          width: 50px;
+          margin: 0 auto 4px;
+          display: block;
+        }
+        h2 {
+          margin: 3px 0;
+          font-size: 12px;
+          text-transform: uppercase;
+        }
+        .muted { color: #666; font-size: 9px; }
+        .line {
+          border-top: 1px dashed #999;
+          margin: 5px 0;
+        }
+        .item {
+          display: grid;
+          grid-template-columns: 1fr auto;
+          gap: 3px;
+          margin: 2px 0;
+        }
+        .item span:last-child {
+          text-align: right;
+        }
+        .totals .row {
+          display: grid;
+          grid-template-columns: 1fr auto;
+          font-weight: bold;
+          margin: 2px 0;
+        }
+        .foot {
+          margin-top: 8px;
+          font-size: 9px;
+          text-align: center;
+          color: #444;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="receipt">
+        <div class="center">
+          <img src="/logo.png" alt="logo" class="logo" />
+          <h2>Order Receipt</h2>
+          <div class="muted">${formatDateAndTime(orderInfo.orderDate)}</div>
         </div>
-      </body>
-    </html>
-    `;
+
+        <p><strong>Order ID:</strong> ${Math.floor(
+          new Date(orderInfo.orderDate).getTime()
+        )}</p>
+        <p><strong>Server:</strong> ${orderInfo.employeeData?.name}</p>
+        <p><strong>Table:</strong> ${orderInfo.table?.tableNo}</p>
+        <p><strong>Customer:</strong> ${
+          orderInfo.customerDetails?.name ?? "N/A"
+        }</p>
+
+        <div class="line"></div>
+
+        ${orderInfo.items
+          .map(
+            (i) => `
+            <div class="item">
+              <span>${i.name} (${i.pricePerQuantity.toFixed(0)}×${
+              i.quantity
+            })</span>
+              <span>₱${i.price.toFixed(2)}</span>
+            </div>`
+          )
+          .join("")}
+
+        <div class="line"></div>
+
+        <div class="totals">
+          <div class="row"><span>Subtotal</span><span>₱${orderInfo.bills.total.toFixed(
+            2
+          )}</span></div>
+          <div class="row"><span>Tax</span><span>₱${orderInfo.bills.tax.toFixed(
+            2
+          )}</span></div>
+          ${
+            orderInfo.bills.discountAmount
+              ? `<div class="row"><span>Discount</span><span>-₱${orderInfo.bills.discountAmount.toFixed(
+                  2
+                )}</span></div>`
+              : ""
+          }
+          <div class="row"><span>Grand Total</span><span>₱${orderInfo.bills.totalWithTax.toFixed(
+            2
+          )}</span></div>
+        </div>
+
+        <div class="line"></div>
+
+        <div class="center">
+          <strong>Payment Method:</strong> ${orderInfo.paymentMethod}
+        </div>
+
+        <div class="foot">
+          Thank you for dining with us!<br/>
+          Powered by PioServe
+        </div>
+      </div>
+    </body>
+  </html>
+  `;
 
     const printWin = window.open("", "_blank", "width=400,height=600");
     printWin.document.write(printableHtml);

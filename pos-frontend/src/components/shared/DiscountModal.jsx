@@ -1,14 +1,19 @@
+// components/shared/DiscountModal.jsx
 import { useState, useEffect } from "react";
 import Modal from "./Modal";
 import { useDispatch, useSelector } from "react-redux";
 import { addDiscount, clearDiscount } from "../../redux/slices/discountSlice";
 
-const DiscountModal = ({ isOpen, onClose, maxDiscounts = 3 }) => {
+const DiscountModal = ({
+  isOpen,
+  onClose,
+  maxDiscounts = 3,
+  handleDiscount,
+}) => {
   const dispatch = useDispatch();
-  const discounts = useSelector((state) => state.discount); // redux array
+  const discounts = useSelector((state) => state.discount || []);
   const [rows, setRows] = useState([]);
 
-  // Sync rows with Redux data when modal opens
   useEffect(() => {
     if (isOpen) {
       setRows(
@@ -35,10 +40,28 @@ const DiscountModal = ({ isOpen, onClose, maxDiscounts = 3 }) => {
   };
 
   const handleConfirm = () => {
+    // Update redux for UI (optional)
     dispatch(clearDiscount());
+    const toSave = [];
     rows.forEach((r) => {
-      if (r.type && r.cardId && r.discountValue) dispatch(addDiscount(r));
+      if (
+        r.type &&
+        r.cardId &&
+        r.discountValue !== "" &&
+        !isNaN(Number(r.discountValue))
+      ) {
+        const normalized = {
+          type: r.type,
+          cardId: r.cardId,
+          discountValue: Number(r.discountValue),
+        };
+        dispatch(addDiscount(normalized));
+        toSave.push(normalized);
+      }
     });
+
+    // IMPORTANT: send exact rows to parent so the mutation runs with correct data
+    handleDiscount(toSave);
     onClose();
   };
 

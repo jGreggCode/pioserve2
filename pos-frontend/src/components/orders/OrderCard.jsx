@@ -9,32 +9,97 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { enqueueSnackbar } from "notistack";
 import {
   updateOrderStatus,
+  updateOrderDiscount,
   getUserDataById,
   updateTable,
 } from "../../https/index";
-import { useEffect, useState } from "react";
-import { FaCheckDouble, FaLongArrowAltRight, FaCircle } from "react-icons/fa";
+import { useState } from "react";
+import { FaCheckDouble, FaCircle } from "react-icons/fa";
 import { formatDateAndTime, getAvatarName } from "../../utils/index";
 import Invoice from "../invoice/Invoice";
 import KitchenTicket from "../invoice/KitchenTicket";
+import DiscountModal from "../shared/DiscountModal";
 import { useDispatch, useSelector } from "react-redux";
+import { clearDiscount } from "../../redux/slices/discountSlice";
 import { setCustomerFromOrder } from "../../redux/slices/customerSlice";
 import { removeAllItems, addItems } from "../../redux/slices/cartSlice";
 import { useNavigate } from "react-router-dom";
 
 const OrderCard = ({ order }) => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
   const userData = useSelector((state) => state.user);
+  const discounts = useSelector((state) => state.discount);
   const [orderData, setOrderData] = useState(null);
   const [showInvoice, setShowInvoice] = useState(false);
   const [showKitchenTicket, setShowKitchenTicket] = useState(false);
-  const queryClient = useQueryClient();
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
+
+  const total = Number(order.bills.total || 0); // subtotal pre-tax
+  const guests = Number(order.customerDetails?.guests || 1);
+  const [isDiscountModalOpen, setIsDiscountModalOpen] = useState(false);
+  const [guestCount, setGuestCount] = useState(guests);
+
+  const openDiscountModal = () => setIsDiscountModalOpen(true);
+  const closeDiscountModal = () => setIsDiscountModalOpen(false);
+
+  // === DISCOUNT COMPUTATION (frontend mirror of backend algorithm) ===
+  // Use only valid discounts (type, cardId, numeric discountValue)
+  const validDiscounts = (discounts || []).filter(
+    (d) =>
+      d &&
+      (d.type === "Senior" || d.type === "PWD") &&
+      d.cardId &&
+      d.discountValue !== undefined &&
+      d.discountValue !== null &&
+      !isNaN(Number(d.discountValue))
+  );
+
+  const discountCount = validDiscounts.length;
+  const maxDiscountPercent =
+    discountCount > 0
+      ? Math.max(...validDiscounts.map((d) => Number(d.discountValue)))
+      : 0;
+
+  const perHead = guests > 0 ? total / guests : total;
+  const discountAmount = Number(
+    (perHead * (maxDiscountPercent / 100) * discountCount).toFixed(2)
+  );
+
+  const discountedSubtotal = Number((total - discountAmount).toFixed(2));
+
+  // Recompute tax proportionally using existing stored tax (if available)
+  const originalTax = Number(order.bills?.tax || 0);
+  const originalTotal = Number(order.bills?.total || 0);
+  const taxRateFraction = originalTotal > 0 ? originalTax / originalTotal : 0; // e.g. 0.0525
+  const recomputedTax = Number(
+    (discountedSubtotal * taxRateFraction).toFixed(2)
+  );
+  const totalPriceWithTax = Number(
+    (discountedSubtotal + recomputedTax).toFixed(2)
+  );
+
+  // --- mutations ---
+  const orderDiscountUpdateMutation = useMutation({
+    mutationFn: ({ orderId, discounts }) =>
+      updateOrderDiscount({ orderId, discounts }), // backend will compute bills
+    onSuccess: (res) => {
+      enqueueSnackbar("Discount added successfully", { variant: "success" });
+      // refresh orders so UI shows updated data
+      queryClient.invalidateQueries(["orders"]);
+      // clear client discount slice (optional)
+      dispatch(clearDiscount());
+      closeDiscountModal();
+    },
+    onError: () => {
+      enqueueSnackbar("Failed to add discount!", { variant: "error" });
+    },
+  });
 
   const orderStatusUpdateMutation = useMutation({
     mutationFn: ({ orderId, orderStatus }) =>
       updateOrderStatus({ orderId, orderStatus }),
-
     onSuccess: (res, variables) => {
       enqueueSnackbar("Order status updated successfully!", {
         variant: "success",
@@ -42,7 +107,6 @@ const OrderCard = ({ order }) => {
       queryClient.invalidateQueries(["orders"]);
       setShowInvoice(true);
 
-      // ✅ Now use variables.orderStatus
       if (variables.orderStatus === "Paid") {
         tableUpdateMutation.mutate({
           tableId: order.table._id,
@@ -57,7 +121,6 @@ const OrderCard = ({ order }) => {
         });
       }
     },
-
     onError: () => {
       enqueueSnackbar("Failed to update order status!", { variant: "error" });
     },
@@ -65,14 +128,22 @@ const OrderCard = ({ order }) => {
 
   const tableUpdateMutation = useMutation({
     mutationFn: (reqData) => updateTable(reqData),
-    onSuccess: (resData) => {
-      // console.log("Table updated:", resData);
-      dispatch(removeAllItems());
-    },
-    onError: (error) => {
-      console.error("Table update failed:", error);
-    },
+    onSuccess: () => dispatch(removeAllItems()),
+    onError: (error) => console.error("Table update failed:", error),
   });
+
+  // Called by DiscountModal with the exact rows user confirmed
+  const handleDiscount = async (discountRows) => {
+    try {
+      // ensure we pass the exact discounts the user confirmed
+      orderDiscountUpdateMutation.mutate({
+        orderId: order._id,
+        discounts: discountRows,
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const handleStatusChange = async ({ orderId, orderStatus }) => {
     try {
@@ -85,8 +156,12 @@ const OrderCard = ({ order }) => {
     }
   };
 
+  const handleAddDiscount = async () => {
+    setGuestCount(order.customerDetails.guests || 1);
+    openDiscountModal();
+  };
+
   const handleEditOrder = () => {
-    // preload customer slice
     dispatch(
       setCustomerFromOrder({
         orderId: order._id,
@@ -94,13 +169,8 @@ const OrderCard = ({ order }) => {
         table: order.table,
       })
     );
-
-    // preload cart slice
     dispatch(removeAllItems());
-    order.items.forEach((item) => {
-      dispatch(addItems(item));
-    });
-
+    order.items.forEach((item) => dispatch(addItems(item)));
     navigate(`/menu/${order._id}`);
   };
 
@@ -183,12 +253,12 @@ const OrderCard = ({ order }) => {
               const employeeRes = await getUserDataById(order.employee);
               const employeeData = employeeRes?.data?.data || null;
               setOrderData({ ...order, employeeData });
-              setShowKitchenTicket(true); // ✅ open KitchenTicket instead of changing status
+              setShowKitchenTicket(true);
             } catch (error) {
               console.error(error);
             }
           }}
-          disabled={order.orderStatus !== "In Progress"} // 👈 better: only allow print when order is being prepared
+          disabled={order.orderStatus !== "In Progress"}
           className={`flex-1 rounded-md ${
             order.orderStatus !== "In Progress"
               ? "opacity-40 bg-gray-500"
@@ -197,9 +267,10 @@ const OrderCard = ({ order }) => {
         >
           Print Order Items
         </button>
+
         {userData.role !== "Waiter" && (
           <button
-            onClick={(e) =>
+            onClick={() =>
               handleStatusChange({ orderId: order._id, orderStatus: "Paid" })
             }
             disabled={order.orderStatus !== "Ready"}
@@ -212,6 +283,24 @@ const OrderCard = ({ order }) => {
             BILL OUT
           </button>
         )}
+
+        <button
+          onClick={handleAddDiscount}
+          disabled={order.orderStatus !== "Ready"}
+          className={`relative flex-1 rounded-md ${
+            order.orderStatus !== "Ready"
+              ? "opacity-40 bg-gray-500"
+              : "bg-blue-600"
+          }`}
+        >
+          {validDiscounts.length > 0 && (
+            <span className="absolute text-sm rounded-full top-[-7px] right-[-5px] w-4 h-4 flex justify-center items-center bg-red-200">
+              {validDiscounts.length}
+            </span>
+          )}
+          Add Discount
+        </button>
+
         <button
           disabled={
             order.orderStatus === "Ready" || order.orderStatus === "Paid"
@@ -237,6 +326,13 @@ const OrderCard = ({ order }) => {
       {showInvoice && orderData && (
         <Invoice orderInfo={orderData} setShowInvoice={setShowInvoice} />
       )}
+
+      <DiscountModal
+        isOpen={isDiscountModalOpen}
+        onClose={closeDiscountModal}
+        maxDiscounts={guestCount}
+        handleDiscount={handleDiscount} // will receive discountRows from modal
+      />
     </div>
   );
 };

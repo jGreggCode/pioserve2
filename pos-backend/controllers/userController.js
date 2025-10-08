@@ -23,18 +23,25 @@ const passwordOptions = {
 
 const register = async (req, res, next) => {
   try {
-    const { name, username, phone, email, password, role } = req.body;
+    // Comment temp hides
+    // const { name, username, phone, email, password, role } = req.body;
+    const { name, username, phone, password, role } = req.body;
 
-    if (!name || !phone || !username || !email || !password || !role) {
+    // if (!name || !phone || !username || !email || !password || !role) {
+    //   const error = createHttpError(400, "All fields are required!");
+    //   return next(error);
+    // }
+
+    if (!name || !phone || !username || !password || !role) {
       const error = createHttpError(400, "All fields are required!");
       return next(error);
     }
 
-    const isUserPresent = await User.findOne({ email });
-    if (isUserPresent) {
-      const error = createHttpError(400, "User already exist!");
-      return next(error);
-    }
+    // const isUserPresent = await User.findOne({ username });
+    // if (isUserPresent) {
+    //   const error = createHttpError(400, "User already exist!");
+    //   return next(error);
+    // }
 
     const usernameExist = await User.findOne({ username });
     if (usernameExist) {
@@ -56,7 +63,7 @@ const register = async (req, res, next) => {
           "Your password is weak. It must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one number, and one special character.",
       });
 
-    const user = { name, username, phone, email, password, role };
+    const user = { name, username, phone, password, role };
     const newUser = User(user);
     await newUser.save();
 

@@ -130,6 +130,98 @@ const updateOrderItems = async (req, res, next) => {
   }
 };
 
+// Add Discount
+const updateOrderDiscount = async (req, res, next) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  try {
+    const { id } = req.params;
+    const { discounts } = req.body;
+
+    if (!Array.isArray(discounts)) {
+      throw createHttpError(400, "Discounts must be an array");
+    }
+
+    // Fetch order
+    const order = await Order.findById(id).session(session);
+    if (!order) throw createHttpError(404, "Order not found");
+
+    // Normalize & validate incoming discounts
+    const validDiscounts = discounts
+      .map((d) => ({
+        type: d?.type,
+        cardId: d?.cardId,
+        discountValue:
+          d?.discountValue !== undefined ? Number(d.discountValue) : NaN,
+      }))
+      .filter(
+        (d) =>
+          d &&
+          (d.type === "Senior" || d.type === "PWD") &&
+          d.cardId &&
+          !isNaN(d.discountValue) &&
+          d.discountValue >= 0
+      );
+
+    // Compute highest discount percent and how many valid discounts applied
+    const discountCount = validDiscounts.length;
+    const maxDiscountPercent =
+      discountCount > 0
+        ? Math.max(...validDiscounts.map((d) => Number(d.discountValue)))
+        : 0;
+
+    // Guard: use stored order.bills.total (assumed subtotal pre-tax)
+    const originalTotal = Number(order.bills?.total || 0);
+    const guests = Number(order.customerDetails?.guests || 1);
+    const perHead = guests > 0 ? originalTotal / guests : originalTotal;
+
+    // Algorithm: perHead * (maxPercent/100) * numberOfDiscountedGuests
+    const discountAmount = Number(
+      (perHead * (maxDiscountPercent / 100) * discountCount).toFixed(2)
+    );
+
+    // Subtotal after discount
+    const discountedSubtotal = Number(
+      (originalTotal - discountAmount).toFixed(2)
+    );
+
+    // Recompute tax proportionally using original tax / originalTotal ratio
+    // (fallback to 0 if originalTotal is zero)
+    let newTax = 0;
+    if (originalTotal > 0) {
+      const originalTax = Number(order.bills?.tax || 0);
+      const taxRateFraction = originalTax / originalTotal; // e.g. 0.0525
+      newTax = Number((discountedSubtotal * taxRateFraction).toFixed(2));
+    } else {
+      newTax = 0;
+    }
+
+    const newTotalWithTax = Number((discountedSubtotal + newTax).toFixed(2));
+
+    // Persist
+    order.discounts = validDiscounts;
+    order.bills.discountPercent = maxDiscountPercent;
+    order.bills.discountAmount = discountAmount;
+    order.bills.tax = newTax;
+    order.bills.totalWithTax = newTotalWithTax;
+
+    await order.save({ session });
+
+    await session.commitTransaction();
+    session.endSession();
+
+    res.status(200).json({
+      success: true,
+      message: "Discounts updated successfully",
+      data: order,
+    });
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+    next(error);
+  }
+};
+
 const getOrderById = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -399,4 +491,5 @@ module.exports = {
   getOrdersByEmployee,
   getAllOrders,
   updateOrderItems,
+  updateOrderDiscount,
 };

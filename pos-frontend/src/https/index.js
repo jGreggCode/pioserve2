@@ -47,6 +47,8 @@ export const getOrders = () => axiosWrapper.get("/api/order");
 export const updateOrderItems = (data) =>
   axiosWrapper.put(`/api/order/${data.orderId}/items`, data);
 export const getAllOrders = () => axiosWrapper.get("/api/order/all");
+export const updateOrderDiscount = (data) =>
+  axiosWrapper.put(`/api/order/${data.orderId}/discount`, data);
 export const updateOrderStatus = ({ orderId, orderStatus }) =>
   axiosWrapper.put(`/api/order/${orderId}`, { orderStatus });
 export const getTotal = () => axiosWrapper.get("/api/order/get/totalOrder");

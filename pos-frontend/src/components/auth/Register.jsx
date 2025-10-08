@@ -85,7 +85,7 @@ const Register = ({ setIsRegister }) => {
           </div>
         </div>
         <div>
-          <label className="block text-[#ababab] mb-2 mt-3 text-sm font-semibold">
+          {/* <label className="block text-[#ababab] mb-2 mt-3 text-sm font-semibold">
             Employee Email
           </label>
           <div className="flex items-center rounded-lg p-5 px-4 bg-[#1f1f1f]">
@@ -98,9 +98,9 @@ const Register = ({ setIsRegister }) => {
               className="flex-1 text-white bg-transparent focus:outline-none"
               required
             />
-          </div>
+          </div> */}
         </div>
-         <div>
+        <div>
           <label className="block text-[#ababab] mb-2 mt-3 text-sm font-semibold">
             Employee Username
           </label>
@@ -132,11 +132,18 @@ const Register = ({ setIsRegister }) => {
                   setFormData({ ...formData, phone: value });
                 }
               }}
-              inputMode="numeric"     // shows numeric keypad on mobile
-              pattern="[0-9]*"        // HTML5 validation: digits only
-              maxLength={10}          // max 10 digits
+              inputMode="numeric" // shows numeric keypad on mobile
+              pattern="[0-9]*" // HTML5 validation: digits only
+              maxLength={10} // max 10 digits
               onKeyDown={(e) => {
-                if (!/[0-9]/.test(e.key) && e.key !== "Backspace" && e.key !== "Delete" && e.key !== "ArrowLeft" && e.key !== "ArrowRight" && e.key !== "Tab") {
+                if (
+                  !/[0-9]/.test(e.key) &&
+                  e.key !== "Backspace" &&
+                  e.key !== "Delete" &&
+                  e.key !== "ArrowLeft" &&
+                  e.key !== "ArrowRight" &&
+                  e.key !== "Tab"
+                ) {
                   e.preventDefault(); // block non-numeric keys
                 }
               }}
