@@ -7,7 +7,7 @@
 
 export async function checkLicense() {
   try {
-    const res = await fetch("http://localhost:8000/api/status", {
+    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/status`, {
       credentials: "include", // only if you’re using cookies/sessions
       headers: {
         "Content-Type": "application/json",
