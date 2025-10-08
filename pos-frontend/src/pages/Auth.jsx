@@ -6,9 +6,9 @@
  */
 
 import React, { useState } from "react";
-import restaurant from "../assets/cover.webp"; 
-import logo from "../assets/logo.png"; 
-import Register from "../components/auth/Register"; 
+import restaurant from "../assets/cover.webp";
+import logo from "../assets/logo.png";
+import Register from "../components/auth/Register";
 import Login from "../components/auth/Login";
 
 const Auth = () => {
@@ -45,10 +45,12 @@ const Auth = () => {
 
         {/* QUOTE at BOTTOM */}
         <blockquote className="absolute px-8 mb-10 text-2xl italic text-white bottom-10">
-          "Great food isn't just served — it's shared with heart. Always serve
-          the best, because every plate is a promise."
+          "Food brings people together on many different levels. It's
+          nourishment of the soul and body; it's truly love."
           <br />
-          <span className="block mt-4 text-primary">- JGDEV</span>
+          <span className="block mt-4 text-primary">
+            - Giada De Laurentiis{" "}
+          </span>
         </blockquote>
 
         {/* Developer Credit / License */}
@@ -60,7 +62,7 @@ const Auth = () => {
             rel="noopener noreferrer"
             className="font-semibold animate-glow hover:underline"
           >
-            JGDEV
+            Jardin De Pio
           </a>
           . All rights reserved.
         </div>

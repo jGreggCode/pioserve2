@@ -119,7 +119,7 @@ const MenuContainer = () => {
   return (
     <>
       {/* Search Bar */}
-      <div className="px-4 mt-4 sm:px-6 lg:px-10">
+      <div className="px-3 mt-3 sm:px-5 md:px-6 md:mt-5">
         <div className="relative w-full">
           <FaSearch className="absolute text-gray-500 -translate-y-1/2 left-3 top-1/2" />
           <input
@@ -127,7 +127,7 @@ const MenuContainer = () => {
             placeholder="Search items..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-10 py-3 rounded-xl bg-[#1a1a1a] text-white border border-[#2a2a2a] focus:outline-none focus:ring-2 focus:ring-primary transition"
+            className="w-full pl-10 pr-10 py-2 sm:py-3 text-white border border-slate-400 md:py-4 text-sm sm:text-base md:text-lg rounded-xl bg-[#1a1a1a]"
           />
           {search && (
             <button
@@ -141,7 +141,7 @@ const MenuContainer = () => {
       </div>
 
       {/* Categories */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 px-4 sm:px-6 lg:px-10 py-4 w-full h-[200px] overflow-y-auto scrollbar-hide">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4 md:gap-5 px-3 sm:px-5 md:px-6 py-4 h-auto max-h-[240px] overflow-y-auto scrollbar-hide">
         {menus.map((menu) => (
           <div
             key={menu.id}
@@ -174,14 +174,14 @@ const MenuContainer = () => {
       <hr className="border-[#2a2a2a] border-t-2 mt-4" />
 
       {/* Items */}
-      <div className="grid w-full grid-cols-1 gap-4 px-4 py-4 overflow-y-auto sm:grid-cols-2 h-[450px] lg:grid-cols-4 sm:px-6 lg:px-10 scrollbar-hide">
+      <div className="grid w-full grid-cols-1 gap-4 px-3 py-4 overflow-y-auto sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 sm:gap-5 sm:px-5 md:px-6 scrollbar-hide">
         {filteredItems.length > 0 ? (
           filteredItems.map((item) => {
             const currentCount = counts[item.id] || 0;
             return (
               <div
                 key={item.id}
-                className="flex flex-col items-start justify-between p-4 h-[180px] rounded-xl cursor-pointer hover:shadow-lg hover:border-primary bg-[#1a1a1a] border border-[#2a2a2a] transition"
+                className="flex flex-col p-3 sm:p-4 md:p-5 h-[180px] sm:h-[200px] md:h-[220px] rounded-xl bg-[#1a1a1a] border border-[#2a2a2a] hover:shadow-lg hover:border-primary transition"
               >
                 {/* Name + Add-to-Cart */}
                 <div className="flex items-start justify-between w-full">

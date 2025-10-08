@@ -154,9 +154,11 @@ const Bill = ({ editMode = false }) => {
   return (
     <>
       {/* --- ORDER SUMMARY --- */}
-      <div className="px-5 mt-4 space-y-3">
+      <div className="px-4 sm:px-6 md:px-8 mt-4 space-y-3 text-[#f5f5f5]">
         <div className="flex items-center justify-between">
-          <p className="text-sm text-[#ababab]">Items ({cartData.length})</p>
+          <p className="px-3 sm:px-5 md:px-6 text-[#ababab]">
+            Items ({cartData.length})
+          </p>
           <h1 className="text-[#f5f5f5] text-base font-semibold">
             ₱{total.toFixed(2)}
           </h1>
@@ -164,7 +166,7 @@ const Bill = ({ editMode = false }) => {
 
         {discounts.length > 0 && (
           <div className="flex items-center justify-between">
-            <p className="text-sm text-[#ababab]">
+            <p className="px-3 sm:px-5 md:px-6 text-[#ababab]">
               Discount ({discountPercent}% × {discounts.length} ID
               {discounts.length > 1 ? "s" : ""})
             </p>
@@ -175,14 +177,18 @@ const Bill = ({ editMode = false }) => {
         )}
 
         <div className="flex items-center justify-between">
-          <p className="text-sm text-[#ababab]">Tax ({taxRate}%)</p>
+          <p className="px-3 sm:px-5 md:px-6 text-[#ababab]">
+            Tax ({taxRate}%)
+          </p>
           <h1 className="text-[#f5f5f5] text-base font-semibold">
             ₱{((discountedTotal * taxRate) / 100).toFixed(2)}
           </h1>
         </div>
 
         <div className="flex items-center justify-between border-t border-[#2a2a2a] pt-3">
-          <p className="text-sm text-[#e4e4e4] font-medium">Total</p>
+          <p className="px-3 sm:px-5 md:px-6 text-[#e4e4e4] font-medium">
+            Total
+          </p>
           <h1 className="text-lg font-bold text-primary">
             ₱{totalPriceWithTax.toFixed(2)}
           </h1>
@@ -190,7 +196,7 @@ const Bill = ({ editMode = false }) => {
       </div>
 
       {/* --- PAYMENT METHOD --- */}
-      <div className="flex items-center gap-3 px-5 mt-5">
+      <div className="flex flex-wrap gap-3 px-4 mt-5 sm:px-6 md:px-8">
         {["Cash", "Gcash", "Card"].map((method) => (
           <button
             key={method}
@@ -218,7 +224,7 @@ const Bill = ({ editMode = false }) => {
       <div className="flex items-center gap-3 px-5 mt-4">
         <button
           onClick={handlePlaceOrder}
-          className="bg-primary px-4 py-3 w-full rounded-lg text-[#1f1f1f] font-semibold text-lg hover:bg-accent transition"
+          className="bg-primary w-full py-3 sm:py-4 md:py-5 rounded-xl text-[#1f1f1f] font-semibold text-base sm:text-lg md:text-xl hover:bg-accent transition"
         >
           {editMode ? "Update Order" : "Place Order"}
         </button>

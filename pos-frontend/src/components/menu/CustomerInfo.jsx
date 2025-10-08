@@ -14,7 +14,7 @@ const CustomerInfo = () => {
   const customerData = useSelector((state) => state.customer);
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-2 px-3 py-3 sm:px-4">
+    <div className="flex flex-wrap items-center justify-between gap-3 px-3 py-3 sm:px-5 md:px-6 sm:py-4 md:py-5">
       <div className="flex flex-col items-start">
         <h1 className="text-sm sm:text-md text-[#f5f5f5] font-semibold tracking-wide">
           {customerData.customerName || "N/A"}
@@ -26,7 +26,7 @@ const CustomerInfo = () => {
           {formatDate(dateTime)}
         </p>
       </div>
-      <button className="p-2 text-sm font-bold rounded-lg bg-primary sm:p-3 sm:text-xl">
+      <button className="p-2 text-sm font-bold rounded-full sm:p-3 md:p-4 sm:text-base md:text-lg bg-primary">
         {getAvatarName(customerData.customerName) || "N/A"}
       </button>
     </div>

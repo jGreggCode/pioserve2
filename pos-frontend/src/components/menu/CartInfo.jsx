@@ -40,11 +40,11 @@ const CartInfo = () => {
   return (
     <div className="px-4 py-4">
       {/* Header */}
-      <h1 className="text-lg sm:text-xl text-[#f5f5f5] font-bold tracking-wide flex justify-between items-center gap-2 mb-3">
+      <h1 className="text-base sm:text-lg md:text-xl text-[#f5f5f5] font-bold tracking-wide flex justify-between items-center gap-2 mb-3">
         Order Details
         <button
           onClick={() => setShowAddNote(true)}
-          className="flex gap-2 justify-center items-center p-2 rounded-lg bg-[#292929] hover:bg-accent text-white transition"
+          className="flex items-center gap-2 p-2 sm:p-3 md:p-4 rounded-lg bg-[#292929] hover:bg-accent text-white text-xs sm:text-sm md:text-base transition"
         >
           <FaNotesMedical size={18} />
           <span className="text-xs">Add Note</span>
@@ -95,11 +95,11 @@ const CartInfo = () => {
           cartData.map((item, index) => (
             <div
               key={index}
-              className="bg-[#1f1f1f] border border-[#2a2a2a] rounded-xl px-4 py-3 shadow-sm hover:shadow-md transition"
+              className="bg-[#1f1f1f] border border-[#2a2a2a] rounded-xl px-3 sm:px-4 md:px-5 py-3 md:py-4 shadow-sm hover:shadow-md transition"
             >
               {/* Item Name & Quantity */}
               <div className="flex items-center justify-between">
-                <h1 className="text-[#f5f5f5] font-semibold text-base truncate">
+                <h1 className="text-[#f5f5f5] font-semibold text-sm sm:text-base md:text-lg truncate">
                   {item.name}
                 </h1>
                 <span className="text-[#e4e4e4] font-medium text-sm bg-[#2a2a2a] px-2 py-0.5 rounded-lg">
