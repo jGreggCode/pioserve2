@@ -25,6 +25,9 @@ const Invoice = ({ orderInfo, setShowInvoice }) => {
           size: 58mm auto;
           margin: 0;
         }
+        * {
+          font-weight: bold;
+        }
         body {
           font-family: "Courier New", monospace;
           font-size: 10px;
