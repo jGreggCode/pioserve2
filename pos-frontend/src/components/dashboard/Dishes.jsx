@@ -33,6 +33,9 @@ const Dishes = () => {
   const userData = useSelector((state) => state.user);
   const queryClient = useQueryClient();
 
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+
   // ✅ Mutation for deleting dish
   const deleteDishMutation = useMutation({
     mutationFn: (id) => deleteDish(id),
@@ -60,14 +63,19 @@ const Dishes = () => {
 
   // ✅ Fetch dishes
   const { data: dishes = [], isError } = useQuery({
-    queryKey: ["dishes"],
+    queryKey: ["dishes", { startDate, endDate }],
     queryFn: async () => {
-      const response = await getAllDishes();
+      const response = await getAllDishes(startDate, endDate);
       const allDishes = response.data?.data || response.data || [];
       return Array.isArray(allDishes) ? allDishes : [];
     },
     placeholderData: keepPreviousData,
   });
+
+  const handleFilter = () => {
+    // force re-fetch of the dishes query
+    queryClient.invalidateQueries(["dishes"]);
+  };
 
   // ✅ Fetch categories
   const { data: categoriesRes } = useQuery({
@@ -97,6 +105,8 @@ const Dishes = () => {
   const indexOfFirstDish = indexOfLastDish - itemsPerPage;
   const currentDishes = filteredDishes.slice(indexOfFirstDish, indexOfLastDish);
   const totalPages = Math.ceil(filteredDishes.length / itemsPerPage);
+
+  console.log(currentDishes);
 
   const handleEditSubmit = (e) => {
     e.preventDefault();
@@ -143,13 +153,35 @@ const Dishes = () => {
 
       {/* ✅ Table for Desktop */}
       <div className="hidden overflow-x-auto md:block">
+        <div className="flex flex-wrap items-center gap-2 mb-4">
+          <input
+            type="date"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+            className="px-3 py-2 rounded bg-[#2d2d2d] text-[#f5f5f5] border border-gray-600"
+          />
+          <input
+            type="date"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+            className="px-3 py-2 rounded bg-[#2d2d2d] text-[#f5f5f5] border border-gray-600"
+          />
+          <button
+            onClick={handleFilter}
+            className="px-4 py-2 text-white bg-blue-600 rounded hover:bg-blue-700"
+          >
+            Filter
+          </button>
+        </div>
         <table className="w-full text-left text-[#f5f5f5]">
           <thead className="bg-[#333] text-[#ababab]">
             <tr>
               <th className="p-3">Dish ID</th>
               <th className="p-3">Name</th>
               <th className="p-3">Description</th>
-              <th className="p-3">Stock</th>
+              <th className="w-[140px] p-3">Current Stock</th>
+              <th className="w-[130px] p-3">Stock At Sale</th>
+              <th className="p-3">Sold</th>
               <th className="p-3">Category</th>
               <th className="p-3">Sub Category</th>
               <th className="p-3">Price</th>
@@ -167,10 +199,12 @@ const Dishes = () => {
                 <td className="p-4">#{dish._id?.slice(-6)}</td>
                 <td className="p-4">{dish.name}</td>
                 <td className="p-4">{dish.description}</td>
-                <td className="p-4">{dish.stock}</td>
+                <td className="p-4 text-right">{dish.stock}</td>
+                <td className="p-4 text-right">{dish.stockAtSale}</td>
+                <td className="p-4 text-right">{dish.quantitySold}</td>
                 <td className="p-4">{dish.category}</td>
                 <td className="p-4">{dish.subcategory}</td>
-                <td className="p-4">&#8369;{dish.price}</td>
+                <td className="p-4 text-right">&#8369;{dish.price}</td>
                 {userData.role === "Admin" && (
                   <td className="flex justify-center gap-2 p-4">
                     <button

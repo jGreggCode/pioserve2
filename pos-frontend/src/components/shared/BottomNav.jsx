@@ -97,7 +97,7 @@ const BottomNav = () => {
 
       {/* Floating Action Button */}
       <button
-        disabled={isActive("/tables") || isActive("/menu")}
+        // disabled={isActive("/tables") || isActive("/menu")}
         onClick={openModal}
         className="absolute p-4 text-white transition-transform duration-300 transform -translate-x-1/2 rounded-full shadow-xl -top-6 left-1/2 bg-primary hover:scale-110"
       >

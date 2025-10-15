@@ -158,9 +158,60 @@ const getDishes = async (req, res, next) => {
 
 const getAllDishes = async (req, res, next) => {
   try {
+    const { startDate, endDate } = req.query;
+
+    let start = startDate ? new Date(startDate) : null;
+    let end = endDate ? new Date(endDate) : null;
+
+    if (!start) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      start = today;
+    }
+    if (!end) {
+      end = new Date(start);
+      end.setHours(23, 59, 59, 999);
+    }
+
+    // Only fetch completed or paid orders in the range
+    const orders = await Order.find({
+      orderStatus: "Paid",
+      orderDate: { $gte: start, $lte: end },
+    });
+
+    // aggregate per dish
+    const soldStats = {};
+    for (const order of orders) {
+      for (const item of order.items) {
+        const dishId = item.id.toString();
+
+        if (!soldStats[dishId]) {
+          soldStats[dishId] = {
+            quantitySold: 0,
+            lastStockAtSale: item.stock, // snapshot at sale
+          };
+        }
+
+        soldStats[dishId].quantitySold += item.quantity;
+        // update last known stock at sale (latest order wins)
+        soldStats[dishId].lastStockAtSale = item.stock;
+      }
+    }
+
+    // get all dishes
     const dishes = await Dish.find();
 
-    res.status(200).json({ data: dishes });
+    // enrich with sold info + last stock at sale
+    const enriched = dishes.map((dish) => {
+      const info = soldStats[dish._id.toString()];
+      return {
+        ...dish.toObject(),
+        quantitySold: info?.quantitySold || 0,
+        stockAtSale: info?.lastStockAtSale || dish.stock, // fallback to current stock
+      };
+    });
+
+    res.status(200).json({ data: enriched });
   } catch (error) {
     next(error);
   }

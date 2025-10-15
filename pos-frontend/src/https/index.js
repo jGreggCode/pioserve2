@@ -29,7 +29,19 @@ export const updateTable = ({ tableId, ...tableData }) =>
 // Dish Endpoints
 export const addDish = (data) => axiosWrapper.post("/api/dish/", data);
 export const getDish = (data) => axiosWrapper.get("/api/dish/", data);
-export const getAllDishes = () => axiosWrapper.get("/api/dish/all");
+export const getAllDishes = async (startDate, endDate) => {
+  let url = "/api/dish/all";
+
+  // if there is a startDate, add query params
+  if (startDate) {
+    const params = new URLSearchParams();
+    params.append("startDate", startDate);
+    if (endDate) params.append("endDate", endDate);
+    url += `?${params.toString()}`;
+  }
+
+  return axiosWrapper.get(url);
+};
 export const editDish = (id, data) => axiosWrapper.put(`/api/dish/${id}`, data);
 export const deleteDish = (id) => axiosWrapper.delete(`/api/dish/${id}`);
 export const getCategories = () => axiosWrapper.get(`/api/dish/categories`);

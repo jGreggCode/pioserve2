@@ -181,7 +181,9 @@ const RecentOrders = () => {
                   {userData.role === "Admin" && (
                     <>
                       <option value="Delete">Delete</option>
-                      <option value="Paid">Paid</option>
+                      <option disabled hidden value="Paid">
+                        Paid
+                      </option>
                     </>
                   )}
                 </select>

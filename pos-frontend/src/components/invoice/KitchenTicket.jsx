@@ -21,8 +21,11 @@ const KitchenTicket = ({ orderInfo, setShowInvoice }) => {
         <title>Kitchen Order Ticket</title>
         <style>
           @page {
-            size: 72mm auto;
+            size: 58mm auto;
             margin: 0;
+          }
+          * {
+            font-weight: bold;
           }
           body {
             font-family: "Courier New", Courier, monospace;

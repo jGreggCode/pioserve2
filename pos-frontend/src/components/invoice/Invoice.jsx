@@ -10,10 +10,19 @@ import { motion } from "framer-motion";
 import { FaCheck } from "react-icons/fa6";
 import { formatDateAndTime } from "../../utils";
 
-const Invoice = ({ orderInfo, setShowInvoice }) => {
+const Invoice = ({ orderInfo, setShowInvoice, handlePrintMutation }) => {
   const invoiceRef = useRef(null);
 
-  const handlePrint = () => {
+  const handlePrint = async () => {
+    try {
+      await handlePrintMutation.mutateAsync({
+        orderId: orderInfo._id,
+        orderStatus: "Paid",
+      });
+    } catch (error) {
+      console.log(error);
+    }
+
     const printableHtml = `
   <!doctype html>
   <html>
@@ -277,7 +286,9 @@ const Invoice = ({ orderInfo, setShowInvoice }) => {
         {/* Footer */}
         <div className="flex items-center justify-between p-4 border-t bg-gray-50">
           <button
-            onClick={handlePrint}
+            onClick={() => {
+              handlePrint();
+            }}
             className="px-4 py-2 text-sm font-medium text-blue-600 transition bg-blue-100 rounded-md hover:bg-blue-200"
           >
             Print Receipt

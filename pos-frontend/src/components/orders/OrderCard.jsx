@@ -105,7 +105,6 @@ const OrderCard = ({ order }) => {
         variant: "success",
       });
       queryClient.invalidateQueries(["orders"]);
-      setShowInvoice(true);
 
       if (variables.orderStatus === "Paid") {
         tableUpdateMutation.mutate({
@@ -150,7 +149,8 @@ const OrderCard = ({ order }) => {
       const employeeRes = await getUserDataById(order.employee);
       const employeeData = employeeRes?.data?.data || null;
       setOrderData({ ...order, employeeData });
-      orderStatusUpdateMutation.mutate({ orderId, orderStatus });
+      setShowInvoice(true);
+      //orderStatusUpdateMutation.mutate({ orderId, orderStatus });
     } catch (error) {
       console.error(error);
     }
@@ -324,7 +324,11 @@ const OrderCard = ({ order }) => {
       )}
 
       {showInvoice && orderData && (
-        <Invoice orderInfo={orderData} setShowInvoice={setShowInvoice} />
+        <Invoice
+          orderInfo={orderData}
+          setShowInvoice={setShowInvoice}
+          handlePrintMutation={orderStatusUpdateMutation}
+        />
       )}
 
       <DiscountModal

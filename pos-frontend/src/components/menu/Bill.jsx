@@ -30,7 +30,7 @@ const Bill = ({ editMode = false }) => {
   const guests = customerData?.guests || 1;
 
   // --- TAX SETUP ---
-  const taxRate = 5.25; // %
+  const taxRate = 0; // %
   const tax = (total * taxRate) / 100;
 
   // --- DISCOUNT COMPUTATION ---
@@ -156,9 +156,7 @@ const Bill = ({ editMode = false }) => {
       {/* --- ORDER SUMMARY --- */}
       <div className="px-4 sm:px-6 md:px-8 mt-4 space-y-3 text-[#f5f5f5]">
         <div className="flex items-center justify-between">
-          <p className="px-3 sm:px-5 md:px-6 text-[#ababab]">
-            Items ({cartData.length})
-          </p>
+          <p className=" text-[#ababab]">Items ({cartData.length})</p>
           <h1 className="text-[#f5f5f5] text-base font-semibold">
             ₱{total.toFixed(2)}
           </h1>
@@ -166,7 +164,7 @@ const Bill = ({ editMode = false }) => {
 
         {discounts.length > 0 && (
           <div className="flex items-center justify-between">
-            <p className="px-3 sm:px-5 md:px-6 text-[#ababab]">
+            <p className=" text-[#ababab]">
               Discount ({discountPercent}% × {discounts.length} ID
               {discounts.length > 1 ? "s" : ""})
             </p>
@@ -176,19 +174,15 @@ const Bill = ({ editMode = false }) => {
           </div>
         )}
 
-        <div className="flex items-center justify-between">
-          <p className="px-3 sm:px-5 md:px-6 text-[#ababab]">
-            Tax ({taxRate}%)
-          </p>
+        {/* <div className="flex items-center justify-between">
+          <p className="text-[#ababab]">Tax ({taxRate}%)</p>
           <h1 className="text-[#f5f5f5] text-base font-semibold">
             ₱{((discountedTotal * taxRate) / 100).toFixed(2)}
           </h1>
-        </div>
+        </div> */}
 
         <div className="flex items-center justify-between border-t border-[#2a2a2a] pt-3">
-          <p className="px-3 sm:px-5 md:px-6 text-[#e4e4e4] font-medium">
-            Total
-          </p>
+          <p className="text-[#e4e4e4] font-medium">Total</p>
           <h1 className="text-lg font-bold text-primary">
             ₱{totalPriceWithTax.toFixed(2)}
           </h1>
