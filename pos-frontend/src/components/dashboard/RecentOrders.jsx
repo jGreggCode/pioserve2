@@ -178,14 +178,18 @@ const RecentOrders = () => {
                 >
                   <option value="In Progress">In Progress</option>
                   <option value="Ready">Ready</option>
-                  {userData.role === "Admin" && (
+                  {/* {userData.role === "Admin" && (
                     <>
                       <option value="Delete">Delete</option>
                       <option disabled hidden value="Paid">
                         Paid
                       </option>
                     </>
-                  )}
+                  )} */}
+                  <option value="Delete">Delete</option>
+                  <option disabled hidden value="Paid">
+                    Paid
+                  </option>
                 </select>
               </div>
 
@@ -207,20 +211,43 @@ const RecentOrders = () => {
                   <span className="font-semibold">Payment:</span>{" "}
                   {order.paymentMethod}
                 </p>
-                <p className="font-bold text-red-500">
+                {/* <p className="font-bold text-red-500">
                   <span className="font-semibold">Note:</span>{" "}
                   {order.note || "None"}
-                </p>
+                </p> */}
 
                 <div>
                   <span className="font-semibold">Items:</span>
                   <ul className="ml-5 text-gray-300 list-disc">
-                    {order.items.map((item) => (
-                      <li key={item.id}>
-                        {item.name}{" "}
-                        <span className="text-gray-400">x{item.quantity}</span>
-                      </li>
-                    ))}
+                    {order.items.map((item) => {
+                      // 🧠 Treat missing isExisting as true (for backward compatibility)
+                      const isExisting = item.isExisting ?? true;
+
+                      return (
+                        <li key={item.id} className="flex flex-col">
+                          <div className="flex items-center gap-1">
+                            <span>
+                              {item.name} x{item.quantity}
+                            </span>
+
+                            {/* ✅ Show "NEW" only if order is NOT ready and item.isExisting is false */}
+                            {order.orderStatus !== "Ready" ||
+                              (order.orderStatus !== "Paid" && !isExisting && (
+                                <span className="text-red-500 text-[11px] font-semibold uppercase">
+                                  NEW
+                                </span>
+                              ))}
+                          </div>
+
+                          {/* ✅ Optional: show note only if available */}
+                          {item.note && (
+                            <span className="pl-2 text-xs text-gray-400">
+                              Note: {item.note}
+                            </span>
+                          )}
+                        </li>
+                      );
+                    })}
                   </ul>
                 </div>
               </div>
@@ -231,8 +258,13 @@ const RecentOrders = () => {
                   ₱{order.bills.totalWithTax}
                 </p>
                 <button
+                  disabled={order.orderStatus === "Paid"}
                   onClick={() => handlePrintReceipt(order)}
-                  className="px-4 py-1.5 text-xs rounded-lg bg-primary hover:bg-accent text-white"
+                  className={`px-4 py-1.5 text-xs rounded-lg ${
+                    order.orderStatus !== "Paid"
+                      ? "bg-primary hover:bg-accent"
+                      : "bg-slate-400"
+                  } text-white`}
                 >
                   Kitchen Ticket
                 </button>

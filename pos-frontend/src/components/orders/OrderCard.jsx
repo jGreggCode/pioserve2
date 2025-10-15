@@ -85,7 +85,7 @@ const OrderCard = ({ order }) => {
     mutationFn: ({ orderId, discounts }) =>
       updateOrderDiscount({ orderId, discounts }), // backend will compute bills
     onSuccess: (res) => {
-      enqueueSnackbar("Discount added successfully", { variant: "success" });
+      enqueueSnackbar("Discount updated successfully", { variant: "success" });
       // refresh orders so UI shows updated data
       queryClient.invalidateQueries(["orders"]);
       // clear client discount slice (optional)
@@ -162,6 +162,7 @@ const OrderCard = ({ order }) => {
   };
 
   const handleEditOrder = () => {
+    console.log(order);
     dispatch(
       setCustomerFromOrder({
         orderId: order._id,
@@ -170,8 +171,19 @@ const OrderCard = ({ order }) => {
       })
     );
     dispatch(removeAllItems());
-    order.items.forEach((item) => dispatch(addItems(item)));
-    navigate(`/menu/${order._id}`);
+    order.items.forEach((item) =>
+      dispatch(addItems({ ...item, isExisting: true }))
+    );
+
+    // Determine if order is "Ready"
+    const isReady = order.orderStatus === "Ready";
+
+    // Build URL
+    const url = isReady
+      ? `/menu/${order._id}?status=ready`
+      : `/menu/${order._id}`;
+
+    navigate(url);
   };
 
   return (
@@ -302,14 +314,12 @@ const OrderCard = ({ order }) => {
         </button>
 
         <button
-          disabled={
-            order.orderStatus === "Ready" || order.orderStatus === "Paid"
-          }
+          disabled={order.orderStatus === "Paid"}
           onClick={handleEditOrder}
           className={`flex-1 rounded-md ${
-            order.orderStatus !== "In Progress"
-              ? "opacity-40 bg-gray-500"
-              : "bg-blue-600"
+            order.orderStatus == "In Progress" || order.orderStatus == "Ready"
+              ? "bg-blue-600"
+              : "opacity-40 bg-gray-500"
           }`}
         >
           EDIT ORDER
@@ -333,6 +343,7 @@ const OrderCard = ({ order }) => {
 
       <DiscountModal
         isOpen={isDiscountModalOpen}
+        order={order}
         onClose={closeDiscountModal}
         maxDiscounts={guestCount}
         handleDiscount={handleDiscount} // will receive discountRows from modal

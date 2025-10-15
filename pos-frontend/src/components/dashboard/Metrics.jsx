@@ -108,7 +108,7 @@ const Metrics = () => {
         <div className="p-4 rounded-lg shadow bg-gradient-to-br from-blue-500 to-blue-700">
           <p className="flex items-center gap-2 text-sm font-medium text-white">
             <DollarSign size={16} />
-            Total Restaurant Earnings
+            Total Revenue
           </p>
           <p className="mt-2 text-3xl font-bold text-white">
             ₱ {metrics.overallTotal.toFixed(2)}

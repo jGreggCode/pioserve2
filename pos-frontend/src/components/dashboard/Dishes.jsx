@@ -160,12 +160,12 @@ const Dishes = () => {
             onChange={(e) => setStartDate(e.target.value)}
             className="px-3 py-2 rounded bg-[#2d2d2d] text-[#f5f5f5] border border-gray-600"
           />
-          <input
+          {/* <input
             type="date"
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
             className="px-3 py-2 rounded bg-[#2d2d2d] text-[#f5f5f5] border border-gray-600"
-          />
+          /> */}
           <button
             onClick={handleFilter}
             className="px-4 py-2 text-white bg-blue-600 rounded hover:bg-blue-700"
@@ -200,7 +200,11 @@ const Dishes = () => {
                 <td className="p-4">{dish.name}</td>
                 <td className="p-4">{dish.description}</td>
                 <td className="p-4 text-right">{dish.stock}</td>
-                <td className="p-4 text-right">{dish.stockAtSale}</td>
+                <td className="p-4 text-right">
+                  {dish.stockAtSale === dish.stock
+                    ? "No Sale"
+                    : dish.stockAtSale}
+                </td>
                 <td className="p-4 text-right">{dish.quantitySold}</td>
                 <td className="p-4">{dish.category}</td>
                 <td className="p-4">{dish.subcategory}</td>
@@ -454,7 +458,7 @@ const Dishes = () => {
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 text-white bg-yellow-400 rounded-lg hover:bg-yellow-700"
+                  className="px-4 py-2 text-white rounded-lg bg-primary hover:bg-accent"
                 >
                   Save Changes
                 </button>

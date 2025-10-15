@@ -71,7 +71,7 @@ const updateOrderItems = async (req, res, next) => {
 
   try {
     const { orderId } = req.params;
-    const { items, bills } = req.body;
+    const { items, bills, orderStatus } = req.body;
 
     const order = await Order.findById(orderId).session(session);
     if (!order) {
@@ -115,6 +115,7 @@ const updateOrderItems = async (req, res, next) => {
     if (bills) {
       order.bills = bills;
     }
+    if (orderStatus) order.orderStatus = orderStatus;
     await order.save({ session });
 
     await session.commitTransaction();

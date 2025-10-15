@@ -7,6 +7,7 @@ import { addDiscount, clearDiscount } from "../../redux/slices/discountSlice";
 const DiscountModal = ({
   isOpen,
   onClose,
+  order,
   maxDiscounts = 3,
   handleDiscount,
 }) => {
@@ -15,14 +16,26 @@ const DiscountModal = ({
   const [rows, setRows] = useState([]);
 
   useEffect(() => {
-    if (isOpen) {
-      setRows(
-        discounts.length > 0
-          ? discounts
-          : [{ type: "", cardId: "", discountValue: "" }]
-      );
+    if (!isOpen) {
+      setRows([]);
     }
-  }, [isOpen, discounts]);
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    if (order?.discounts?.length > 0) {
+      setRows(
+        order.discounts.map((d) => ({
+          type: d.type || "",
+          cardId: d.cardId || "",
+          discountValue: d.discountValue || "",
+        }))
+      );
+    } else {
+      setRows([{ type: "", cardId: "", discountValue: "" }]);
+    }
+  }, [isOpen, order?._id]); // ✅ reset when order changes
 
   const handleAddRow = () => {
     if (rows.length >= maxDiscounts) return;
@@ -40,9 +53,9 @@ const DiscountModal = ({
   };
 
   const handleConfirm = () => {
-    // Update redux for UI (optional)
     dispatch(clearDiscount());
     const toSave = [];
+
     rows.forEach((r) => {
       if (
         r.type &&
@@ -60,7 +73,6 @@ const DiscountModal = ({
       }
     });
 
-    // IMPORTANT: send exact rows to parent so the mutation runs with correct data
     handleDiscount(toSave);
     onClose();
   };

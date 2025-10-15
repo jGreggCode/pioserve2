@@ -147,7 +147,7 @@ const Metrics = () => {
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search by name, email, or role..."
+          placeholder="Search by name, or role..."
           className="px-4 py-2 text-sm rounded-lg bg-[#2d2d2d] text-[#f5f5f5] border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
@@ -157,7 +157,6 @@ const Metrics = () => {
           <thead className="bg-[#333] text-[#ababab] uppercase tracking-wider text-xs">
             <tr>
               <th className="px-6 py-3">Name</th>
-              <th className="px-6 py-3">Email</th>
               <th className="px-6 py-3">Role</th>
               <th className="px-6 py-3">Created At</th>
               <th className="px-6 py-3 text-center">Action</th>
@@ -173,7 +172,6 @@ const Metrics = () => {
                   } hover:bg-[#3a3a3a]`}
                 >
                   <td className="px-6 py-4 font-medium">{u.name}</td>
-                  <td className="px-6 py-4">{u.email}</td>
                   <td className="px-6 py-4">
                     <span
                       className={`px-3 py-1 text-xs rounded-full font-semibold ${
@@ -306,27 +304,6 @@ const Metrics = () => {
                       setSelectedUser({
                         ...selectedUser,
                         name: e.target.value,
-                      })
-                    }
-                    className="flex-1 text-white bg-transparent focus:outline-none"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-[#ababab] mb-2 text-sm font-medium">
-                  Email
-                </label>
-                <div className="flex items-center rounded-lg p-3 px-4 bg-[#1f1f1f]">
-                  <input
-                    type="email"
-                    name="email"
-                    value={selectedUser?.email || ""}
-                    onChange={(e) =>
-                      setSelectedUser({
-                        ...selectedUser,
-                        email: e.target.value,
                       })
                     }
                     className="flex-1 text-white bg-transparent focus:outline-none"

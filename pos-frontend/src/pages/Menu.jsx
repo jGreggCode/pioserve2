@@ -27,6 +27,8 @@ const Menu = () => {
   const { id } = useParams(); // if present, edit mode
   const customerData = useSelector((state) => state.customer);
 
+  console.log(customerData);
+
   return (
     <>
       <section className="bg-[#1f1f1f] min-h-screen xl:h-[calc(100vh-5rem)] flex flex-col xl:flex-row gap-4 overflow-y-auto xl:overflow-hidden p-3 sm:p-4">
@@ -41,25 +43,31 @@ const Menu = () => {
                   <MdRestaurantMenu className="text-primary" />
                   Menu List
                 </h1>
-                <p className="text-xs sm:text-sm text-[#ababab]">
-                  Select food and drinks for the current order.
-                </p>
+                {customerData.orderId && (
+                  <p className="text-xs sm:text-sm text-[#ababab]">
+                    Select food and drinks for the current order.
+                  </p>
+                )}
               </div>
             </div>
-            <div className="bg-[#2a2a2a] text-[#f5f5f5] rounded-lg px-4 py-2 flex items-center gap-2 text-sm sm:text-base">
-              <MdTableRestaurant className="text-green-400" />
-              <div className="flex items-center gap-1">
-                <span className="font-semibold">Table:</span>
-                <span className="font-medium">
-                  {customerData.tableId || "N/A"}
-                </span>
+            {customerData.orderId && (
+              <div className="bg-[#2a2a2a] text-[#f5f5f5] rounded-lg px-4 py-2 flex items-center gap-2 text-sm sm:text-base">
+                <MdTableRestaurant className="text-green-400" />
+                <div className="flex items-center gap-1">
+                  <span className="font-semibold">Table:</span>
+                  <span className="font-medium">
+                    {customerData.tableId || customerData?.table?.tableNo}
+                  </span>
+                </div>
+                <div className="border-l border-[#4a4a4a] h-5 mx-2"></div>
+                <div className="flex items-center gap-1">
+                  <span className="font-semibold">Guests:</span>
+                  <span className="font-medium">
+                    {customerData.guests || 1}
+                  </span>
+                </div>
               </div>
-              <div className="border-l border-[#4a4a4a] h-5 mx-2"></div>
-              <div className="flex items-center gap-1">
-                <span className="font-semibold">Guests:</span>
-                <span className="font-medium">{customerData.guests || 1}</span>
-              </div>
-            </div>
+            )}
           </div>
 
           {/* Menu Content: Added flex-1 and scrollbar-hide for main content area */}

@@ -48,6 +48,8 @@ const Bill = ({ editMode = false }) => {
     discountAmount = perHead * (maxDiscountValue / 100) * validIds;
   }
 
+  console.log(cartData);
+
   const discountedTotal = total - discountAmount;
   const totalPriceWithTax = discountedTotal + (discountedTotal * taxRate) / 100;
 
@@ -118,6 +120,7 @@ const Bill = ({ editMode = false }) => {
         orderId: customerData.orderId,
         items: cartData,
         note,
+        orderStatus: "In Progress",
         bills,
         discounts, // ✅ added discounts array to update as well
       };

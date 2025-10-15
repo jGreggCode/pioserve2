@@ -14,80 +14,92 @@ const KitchenTicket = ({ orderInfo, setShowInvoice }) => {
 
   const handlePrint = () => {
     const printableHtml = `
-    <!doctype html>
-    <html>
-      <head>
-        <meta charset="utf-8" />
-        <title>Kitchen Order Ticket</title>
-        <style>
-          @page {
-            size: 58mm auto;
-            margin: 0;
-          }
-          * {
-            font-weight: bold;
-          }
-          body {
-            font-family: "Courier New", Courier, monospace;
-            font-size: 13px;
-            margin: 0;
-            padding: 0;
-          }
-          .ticket {
-            width: 72mm;
-            padding: 8px;
-            margin: 0 auto;
-          }
-          .center { text-align: center; }
-          h2 { margin: 4px 0; font-size: 15px; }
-          .muted { color: #555; font-size: 11px; }
-          .line { border-top: 1px dashed #000; margin: 6px 0; }
-          .item { display: flex; justify-content: space-between; margin: 6px 0; font-size: 14px; }
-          .item span:first-child { font-weight: bold; }
-          .foot { margin-top: 8px; font-size: 10px; text-align:center; }
-        </style>
-      </head>
-      <body>
-        <div class="ticket">
-          <div class="center">
-            <h2>KITCHEN ORDER TICKET</h2>
-            <div class="muted">${formatDateAndTime(orderInfo.orderDate)}</div>
-          </div>
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Kitchen Order Ticket</title>
+    <style>
+      @page {
+        size: 58mm auto;
+        margin: 0;
+      }
+      * {
+        font-weight: bold;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "Courier New", Courier, monospace;
+        font-size: 13px;
+        margin: 0;
+        padding: 0;
+      }
+      .ticket {
+        width: 58mm;
+        padding: 8px;
+        margin: 0 auto;
+      }
+      .center { text-align: center; }
+      h2 { margin: 4px 0; font-size: 15px; }
+      .muted { color: #555; font-size: 11px; font-weight: normal; }
+      .line { border-top: 1px dashed #000; margin: 6px 0; }
+      .item { margin: 6px 0; }
+      .item-header { display: flex; justify-content: space-between; font-size: 14px; }
+      .note {
+        font-size: 11px;
+        color: #444;
+        font-weight: normal;
+        margin-left: 8px;
+        margin-top: 2px;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+      }
+      .foot { margin-top: 8px; font-size: 10px; text-align: center; }
+    </style>
+  </head>
+  <body>
+    <div class="ticket">
+      <div class="center">
+        <h2>KITCHEN ORDER TICKET</h2>
+        <div class="muted">${formatDateAndTime(orderInfo.orderDate)}</div>
+      </div>
 
-          <div>
-            <p><strong>Order ID:</strong> ${Math.floor(
-              new Date(orderInfo.orderDate).getTime()
-            )}</p>
-            <p><strong>Table:</strong> ${orderInfo.table?.tableNo}</p>
-            <p><strong>Server:</strong> ${orderInfo.employeeData?.name}</p>
-            <p><strong>Customer:</strong> ${
-              orderInfo.customerDetails?.name ?? "N/A"
-            }</p>
-             <p><strong>Note:</strong> ${orderInfo.note || "None"}</p>
-          </div>
+      <div>
+        <p><strong>Order ID:</strong> ${Math.floor(
+          new Date(orderInfo.orderDate).getTime()
+        )}</p>
+        <p><strong>Table:</strong> ${orderInfo.table?.tableNo}</p>
+        <p><strong>Server:</strong> ${orderInfo.employeeData?.name}</p>
+        <p><strong>Customer:</strong> ${
+          orderInfo.customerDetails?.name ?? "N/A"
+        }</p>
+        <p><strong>Note:</strong> ${orderInfo.note || "None"}</p>
+      </div>
 
-          <div class="line"></div>
+      <div class="line"></div>
 
-          <div>
-            ${orderInfo.items
-              .map(
-                (i) => `
-                <div class="item">
-                  <span>${i.quantity}x ${i.name}</span>
-                  <span>${i.notes ? "(" + i.notes + ")" : ""}</span>
-                </div>`
-              )
-              .join("")}
-          </div>
+      <div>
+        ${orderInfo.items
+          .map(
+            (i) => `
+            <div class="item">
+              <div class="item-header">
+                <span>${i.quantity}x ${i.name}</span>
+              </div>
+              ${i.note ? `<div class="note">↳ ${i.note}</div>` : ""}
+            </div>`
+          )
+          .join("")}
+      </div>
 
-          <div class="line"></div>
-          <div class="center foot">Send to kitchen - Not a receipt</div>
-        </div>
-      </body>
-    </html>
-  `;
+      <div class="line"></div>
+      <div class="center foot">Send to kitchen - Not a receipt</div>
+    </div>
+  </body>
+</html>
+`;
 
-    const printWin = window.open("", "_blank", "width=400,height=600");
+    const printWin = window.open("", "_blank", "width=400,height=500");
     printWin.document.write(printableHtml);
     printWin.document.close();
     printWin.focus();
@@ -145,9 +157,9 @@ const KitchenTicket = ({ orderInfo, setShowInvoice }) => {
                 <strong>Customer:</strong>{" "}
                 {orderInfo.customerDetails?.name ?? "N/A"}
               </div>
-              <div className="font-bold">
+              {/* <div className="font-bold">
                 <strong>Note:</strong> {orderInfo.note || "None"}
-              </div>
+              </div> */}
             </div>
 
             <div className="line my-2 border-t border-dashed border-[#e6e6e6]" />
@@ -164,7 +176,7 @@ const KitchenTicket = ({ orderInfo, setShowInvoice }) => {
                       {item.quantity}x {item.name}
                     </div>
                     <div className="text-xs text-gray-500">
-                      {item.notes ?? ""}
+                      {item.note ?? ""}
                     </div>
                   </li>
                 ))}

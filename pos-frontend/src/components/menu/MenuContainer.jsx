@@ -10,6 +10,7 @@ import { useDispatch } from "react-redux";
 import { addItems } from "../../redux/slices/cartSlice";
 import { getDish } from "../../https";
 import { enqueueSnackbar } from "notistack";
+import { useSelector } from "react-redux";
 
 // Icons
 import { GrRadialSelected } from "react-icons/gr";
@@ -21,6 +22,7 @@ const MenuContainer = () => {
   const [counts, setCounts] = useState({});
   const [search, setSearch] = useState("");
   const [filteredItems, setFilteredItems] = useState([]);
+  const customerData = useSelector((state) => state.customer);
   const dispatch = useDispatch();
 
   // Fetch menus from backend
@@ -181,7 +183,7 @@ const MenuContainer = () => {
             return (
               <div
                 key={item.id}
-                className="flex flex-col p-3 sm:p-4 md:p-5 h-[180px] sm:h-[200px] md:h-[220px] rounded-xl bg-[#1a1a1a] border border-[#2a2a2a] hover:shadow-lg hover:border-primary transition"
+                className="flex flex-col p-3 sm:p-4 md:p-5 h-[150px] sm:h-[200px] md:h-[220px] rounded-xl bg-[#1a1a1a] border border-[#2a2a2a] hover:shadow-lg hover:border-primary transition"
               >
                 {/* Name + Add-to-Cart */}
                 <div className="flex items-start justify-between w-full">
@@ -189,25 +191,26 @@ const MenuContainer = () => {
                     <h1 className="text-[#f5f5f5] text-lg font-semibold truncate">
                       {item.name}
                     </h1>
-                    <p className="text-[#ababab] text-xs italic max-w-80">
+                    <p className="text-[#ababab] text-xs italic max-w-60">
                       {item.category}
                     </p>
                   </div>
-                  {item.stock === 0 ? (
-                    <button
-                      onClick={() => handleOutOFStock(item.name)}
-                      className="p-2 rounded-lg bg-[#2e2e2e] text-red-500 hover:bg-red-500 hover:text-white transition"
-                    >
-                      <FaShoppingCart size={18} />
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() => handleAddToCart(item)}
-                      className="p-2 rounded-lg bg-[#2e2e2e] text-green-400 hover:bg-green-500 hover:text-white transition"
-                    >
-                      <FaShoppingCart size={18} />
-                    </button>
-                  )}
+                  {customerData.orderId &&
+                    (item.stock === 0 ? (
+                      <button
+                        onClick={() => handleOutOFStock(item.name)}
+                        className="p-2 rounded-lg bg-[#2e2e2e] text-red-500 hover:bg-red-500 hover:text-white transition"
+                      >
+                        <FaShoppingCart size={18} />
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleAddToCart(item)}
+                        className="p-2 rounded-lg bg-[#2e2e2e] text-green-400 hover:bg-green-500 hover:text-white transition"
+                      >
+                        <FaShoppingCart size={18} />
+                      </button>
+                    ))}
                 </div>
 
                 {/* Price + Counter */}
@@ -215,33 +218,35 @@ const MenuContainer = () => {
                   <p className="text-[#f5f5f5] text-lg font-bold">
                     &#8369;{item.price}
                   </p>
-                  <div className="flex items-center justify-between bg-[#2a2a2a] px-4 py-2 rounded-lg gap-6 w-[50%]">
-                    <button
-                      disabled={currentCount === 0}
-                      onClick={() => decrement(item.id)}
-                      className={`text-xl font-bold transition ${
-                        currentCount === 0
-                          ? "text-gray-600 cursor-not-allowed"
-                          : "text-primary hover:text-accent"
-                      }`}
-                    >
-                      &minus;
-                    </button>
-                    <span className="font-medium text-white">
-                      {currentCount}
-                    </span>
-                    <button
-                      disabled={currentCount >= item.stock}
-                      onClick={() => increment(item.id, item.stock)}
-                      className={`text-xl font-bold transition ${
-                        currentCount >= item.stock
-                          ? "text-gray-600 cursor-not-allowed"
-                          : "text-primary hover:text-accent"
-                      }`}
-                    >
-                      &#43;
-                    </button>
-                  </div>
+                  {customerData.orderId && (
+                    <div className="flex items-center justify-between bg-[#2a2a2a] px-4 py-2 rounded-lg gap-6 w-[50%]">
+                      <button
+                        disabled={currentCount === 0}
+                        onClick={() => decrement(item.id)}
+                        className={`text-xl font-bold transition ${
+                          currentCount === 0
+                            ? "text-gray-600 cursor-not-allowed"
+                            : "text-primary hover:text-accent"
+                        }`}
+                      >
+                        &minus;
+                      </button>
+                      <span className="font-medium text-white">
+                        {currentCount}
+                      </span>
+                      <button
+                        disabled={currentCount >= item.stock}
+                        onClick={() => increment(item.id, item.stock)}
+                        className={`text-xl font-bold transition ${
+                          currentCount >= item.stock
+                            ? "text-gray-600 cursor-not-allowed"
+                            : "text-primary hover:text-accent"
+                        }`}
+                      >
+                        &#43;
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 {/* Stock Info */}

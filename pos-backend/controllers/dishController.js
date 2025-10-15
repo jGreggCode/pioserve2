@@ -158,61 +158,73 @@ const getDishes = async (req, res, next) => {
 
 const getAllDishes = async (req, res, next) => {
   try {
-    const { startDate, endDate } = req.query;
+    const { startDate } = req.query;
 
-    let start = startDate ? new Date(startDate) : null;
-    let end = endDate ? new Date(endDate) : null;
+    // Step 1: Normalize date to a full-day range
+    let start;
+    let end;
 
-    if (!start) {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      start = today;
+    if (startDate) {
+      // If startDate is provided, set the range to that single day
+      start = new Date(startDate);
+      end = new Date(startDate);
+    } else {
+      // If no date is provided, default to today's date range
+      start = new Date();
+      end = new Date();
     }
-    if (!end) {
-      end = new Date(start);
-      end.setHours(23, 59, 59, 999);
-    }
 
-    // Only fetch completed or paid orders in the range
+    start.setHours(0, 0, 0, 0);
+    end.setHours(23, 59, 59, 999);
+
+    // Step 2: Fetch only PAID orders within date range
     const orders = await Order.find({
       orderStatus: "Paid",
       orderDate: { $gte: start, $lte: end },
-    });
+    }).lean();
 
-    // aggregate per dish
+    // Step 3: Aggregate per dish (only from this range)
     const soldStats = {};
+
     for (const order of orders) {
       for (const item of order.items) {
-        const dishId = item.id.toString();
+        const dishId = item.id?.toString();
+        if (!dishId) continue;
 
         if (!soldStats[dishId]) {
           soldStats[dishId] = {
             quantitySold: 0,
-            lastStockAtSale: item.stock, // snapshot at sale
+            lastStockAtSale: item.stock,
+            lastSoldDate: order.orderDate,
           };
         }
 
         soldStats[dishId].quantitySold += item.quantity;
-        // update last known stock at sale (latest order wins)
-        soldStats[dishId].lastStockAtSale = item.stock;
+
+        // Update stock if this sale is newer
+        if (order.orderDate > soldStats[dishId].lastSoldDate) {
+          soldStats[dishId].lastStockAtSale = item.stock;
+          soldStats[dishId].lastSoldDate = order.orderDate;
+        }
       }
     }
 
-    // get all dishes
-    const dishes = await Dish.find();
+    // Step 4: Fetch all dishes
+    const dishes = await Dish.find().lean();
 
-    // enrich with sold info + last stock at sale
+    // Step 5: Enrich each dish with current period sales only
     const enriched = dishes.map((dish) => {
       const info = soldStats[dish._id.toString()];
       return {
-        ...dish.toObject(),
+        ...dish,
         quantitySold: info?.quantitySold || 0,
-        stockAtSale: info?.lastStockAtSale || dish.stock, // fallback to current stock
+        stockAtSale: info ? info.lastStockAtSale : "No Sale",
       };
     });
 
-    res.status(200).json({ data: enriched });
+    return res.status(200).json({ data: enriched });
   } catch (error) {
+    console.error("Error in getAllDishes:", error);
     next(error);
   }
 };
