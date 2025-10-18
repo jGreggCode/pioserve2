@@ -160,7 +160,7 @@ const getAllDishes = async (req, res, next) => {
   try {
     const { startDate } = req.query;
 
-    // Step 1: Normalize date to a full-day range
+    // Step 1: Normalize date to a full-day range (Original logic remains)
     let start;
     let end;
 
@@ -177,13 +177,13 @@ const getAllDishes = async (req, res, next) => {
     start.setHours(0, 0, 0, 0);
     end.setHours(23, 59, 59, 999);
 
-    // Step 2: Fetch only PAID orders within date range
+    // Step 2: Fetch only PAID orders within date range (Original logic remains)
     const orders = await Order.find({
       orderStatus: "Paid",
       orderDate: { $gte: start, $lte: end },
     }).lean();
 
-    // Step 3: Aggregate per dish (only from this range)
+    // Step 3: Aggregate per dish - CORRECTED to find Initial Stock of the Day
     const soldStats = {};
 
     for (const order of orders) {
@@ -192,33 +192,37 @@ const getAllDishes = async (req, res, next) => {
         if (!dishId) continue;
 
         if (!soldStats[dishId]) {
+          // Initialize stats on first encounter
           soldStats[dishId] = {
             quantitySold: 0,
-            lastStockAtSale: item.stock,
-            lastSoldDate: order.orderDate,
+            // Set initial stock and date from the first sale encountered
+            initialStockAtSale: item.stock,
+            firstSoldDate: order.orderDate,
           };
         }
 
         soldStats[dishId].quantitySold += item.quantity;
 
-        // Update stock if this sale is newer
-        if (order.orderDate > soldStats[dishId].lastSoldDate) {
-          soldStats[dishId].lastStockAtSale = item.stock;
-          soldStats[dishId].lastSoldDate = order.orderDate;
+        // Update initialStockAtSale if this sale is EARLIER than the current firstSoldDate
+        // This captures the stock from the earliest sale of the day.
+        if (order.orderDate < soldStats[dishId].firstSoldDate) {
+          soldStats[dishId].initialStockAtSale = item.stock;
+          soldStats[dishId].firstSoldDate = order.orderDate;
         }
       }
     }
 
-    // Step 4: Fetch all dishes
+    // Step 4: Fetch all dishes (Original logic remains)
     const dishes = await Dish.find().lean();
 
-    // Step 5: Enrich each dish with current period sales only
+    // Step 5: Enrich each dish with current period sales only - UPDATED property name
     const enriched = dishes.map((dish) => {
       const info = soldStats[dish._id.toString()];
       return {
         ...dish,
         quantitySold: info?.quantitySold || 0,
-        stockAtSale: info ? info.lastStockAtSale : "No Sale",
+        // Using initialStockAtSale from Step 3
+        stockAtSale: info ? info.initialStockAtSale : "No Sale",
       };
     });
 

@@ -35,6 +35,7 @@ const Dishes = () => {
 
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [showSalesModal, setShowSalesModal] = useState(false); // ✅ modal state
 
   // ✅ Mutation for deleting dish
   const deleteDishMutation = useMutation({
@@ -73,8 +74,7 @@ const Dishes = () => {
   });
 
   const handleFilter = () => {
-    // force re-fetch of the dishes query
-    queryClient.invalidateQueries(["dishes"]);
+    setShowSalesModal(true); // ✅ open modal instead of refetch
   };
 
   // ✅ Fetch categories
@@ -95,7 +95,7 @@ const Dishes = () => {
       return (
         dish.name.toLowerCase().includes(searchLower) ||
         dish.description.toLowerCase().includes(searchLower) ||
-        String(dish.stock).toLowerCase().includes(searchLower) // ✅ added stock search
+        String(dish.stock).toLowerCase().includes(searchLower)
       );
     })
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
@@ -106,14 +106,15 @@ const Dishes = () => {
   const currentDishes = filteredDishes.slice(indexOfFirstDish, indexOfLastDish);
   const totalPages = Math.ceil(filteredDishes.length / itemsPerPage);
 
-  console.log(currentDishes);
-
   const handleEditSubmit = (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
     const updatedData = Object.fromEntries(formData.entries());
     editDishMutation.mutate({ dishId: editingDish._id, updatedData });
   };
+
+  // ✅ Filter only sold dishes
+  const soldDishes = dishes.filter((dish) => dish.quantitySold > 0);
 
   return (
     <div className="container mx-auto bg-[#262626] p-4 rounded-lg">
@@ -127,7 +128,7 @@ const Dishes = () => {
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
-              setCurrentPage(1); // reset to page 1 on search
+              setCurrentPage(1);
             }}
             className="px-4 py-2 text-sm rounded-lg bg-[#2d2d2d] text-[#f5f5f5] border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
@@ -137,7 +138,7 @@ const Dishes = () => {
             value={category}
             onChange={(e) => {
               setCategory(e.target.value);
-              setCurrentPage(1); // reset to page 1 on filter
+              setCurrentPage(1);
             }}
             className="px-4 py-2 text-sm rounded-lg bg-[#2d2d2d] text-[#f5f5f5] border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
@@ -153,26 +154,25 @@ const Dishes = () => {
 
       {/* ✅ Table for Desktop */}
       <div className="hidden overflow-x-auto md:block">
-        <div className="flex flex-wrap items-center gap-2 mb-4">
-          <input
-            type="date"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-            className="px-3 py-2 rounded bg-[#2d2d2d] text-[#f5f5f5] border border-gray-600"
-          />
-          {/* <input
-            type="date"
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
-            className="px-3 py-2 rounded bg-[#2d2d2d] text-[#f5f5f5] border border-gray-600"
-          /> */}
+        <div className="flex flex-col flex-wrap gap-2 mb-4 w-[290px]">
+          <p className="text-white">Dish Sales Report</p>
+          <div className="flex justify-between gap-2">
+            <label className="text-white">Select Date:</label>
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="px-3 rounded bg-[#2d2d2d] text-[#f5f5f5] border border-gray-600"
+            />
+          </div>
           <button
             onClick={handleFilter}
-            className="px-4 py-2 text-white bg-blue-600 rounded hover:bg-blue-700"
+            className="py-1 text-white rounded bg-primary hover:bg-accent"
           >
-            Filter
+            Show Report
           </button>
         </div>
+
         <table className="w-full text-left text-[#f5f5f5]">
           <thead className="bg-[#333] text-[#ababab]">
             <tr>
@@ -246,7 +246,6 @@ const Dishes = () => {
           >
             Prev
           </button>
-
           {Array.from({ length: totalPages }, (_, i) => (
             <button
               key={i}
@@ -260,7 +259,6 @@ const Dishes = () => {
               {i + 1}
             </button>
           ))}
-
           <button
             disabled={currentPage === totalPages}
             onClick={() => setCurrentPage((prev) => prev + 1)}
@@ -287,62 +285,17 @@ const Dishes = () => {
             <p className="text-sm text-gray-400">
               {formatDateAndTime(dish.createdAt)}
             </p>
-            {userData.role === "Admin" && (
-              <div className="flex gap-2 mt-3">
-                <button
-                  onClick={() => setEditingDish(dish)}
-                  className="flex-1 px-3 py-2 text-white bg-yellow-600 rounded-lg"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => {
-                    const confirmDelete = window.confirm(
-                      "Are you sure you want to delete this dish?"
-                    );
-                    if (confirmDelete) {
-                      deleteDishMutation.mutate(dish._id);
-                    }
-                  }}
-                  className="flex-1 px-3 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700"
-                >
-                  Delete
-                </button>
-              </div>
-            )}
           </div>
         ))}
-
-        {/* ✅ Mobile Pagination */}
-        <div className="flex justify-center gap-2 mt-4">
-          <button
-            disabled={currentPage === 1}
-            onClick={() => setCurrentPage((prev) => prev - 1)}
-            className="px-3 py-1 text-white bg-gray-700 rounded disabled:opacity-50"
-          >
-            Prev
-          </button>
-          <span className="text-white">
-            Page {currentPage} of {totalPages}
-          </span>
-          <button
-            disabled={currentPage === totalPages}
-            onClick={() => setCurrentPage((prev) => prev + 1)}
-            className="px-3 py-1 text-white bg-gray-700 rounded disabled:opacity-50"
-          >
-            Next
-          </button>
-        </div>
       </div>
 
       {/* ✅ Modal for Editing */}
       {editingDish && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-[#1a1a1a] w-full max-w-lg rounded-lg p-6 shadow-lg mx-4">
-            {/* Modal Header */}
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-[#f5f5f5] text-xl font-semibold truncate">
-                Add Dish
+                Edit Dish
               </h2>
               <button
                 onClick={() => setEditingDish(null)}
@@ -357,73 +310,65 @@ const Dishes = () => {
                 <label className="block text-[#ababab] mb-2 text-sm font-medium">
                   Name
                 </label>
-                <div className="flex items-center rounded-lg p-3 px-4 bg-[#1f1f1f]">
-                  <input
-                    type="text"
-                    name="name"
-                    defaultValue={editingDish.name}
-                    className="flex-1 text-white bg-transparent focus:outline-none"
-                    required
-                  />
-                </div>
+                <input
+                  type="text"
+                  name="name"
+                  defaultValue={editingDish.name}
+                  className="w-full p-3 rounded-lg bg-[#1f1f1f] text-white focus:outline-none"
+                  required
+                />
               </div>
 
               <div>
                 <label className="block text-[#ababab] mb-2 text-sm font-medium">
                   Description
                 </label>
-                <div className="rounded-lg p-3 px-4 bg-[#1f1f1f]">
-                  <textarea
-                    type="text"
-                    name="description"
-                    defaultValue={editingDish.description}
-                    rows={4}
-                    className="w-full text-white bg-transparent resize-none focus:outline-none"
-                    required
-                  />
-                </div>
+                <textarea
+                  name="description"
+                  defaultValue={editingDish.description}
+                  rows={4}
+                  className="w-full p-3 rounded-lg bg-[#1f1f1f] text-white resize-none focus:outline-none"
+                  required
+                />
               </div>
 
-              <div>
-                <label className="block text-[#ababab] mb-2 text-sm font-medium">
-                  Price
-                </label>
-                <div className="flex items-center rounded-lg p-3 px-4 bg-[#1f1f1f]">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[#ababab] mb-2 text-sm font-medium">
+                    Price
+                  </label>
                   <input
                     name="price"
                     type="number"
                     step="1"
                     defaultValue={editingDish.price}
-                    className="flex-1 text-white bg-transparent focus:outline-none"
+                    className="w-full p-3 rounded-lg bg-[#1f1f1f] text-white focus:outline-none"
                     required
                   />
                 </div>
-              </div>
-
-              <div>
-                <label className="block text-[#ababab] mb-2 text-sm font-medium">
-                  Stock
-                </label>
-                <div className="flex items-center rounded-lg p-3 px-4 bg-[#1f1f1f]">
+                <div>
+                  <label className="block text-[#ababab] mb-2 text-sm font-medium">
+                    Stock
+                  </label>
                   <input
                     name="stock"
                     type="number"
                     defaultValue={editingDish.stock}
-                    className="flex-1 text-white bg-transparent focus:outline-none"
+                    className="w-full p-3 rounded-lg bg-[#1f1f1f] text-white focus:outline-none"
                     required
                   />
                 </div>
               </div>
 
-              <div>
-                <label className="block text-[#ababab] mb-2 text-sm font-medium">
-                  Category
-                </label>
-                <div className="flex items-center rounded-lg p-3 px-4 bg-[#1f1f1f]">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[#ababab] mb-2 text-sm font-medium">
+                    Category
+                  </label>
                   <select
                     name="category"
                     defaultValue={editingDish.category}
-                    className="flex-1 text-white bg-transparent focus:outline-none"
+                    className="w-full p-3 rounded-lg bg-[#1f1f1f] text-white focus:outline-none"
                   >
                     {categoriesRes?.data?.data?.map((cat) => (
                       <option key={cat.category} value={cat.category}>
@@ -432,17 +377,14 @@ const Dishes = () => {
                     ))}
                   </select>
                 </div>
-              </div>
-
-              <div>
-                <label className="block text-[#ababab] mb-2 text-sm font-medium">
-                  Sub Category
-                </label>
-                <div className="flex items-center rounded-lg p-3 px-4 bg-[#1f1f1f]">
+                <div>
+                  <label className="block text-[#ababab] mb-2 text-sm font-medium">
+                    Sub Category
+                  </label>
                   <input
                     name="subcategory"
                     defaultValue={editingDish.subcategory}
-                    className="flex-1 text-white bg-transparent focus:outline-none"
+                    className="w-full p-3 rounded-lg bg-[#1f1f1f] text-white focus:outline-none"
                     required
                   />
                 </div>
@@ -464,6 +406,62 @@ const Dishes = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* ✅ Sales Modal */}
+      {showSalesModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-[#1a1a1a] w-full max-w-3xl rounded-lg p-6 shadow-lg mx-4">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-[#f5f5f5] text-xl font-semibold">
+                Sales Report – {startDate || "Today"}
+              </h2>
+              <button
+                onClick={() => setShowSalesModal(false)}
+                className="text-[#f5f5f5] hover:text-red-500"
+              >
+                <IoMdClose size={24} />
+              </button>
+            </div>
+
+            <div className="max-h-[500px] overflow-y-auto">
+              <table className="w-full text-left text-[#f5f5f5]">
+                <thead className="bg-[#333] text-[#ababab]">
+                  <tr>
+                    <th className="p-3">Item</th>
+                    <th className="p-3 text-right">Starting Stock</th>
+                    <th className="p-3 text-right">Sold Items</th>
+                    <th className="p-3 text-right">Ending Stock</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {soldDishes.length > 0 ? (
+                    soldDishes.map((dish) => (
+                      <tr
+                        key={dish._id}
+                        className="border-b border-gray-600 hover:bg-[#333]"
+                      >
+                        <td className="p-3">{dish.name}</td>
+                        <td className="p-3 text-right">{dish.stockAtSale}</td>
+                        <td className="p-3 text-right">{dish.quantitySold}</td>
+                        {/* <td className="p-3 text-right">{dish.stock}</td> */}
+                        <td className="p-3 text-right">
+                          {dish.stockAtSale - dish.quantitySold}
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={4} className="p-4 text-center text-gray-400">
+                        No sales found for this date.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       )}

@@ -14,6 +14,7 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
+
 // Endpoints
 import {
   getOrders,
@@ -22,6 +23,7 @@ import {
   getAllOrders,
   getUserDataById,
 } from "../../https/index";
+
 // Utils
 import { formatDateAndTime } from "../../utils";
 import { enqueueSnackbar } from "notistack";
@@ -36,7 +38,7 @@ const RecentOrders = () => {
   const userData = useSelector((state) => state.user);
   const queryClient = useQueryClient();
 
-  // ✅ Update status mutation
+  // ✅ Update Order Status
   const orderStatusUpdateMutation = useMutation({
     mutationFn: ({ orderId, orderStatus }) =>
       updateOrderStatus({ orderId, orderStatus }),
@@ -51,7 +53,7 @@ const RecentOrders = () => {
     },
   });
 
-  // ✅ Delete mutation
+  // ✅ Delete Order
   const deleteOrderMutation = useMutation({
     mutationFn: (orderId) => deleteOrder(orderId),
     onSuccess: () => {
@@ -63,22 +65,19 @@ const RecentOrders = () => {
     },
   });
 
-  // ✅ Handle change in dropdown
+  // ✅ Handle status change
   const handleStatusChange = ({ orderId, orderStatus }) => {
     if (orderStatus === "Delete") {
       const confirmDelete = window.confirm(
         "Are you sure you want to delete this order?"
       );
-      if (confirmDelete) {
-        console.log({ orderId });
-        deleteOrderMutation.mutate(orderId);
-      }
+      if (confirmDelete) deleteOrderMutation.mutate(orderId);
       return;
     }
     orderStatusUpdateMutation.mutate({ orderId, orderStatus });
   };
 
-  // ✅ Receipt
+  // ✅ Print Kitchen Ticket
   const handlePrintReceipt = async (order) => {
     try {
       const employeeRes = await getUserDataById(order.employee);
@@ -86,17 +85,15 @@ const RecentOrders = () => {
       setOrderData({ ...order, employeeData });
       setShowKitchenTicket(true);
     } catch (error) {
-      enqueueSnackbar(error, { variant: "error" });
+      enqueueSnackbar("Failed to load employee data", { variant: "error" });
     }
   };
 
-  // ✅ Fetch orders
+  // ✅ Fetch Orders
   const { data: resData, isError } = useQuery({
     queryKey: ["orders", selected],
-    queryFn: async () => {
-      if (selected === "Today") return await getOrders();
-      return await getAllOrders();
-    },
+    queryFn: async () =>
+      selected === "Today" ? await getOrders() : await getAllOrders(),
     placeholderData: keepPreviousData,
     refetchInterval: 2000,
     refetchOnWindowFocus: true,
@@ -106,14 +103,15 @@ const RecentOrders = () => {
     enqueueSnackbar("Something went wrong!", { variant: "error" });
   }
 
+  const orders = resData?.data?.data || [];
+
   return (
     <div className="container mx-auto bg-[#262626] p-6 rounded-xl shadow-lg">
-      {/* Section Header */}
+      {/* Header */}
       <div className="px-2 mb-6">
-        <h2 className="font-semibold text-[#f5f5f5] text-xl">Recent Orders</h2>
+        <h2 className="text-[#f5f5f5] text-xl font-semibold">Recent Orders</h2>
         <p className="text-sm text-[#ababab]">
-          Track your latest customer orders with status, table assignments, and
-          payments.
+          Track your latest customer orders, their status, tables, and payments.
         </p>
       </div>
 
@@ -143,137 +141,131 @@ const RecentOrders = () => {
         </div>
       </div>
 
-      {/* Orders as Grid */}
+      {/* Orders Grid */}
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-        {resData?.data.data
+        {orders
           .sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate))
-          .map((order, index) => (
-            <div
-              key={index}
-              className="bg-[#2d2d2d] rounded-xl shadow-md p-5 hover:bg-[#333] transition-colors flex flex-col justify-between"
-            >
-              {/* Header */}
-              <div className="flex items-center justify-between mb-3">
-                <p className="font-mono text-sm text-gray-300">
-                  #{Math.floor(new Date(order.orderDate).getTime())}
-                </p>
-                <select
-                  disabled={
-                    order.orderStatus === "Paid" && userData.role === "Chef"
-                  }
-                  className={`bg-[#1a1a1a] border border-gray-600 px-3 py-1.5 rounded-lg text-xs focus:outline-none ${
-                    order.orderStatus === "Ready"
-                      ? "text-green-400"
-                      : order.orderStatus === "Paid"
-                      ? "text-blue-300"
-                      : "text-yellow-400"
-                  }`}
-                  value={order.orderStatus}
-                  onChange={(e) =>
-                    handleStatusChange({
-                      orderId: order._id,
-                      orderStatus: e.target.value,
-                    })
-                  }
-                >
-                  <option value="In Progress">In Progress</option>
-                  <option value="Ready">Ready</option>
-                  {/* {userData.role === "Admin" && (
-                    <>
-                      <option value="Delete">Delete</option>
-                      <option disabled hidden value="Paid">
-                        Paid
-                      </option>
-                    </>
-                  )} */}
-                  <option value="Delete">Delete</option>
-                  <option disabled hidden value="Paid">
-                    Paid
-                  </option>
-                </select>
-              </div>
+          .map((order) => {
+            const hasExistingItems = order.items.some(
+              (item) => (item.isExisting ?? true) === true
+            );
 
-              {/* Content */}
-              <div className="space-y-2 text-sm text-[#f5f5f5]">
-                <p>
-                  <span className="font-semibold">Customer:</span>{" "}
-                  {order.customerDetails.name}
-                </p>
-                <p>
-                  <span className="font-semibold">Date:</span>{" "}
-                  {formatDateAndTime(order.orderDate)}
-                </p>
-                <p>
-                  <span className="font-semibold">Table:</span>{" "}
-                  {order.table ? `Table ${order.table.tableNo}` : "Take Out"}
-                </p>
-                <p>
-                  <span className="font-semibold">Payment:</span>{" "}
-                  {order.paymentMethod}
-                </p>
-                {/* <p className="font-bold text-red-500">
-                  <span className="font-semibold">Note:</span>{" "}
-                  {order.note || "None"}
-                </p> */}
+            return (
+              <div
+                key={order._id}
+                className="bg-[#2d2d2d] rounded-xl shadow-md p-5 hover:bg-[#333] transition-colors flex flex-col justify-between"
+              >
+                {/* Header */}
+                <div className="flex items-center justify-between mb-3">
+                  <p className="font-mono text-sm text-gray-300">
+                    #{Math.floor(new Date(order.orderDate).getTime())}
+                  </p>
 
-                <div>
-                  <span className="font-semibold">Items:</span>
-                  <ul className="ml-5 text-gray-300 list-disc">
-                    {order.items.map((item) => {
-                      // 🧠 Treat missing isExisting as true (for backward compatibility)
-                      const isExisting = item.isExisting ?? true;
+                  <select
+                    disabled={
+                      order.orderStatus === "Paid" && userData.role === "Chef"
+                    }
+                    className={`bg-[#1a1a1a] border border-gray-600 px-3 py-1.5 rounded-lg text-xs focus:outline-none ${
+                      order.orderStatus === "Ready"
+                        ? "text-green-400"
+                        : order.orderStatus === "Paid"
+                        ? "text-blue-300"
+                        : "text-yellow-400"
+                    }`}
+                    value={order.orderStatus}
+                    onChange={(e) =>
+                      handleStatusChange({
+                        orderId: order._id,
+                        orderStatus: e.target.value,
+                      })
+                    }
+                  >
+                    <option value="In Progress">In Progress</option>
+                    <option value="Ready">Ready</option>
+                    <option value="Delete">Delete</option>
+                    <option disabled hidden value="Paid">
+                      Paid
+                    </option>
+                  </select>
+                </div>
 
-                      return (
-                        <li key={item.id} className="flex flex-col">
-                          <div className="flex items-center gap-1">
-                            <span>
-                              {item.name} x{item.quantity}
-                            </span>
+                {/* Order Details */}
+                <div className="space-y-2 text-sm text-[#f5f5f5]">
+                  <p>
+                    <span className="font-semibold">Customer:</span>{" "}
+                    {order.customerDetails.name}
+                  </p>
+                  <p>
+                    <span className="font-semibold">Date:</span>{" "}
+                    {formatDateAndTime(order.orderDate)}
+                  </p>
+                  <p>
+                    <span className="font-semibold">Table:</span>{" "}
+                    {order.table ? `Table ${order.table.tableNo}` : "Take Out"}
+                  </p>
+                  <p>
+                    <span className="font-semibold">Payment:</span>{" "}
+                    {order.paymentMethod}
+                  </p>
 
-                            {/* ✅ Show "NEW" only if order is NOT ready and item.isExisting is false */}
-                            {order.orderStatus !== "Ready" ||
-                              (order.orderStatus !== "Paid" && !isExisting && (
+                  {/* Items */}
+                  <div>
+                    <span className="font-semibold">Items:</span>
+                    <ul className="ml-5 text-gray-300 list-disc">
+                      {order.items.map((item) => {
+                        const isExisting = item.isExisting ?? true;
+                        const showNewTag =
+                          order.orderStatus === "In Progress" &&
+                          hasExistingItems &&
+                          !isExisting;
+
+                        return (
+                          <li key={item.id} className="flex flex-col">
+                            <div className="flex items-center gap-1">
+                              <span>
+                                {item.name} x{item.quantity}
+                              </span>
+                              {showNewTag && (
                                 <span className="text-red-500 text-[11px] font-semibold uppercase">
                                   NEW
                                 </span>
-                              ))}
-                          </div>
+                              )}
+                            </div>
+                            {item.note && (
+                              <span className="pl-2 text-xs text-gray-400">
+                                Note: {item.note}
+                              </span>
+                            )}
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                </div>
 
-                          {/* ✅ Optional: show note only if available */}
-                          {item.note && (
-                            <span className="pl-2 text-xs text-gray-400">
-                              Note: {item.note}
-                            </span>
-                          )}
-                        </li>
-                      );
-                    })}
-                  </ul>
+                {/* Footer */}
+                <div className="flex items-center justify-between mt-4">
+                  <p className="text-lg font-bold text-[#f5f5f5]">
+                    ₱{order.bills.totalWithTax}
+                  </p>
+                  <button
+                    disabled={order.orderStatus === "Paid"}
+                    onClick={() => handlePrintReceipt(order)}
+                    className={`px-4 py-1.5 text-xs rounded-lg text-white ${
+                      order.orderStatus !== "Paid"
+                        ? "bg-primary hover:bg-accent"
+                        : "bg-slate-400 cursor-not-allowed"
+                    }`}
+                  >
+                    Kitchen Ticket
+                  </button>
                 </div>
               </div>
-
-              {/* Footer */}
-              <div className="flex items-center justify-between mt-4">
-                <p className="text-lg font-bold text-[#f5f5f5]">
-                  ₱{order.bills.totalWithTax}
-                </p>
-                <button
-                  disabled={order.orderStatus === "Paid"}
-                  onClick={() => handlePrintReceipt(order)}
-                  className={`px-4 py-1.5 text-xs rounded-lg ${
-                    order.orderStatus !== "Paid"
-                      ? "bg-primary hover:bg-accent"
-                      : "bg-slate-400"
-                  } text-white`}
-                >
-                  Kitchen Ticket
-                </button>
-              </div>
-            </div>
-          ))}
+            );
+          })}
       </div>
 
-      {/* Kitchen Ticket */}
+      {/* Kitchen Ticket Modal */}
       {showKitchenTicket && orderData && (
         <KitchenTicket
           orderInfo={orderData}
