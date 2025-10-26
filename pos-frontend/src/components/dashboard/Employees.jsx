@@ -6,7 +6,7 @@
  */
 
 import React, { useEffect, useState } from "react";
-import { getUsers, updateUser, deleteUser } from "../../https"; // adjust path if needed
+import { getUsers, updateUser, deleteUser, register } from "../../https"; // adjust path if needed
 import { enqueueSnackbar } from "notistack";
 
 // Icon
@@ -20,13 +20,21 @@ const Metrics = () => {
   const [loading, setLoading] = useState(true);
   const [isSaveLoading, setIsSaveLoading] = useState(false);
 
+  const [isRegisterOpen, setIsRegisterOpen] = useState(false);
+  const [registerData, setRegisterData] = useState({
+    name: "",
+    username: "",
+    phone: "",
+    password: "",
+    role: "Chef", // Initial default role
+  });
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
 
   const [newPassword, setNewPassword] = useState("");
 
-  const [search, setSearch] = useState(""); // ✅ search state
+  const [search, setSearch] = useState("");
 
   // Open Edit Modal
   const handleEdit = (user) => {
@@ -46,18 +54,18 @@ const Metrics = () => {
       // build payload
       const payload = { ...selectedUser };
       if (newPassword.trim()) {
-        payload.password = newPassword; // ✅ only include if user typed something
+        payload.password = newPassword; // only include if user typed something
       }
       console.log(payload);
 
-      const res = await updateUser(selectedUser._id, payload); // ✅ call API
+      const res = await updateUser(selectedUser._id, payload); // call API
       if (res.data.success) {
         enqueueSnackbar("User updated successfully", { variant: "success" });
         setUsers((prev) =>
           prev.map((u) => (u._id === selectedUser._id ? res.data.data : u))
         );
         setIsEditOpen(false);
-        setNewPassword(""); // ✅ clear after save
+        setNewPassword(""); // clear after save
       } else {
         enqueueSnackbar("Failed to update user", { variant: "error" });
       }
@@ -75,11 +83,11 @@ const Metrics = () => {
       if (res.data.success) {
         enqueueSnackbar("User deleted successfully", { variant: "success" });
 
-        // ✅ remove deleted user from state
+        // remove deleted user from state
         setUsers((prev) => prev.filter((u) => u._id !== selectedUser._id));
 
         setIsDeleteOpen(false);
-        setSelectedUser(null); // ✅ clear selected user
+        setSelectedUser(null); // clear selected user
       } else {
         enqueueSnackbar("Failed to delete user", { variant: "error" });
       }
@@ -124,7 +132,7 @@ const Metrics = () => {
     );
   }
 
-  // ✅ Filter users based on search input
+  // Filter users based on search input
   const filteredUsers = users.filter(
     (u) =>
       u.name?.toLowerCase().includes(search.toLowerCase()) ||
@@ -142,14 +150,25 @@ const Metrics = () => {
             Manage all employees, their roles, and account information.
           </p>
         </div>
-        {/* ✅ Search Bar */}
-        <input
-          type="text"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search by name, or role..."
-          className="px-4 py-2 text-sm rounded-lg bg-[#2d2d2d] text-[#f5f5f5] border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
+
+        <div className="flex items-center gap-3">
+          {/* Search Bar */}
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search by name, or role..."
+            className="px-4 py-2 text-sm rounded-lg bg-[#070606] text-[#f5f5f5] border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+
+          {/* Add Button */}
+          <button
+            onClick={() => setIsRegisterOpen(true)}
+            className="px-4 py-2 text-sm font-medium text-black transition rounded-lg bg-primary hover:bg-accent"
+          >
+            + Create Account
+          </button>
+        </div>
       </div>
       {/* ==================== DESKTOP TABLE ==================== */}
       <div className="hidden overflow-x-auto border border-gray-700 rounded-lg md:block">
@@ -273,10 +292,13 @@ const Metrics = () => {
             {/* Modal Header */}
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-[#f5f5f5] text-xl font-semibold truncate">
-                Add Dish
+                Edit User: {selectedUser.name}
               </h2>
               <button
-                onClick={() => setIsEditOpen(false)}
+                onClick={() => {
+                  setIsEditOpen(false);
+                  setNewPassword("");
+                }}
                 className="text-[#f5f5f5] hover:text-red-500 flex-shrink-0"
               >
                 <IoMdClose size={24} />
@@ -288,7 +310,7 @@ const Metrics = () => {
               className="mt-6 space-y-4"
               onSubmit={(e) => {
                 e.preventDefault();
-                handleUpdateUser(); // ✅ call update function
+                handleUpdateUser(); // call update function
               }}
             >
               <div>
@@ -319,12 +341,12 @@ const Metrics = () => {
                 <div className="flex items-center rounded-lg p-3 px-4 bg-[#1f1f1f]">
                   <input
                     type="number"
-                    name="email"
+                    name="phone"
                     value={selectedUser?.phone || ""}
                     onChange={(e) =>
                       setSelectedUser({
                         ...selectedUser,
-                        email: e.target.value,
+                        phone: e.target.value,
                       })
                     }
                     className="flex-1 text-white bg-transparent focus:outline-none"
@@ -421,6 +443,177 @@ const Metrics = () => {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* ==================== REGISTER MODAL ==================== */}
+      {isRegisterOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="bg-[#262626] p-6 rounded-lg shadow-lg w-[90%] max-w-md"
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-[#f5f5f5] text-xl font-semibold">
+                Create Account
+              </h2>
+              <button
+                onClick={() => setIsRegisterOpen(false)}
+                className="text-[#f5f5f5] hover:text-red-500"
+              >
+                <IoMdClose size={24} />
+              </button>
+            </div>
+
+            {/* Form */}
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                try {
+                  setIsSaveLoading(true);
+                  const res = await register(registerData);
+                  if (res.data.success) {
+                    enqueueSnackbar(
+                      res.data.message || "User created successfully",
+                      {
+                        variant: "success",
+                      }
+                    );
+                    setUsers((prev) => [...prev, res.data.data]);
+                    setRegisterData({
+                      name: "",
+                      username: "",
+                      phone: "",
+                      password: "",
+                      role: "Employee", // ✅ FIXED: Reset the role to the desired default
+                    });
+                    setIsRegisterOpen(false);
+                  } else {
+                    enqueueSnackbar(
+                      res.data.message || "Failed to create user",
+                      {
+                        variant: "error",
+                      }
+                    );
+                  }
+                } catch (error) {
+                  console.error(error);
+                  enqueueSnackbar(error.response?.data?.message, {
+                    variant: "error",
+                  });
+                } finally {
+                  setIsSaveLoading(false);
+                }
+              }}
+              className="space-y-4"
+            >
+              {/* Name */}
+              <div>
+                <label className="block text-[#ababab] mb-2 text-sm font-medium">
+                  Name
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  value={registerData.name}
+                  onChange={(e) =>
+                    setRegisterData({ ...registerData, name: e.target.value })
+                  }
+                  className="w-full p-3 rounded-lg bg-[#1f1f1f] text-white focus:outline-none"
+                  required
+                />
+              </div>
+
+              {/* Username */}
+              <div>
+                <label className="block text-[#ababab] mb-2 text-sm font-medium">
+                  Username
+                </label>
+                <input
+                  type="text"
+                  name="username"
+                  value={registerData.username}
+                  onChange={(e) =>
+                    setRegisterData({
+                      ...registerData,
+                      username: e.target.value,
+                    })
+                  }
+                  className="w-full p-3 rounded-lg bg-[#1f1f1f] text-white focus:outline-none"
+                  required
+                />
+              </div>
+
+              {/* Phone */}
+              <div>
+                <label className="block text-[#ababab] mb-2 text-sm font-medium">
+                  Phone
+                </label>
+                <input
+                  type="number"
+                  name="phone"
+                  value={registerData.phone}
+                  onChange={(e) =>
+                    setRegisterData({ ...registerData, phone: e.target.value })
+                  }
+                  className="w-full p-3 rounded-lg bg-[#1f1f1f] text-white focus:outline-none"
+                  required
+                />
+              </div>
+
+              {/* Password */}
+              <div>
+                <label className="block text-[#ababab] mb-2 text-sm font-medium">
+                  Password
+                </label>
+                <input
+                  type="password"
+                  name="password"
+                  value={registerData.password}
+                  onChange={(e) =>
+                    setRegisterData({
+                      ...registerData,
+                      password: e.target.value,
+                    })
+                  }
+                  className="w-full p-3 rounded-lg bg-[#1f1f1f] text-white focus:outline-none"
+                  required
+                />
+              </div>
+
+              {/* Role */}
+              <div>
+                <label className="block text-[#ababab] mb-2 text-sm font-medium">
+                  Role
+                </label>
+                <select
+                  value={registerData.role}
+                  onChange={(e) =>
+                    setRegisterData({ ...registerData, role: e.target.value })
+                  }
+                  className="w-full p-3 rounded-lg bg-[#1f1f1f] text-white focus:outline-none"
+                >
+                  <option selected value="Chef">
+                    Chef
+                  </option>
+                  <option value="Waiter">Waiter</option>
+                  <option value="Cashier">Cashier</option>
+                  <option value="Admin">Admin</option>
+                </select>
+              </div>
+
+              <button
+                type="submit"
+                className="w-full py-3 mt-6 text-lg font-bold text-gray-900 rounded-lg bg-primary"
+              >
+                {isSaveLoading ? "Creating..." : "Create Account"}
+              </button>
+            </form>
+          </motion.div>
         </div>
       )}
     </div>

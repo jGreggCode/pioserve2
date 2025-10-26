@@ -182,7 +182,9 @@ const RecentOrders = () => {
                   >
                     <option value="In Progress">In Progress</option>
                     <option value="Ready">Ready</option>
-                    <option value="Delete">Delete</option>
+                    {userData.role === "Admin" && (
+                      <option value="Delete">Delete</option>
+                    )}
                     <option disabled hidden value="Paid">
                       Paid
                     </option>

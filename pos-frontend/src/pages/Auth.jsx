@@ -80,24 +80,11 @@ const Auth = () => {
             Pioserve
           </h1>
         </div>
-        <h2 className="mt-10 mb-10 text-4xl font-semibold text-center text-primary">
-          {isRegister ? "Create Account" : "Sign In"}
-        </h2>
+
+        {/* <button onClick={() => setIsRegister(true)}>Register</button> */}
 
         {/* COMPONENTS */}
         {isRegister ? <Register setIsRegister={setIsRegister} /> : <Login />}
-
-        <div className="flex justify-center mt-6">
-          <p className="text-sm text-[#ababab] ">
-            {isRegister ? "Already have an account?" : "Don't have an account?"}{" "}
-            <a
-              onClick={() => setIsRegister(!isRegister)}
-              className="font-semibold cursor-pointer text-primary hover:underline"
-            >
-              {isRegister ? "Sign In" : "Create Account"}
-            </a>
-          </p>
-        </div>
       </div>
     </div>
   );
