@@ -340,15 +340,33 @@ const Metrics = () => {
                 </label>
                 <div className="flex items-center rounded-lg p-3 px-4 bg-[#1f1f1f]">
                   <input
-                    type="number"
+                    type="text"
                     name="phone"
                     value={selectedUser?.phone || ""}
-                    onChange={(e) =>
-                      setSelectedUser({
-                        ...selectedUser,
-                        phone: e.target.value,
-                      })
-                    }
+                    onChange={(e) => {
+                      const digitsOnly = e.target.value.replace(/\D/g, ""); // remove non-numeric
+                      if (digitsOnly.length <= 11) {
+                        setSelectedUser({
+                          ...selectedUser,
+                          phone: digitsOnly,
+                        });
+                      }
+                    }}
+                    inputMode="numeric" // show numeric keypad on mobile
+                    pattern="[0-9]*" // HTML5 validation: digits only
+                    maxLength={11}
+                    onKeyDown={(e) => {
+                      if (
+                        !/[0-9]/.test(e.key) &&
+                        e.key !== "Backspace" &&
+                        e.key !== "Delete" &&
+                        e.key !== "ArrowLeft" &&
+                        e.key !== "ArrowRight" &&
+                        e.key !== "Tab"
+                      ) {
+                        e.preventDefault();
+                      }
+                    }}
                     className="flex-1 text-white bg-transparent focus:outline-none"
                     required
                   />
@@ -554,14 +572,19 @@ const Metrics = () => {
                   Phone
                 </label>
                 <input
-                  type="number"
+                  type="text"
                   name="phone"
                   value={registerData.phone}
-                  onChange={(e) =>
-                    setRegisterData({ ...registerData, phone: e.target.value })
-                  }
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/\D/g, ""); // remove non-numeric chars
+                    if (value.length <= 11) {
+                      setRegisterData({ ...registerData, phone: value });
+                    }
+                  }}
                   className="w-full p-3 rounded-lg bg-[#1f1f1f] text-white focus:outline-none"
                   required
+                  inputMode="numeric"
+                  maxLength={11}
                 />
               </div>
 

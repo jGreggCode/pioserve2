@@ -206,9 +206,10 @@ const RecentOrders = () => {
                     {order.table ? `Table ${order.table.tableNo}` : "Take Out"}
                   </p>
                   <p>
-                    <span className="font-semibold">Payment:</span>{" "}
-                    {order.paymentMethod}
+                    <span className="font-semibold">Server:</span>{" "}
+                    {order.employee.name}
                   </p>
+                  {console.log(order)}
 
                   {/* Items */}
                   <div>
